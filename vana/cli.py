@@ -20,7 +20,7 @@
 import sys
 import shtab
 import argparse
-import opendata
+import vana
 from typing import List, Optional
 from .commands import (
     GetWalletHistoryCommand,
@@ -36,7 +36,7 @@ from .commands import (
 )
 
 # Create a console instance for CLI display.
-console = opendata.__console__
+console = vana.__console__
 
 ALIAS_TO_COMMAND = {
     "root": "root",
@@ -128,19 +128,19 @@ class cli:
 
     def __init__(
             self,
-            config: Optional["opendata.config"] = None,
+            config: Optional["vana.config"] = None,
             args: Optional[List[str]] = None,
     ):
         """
         Initializes a CLI object.
 
         Args:
-            config (opendata.config, optional): The configuration settings for the CLI.
+            config (vana.config, optional): The configuration settings for the CLI.
             args (List[str], optional): List of command line arguments.
         """
         # Turns on console for cli.
         # TODO: this is not working, so it has been turned on by default in __init__.py
-        opendata.turn_console_on()
+        vana.turn_console_on()
 
         # If no config is provided, create a new one from args.
         if config is None:
@@ -161,7 +161,7 @@ class cli:
         # If no_version_checking is not set or set as False in the config, version checking is done.
         if not self.config.get("no_version_checking", d=True):
             try:
-                opendata.utils.version_checking()
+                vana.utils.version_checking()
             except:
                 # If version checking fails, inform user with an exception.
                 raise RuntimeError(
@@ -178,7 +178,7 @@ class cli:
         """
         # Define the basic argument parser.
         parser = CLIErrorParser(
-            description=f"vana cli v{opendata.__version__}",
+            description=f"vana cli v{vana.__version__}",
             usage="vanacli <command> <command args>",
             add_help=True,
         )
@@ -210,7 +210,7 @@ class cli:
         return parser
 
     @staticmethod
-    def create_config(args: List[str]) -> "opendata.config":
+    def create_config(args: List[str]) -> "vana.config":
         """
         From the argument parser, add config to executor and local config
 
@@ -227,10 +227,10 @@ class cli:
             parser.print_help()
             sys.exit()
 
-        return opendata.Config(parser, args=args)
+        return vana.Config(parser, args=args)
 
     @staticmethod
-    def check_config(config: "opendata.Config"):
+    def check_config(config: "vana.Config"):
         """
         Checks if the essential configuration exists under different command
 

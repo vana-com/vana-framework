@@ -18,8 +18,8 @@
 import json
 from dataclasses import dataclass, asdict
 
-import opendata
-from opendata.utils import networking
+import vana
+from vana.utils import networking
 
 
 @dataclass
@@ -74,7 +74,7 @@ class NodeServerInfo:
         try:
             return json.dumps(asdict(self))
         except (TypeError, ValueError) as e:
-            opendata.logging.error(f"Error converting NodeServerInfo to string: {e}")
+            vana.logging.error(f"Error converting NodeServerInfo to string: {e}")
             return NodeServerInfo(0, "", 0, 0, "", "").to_string()
 
     @classmethod
@@ -84,9 +84,9 @@ class NodeServerInfo:
             data = json.loads(s)
             return cls(**data)
         except json.JSONDecodeError as e:
-            opendata.logging.error(f"Error decoding JSON: {e}")
+            vana.logging.error(f"Error decoding JSON: {e}")
         except TypeError as e:
-            opendata.logging.error(f"Type error: {e}")
+            vana.logging.error(f"Type error: {e}")
         except ValueError as e:
-            opendata.logging.error(f"Value error: {e}")
+            vana.logging.error(f"Value error: {e}")
         return NodeServerInfo(0, "", 0, 0, "", "")

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "vana-framework"
+name = "vana"
 version = "0.1.0"
 description = ""
 authors = ["Tim Nunamaker <tim@vana.com>", "Volodymyr Isai <volod@vana.com>", "Kahtaf Alam <kahtaf@vana.com>"]
@@ -33,4 +33,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-vanacli = "opendata.cli:main"
+vanacli = "vana.cli:main"

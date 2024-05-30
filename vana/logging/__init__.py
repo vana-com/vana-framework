@@ -15,12 +15,21 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-BASE_LOG_FORMAT = "%(asctime)s | %(levelname)s | %(message)s"
-TRACE_LOG_FORMAT = (
-    f"%(asctime)s | %(levelname)s | %(name)s:%(filename)s:%(lineno)s | %(message)s"
-)
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-OPENDATA_LOGGER_NAME = "opendata"
-DEFAULT_LOG_FILE_NAME = "opendata.log"
-DEFAULT_MAX_ROTATING_LOG_FILE_SIZE = 25 * 1024 * 1024
-DEFAULT_LOG_BACKUP_COUNT = 10
+"""
+Standardized logging for Vana.
+"""
+
+import logging as _logging
+
+from vana.logging.loggingmachine import LoggingMachine
+
+logging = LoggingMachine(LoggingMachine.config())
+
+# Disable logging for external libraries
+_logging.basicConfig(level=_logging.INFO)
+_logging.getLogger('httpcore').setLevel(_logging.WARNING)
+_logging.getLogger('httpcore').propagate = False
+_logging.getLogger("web3").setLevel(_logging.WARNING)
+_logging.getLogger("web3").propagate = False
+_logging.getLogger("urllib3").setLevel(_logging.WARNING)
+_logging.getLogger("urllib3").propagate = False

@@ -31,8 +31,8 @@ from web3 import Web3
 from web3.contract.contract import ContractFunction
 from web3.exceptions import TransactionNotFound
 
-import opendata
-from opendata.utils.misc import get_block_explorer_url
+import vana
+from vana.utils.misc import get_block_explorer_url
 
 logger = native_logging.getLogger("opendata")
 
@@ -46,7 +46,7 @@ class ChainManager:
     """
 
     @staticmethod
-    def setup_config(network: str, config: opendata.Config):
+    def setup_config(network: str, config: vana.Config):
         if network is not None:
             (
                 evaluated_network,
@@ -90,7 +90,7 @@ class ChainManager:
                     evaluated_network,
                     evaluated_endpoint,
                 ) = ChainManager.determine_chain_endpoint_and_network(
-                    opendata.defaults.chain.network
+                    vana.defaults.chain.network
                 )
 
         return (
@@ -100,7 +100,7 @@ class ChainManager:
 
     def __init__(
             self,
-            config: Optional[opendata.Config] = None,
+            config: Optional[vana.Config] = None,
     ) -> None:
         """
         Initializes a ChainManager interface for interacting with the Vana blockchain.
@@ -121,7 +121,7 @@ class ChainManager:
                                   password=os.environ.get('REDIS_PASSWORD'), ssl=True, ssl_cert_reqs=None,
                                   decode_responses=True)
         self.db_namespace = os.environ.get('REDIS_PERSONAL_NS', "namespace:")
-        opendata.logging.debug(
+        vana.logging.debug(
             f"Connected to {self.config.chain.network} network and {self.config.chain.chain_endpoint}."
         )
         self.web3 = Web3(Web3.HTTPProvider(self.config.chain.chain_endpoint))
@@ -131,7 +131,7 @@ class ChainManager:
     def config() -> "config":
         parser = argparse.ArgumentParser()
         ChainManager.add_args(parser)
-        return opendata.Config(parser, args=[])
+        return vana.Config(parser, args=[])
 
     @classmethod
     def add_args(cls, parser: argparse.ArgumentParser, prefix: Optional[str] = None):
@@ -140,7 +140,7 @@ class ChainManager:
             default_network = os.getenv("OD_CHAIN_NETWORK") or "vana"
             default_chain_endpoint = (
                     os.getenv("OD_CHAIN_CHAIN_ENDPOINT")
-                    or opendata.__vana_entrypoint__
+                    or vana.__vana_entrypoint__
             )
             parser.add_argument(
                 "--" + prefix_str + "chain.network",
@@ -163,7 +163,7 @@ class ChainManager:
 
     def register(
             self,
-            wallet: "opendata.Wallet",
+            wallet: "vana.Wallet",
             dlpuid: int
     ) -> bool:
         """
@@ -176,7 +176,7 @@ class ChainManager:
     def serve_node_server(
             self,
             dlp_uid: int,
-            node_server: "opendata.NodeServer"
+            node_server: "vana.NodeServer"
     ) -> bool:
         """
         Registers a NodeServer endpoint on the network for a specific Node.
@@ -188,7 +188,7 @@ class ChainManager:
     def remove_node_server(
             self,
             dlp_uid: int,
-            node_server: "opendata.NodeServer"
+            node_server: "vana.NodeServer"
     ) -> bool:
         """
         De-registers a NodeServer endpoint on the network for a specific Node.
@@ -197,16 +197,16 @@ class ChainManager:
         self.db.srem(f"{self.db_namespace}:node_servers", node_server.info().to_string())
         return True
 
-    def get_active_node_servers(self, omit: List[opendata.NodeServerInfo] = []) -> List["opendata.NodeServerInfo"]:
+    def get_active_node_servers(self, omit: List[vana.NodeServerInfo] = []) -> List["vana.NodeServerInfo"]:
         """
         Returns a list of active NodeServers on the network.
         TODO: Temporarily using Redis, but this should be read from a smart contract.
         """
         node_server_info_set = self.db.smembers(f"{self.db_namespace}:node_servers")
-        node_server_infos: List[opendata.NodeServerInfo] = []
+        node_server_infos: List[vana.NodeServerInfo] = []
 
         for node_server_info_str in node_server_info_set:
-            node_server_info = opendata.NodeServerInfo.from_string(node_server_info_str)
+            node_server_info = vana.NodeServerInfo.from_string(node_server_info_str)
             if node_server_info not in omit:
                 node_server_infos.append(node_server_info)
 
@@ -222,7 +222,7 @@ class ChainManager:
         Returns a synced state for a specified DLP within the Vana network. The state
         represents the network's structure, including node connections and interactions.
         """
-        state_ = opendata.State(
+        state_ = vana.State(
             network=self.config.chain.network, dlp_uid=dlp_uid, lite=lite, sync=False
         )
         state_.sync(block=block, lite=lite, chain_manager=self)
@@ -245,18 +245,18 @@ class ChainManager:
             })
 
             signed_tx = self.web3.eth.account.sign_transaction(tx, private_key=account.key)
-            opendata.logging.info(f"Transaction hash: {signed_tx.hash.hex()}")
+            vana.logging.info(f"Transaction hash: {signed_tx.hash.hex()}")
 
             tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
             tx_receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
-            opendata.logging.info(f"Transaction hash: {tx_hash.hex()}")
-            opendata.logging.info(f"Transaction receipt: {tx_receipt}")
+            vana.logging.info(f"Transaction hash: {tx_hash.hex()}")
+            vana.logging.info(f"Transaction receipt: {tx_receipt}")
             url = get_block_explorer_url(self.config.chain.network, tx_hash.hex())
-            opendata.logging.info(f"View transaction on block explorer: {url}")
+            vana.logging.info(f"View transaction on block explorer: {url}")
 
             return tx_hash, tx_receipt
         except Exception as e:
-            opendata.logging.error(f"Failed to call contract function: {e}")
+            vana.logging.error(f"Failed to call contract function: {e}")
 
     def get_current_block(self) -> int:
         """
@@ -304,29 +304,29 @@ class ChainManager:
             return None, None
         if network in ["vana", "base_sepolia", "local", "test", "archive"]:
             if network == "vana":
-                return network, opendata.__vana_entrypoint__
+                return network, vana.__vana_entrypoint__
             if network == "base_sepolia":
-                return network, opendata.__base_sepolia_entrypoint__
+                return network, vana.__base_sepolia_entrypoint__
             elif network == "local":
-                return network, opendata.__local_entrypoint__
+                return network, vana.__local_entrypoint__
             elif network == "archive":
-                return network, opendata.__archive_entrypoint__
+                return network, vana.__archive_entrypoint__
         else:
             if (
-                    network == opendata.__vana_entrypoint__
+                    network == vana.__vana_entrypoint__
                     or "entrypoint-vana.opendata.ai" in network
             ):
-                return "vana", opendata.__vana_entrypoint__
+                return "vana", vana.__vana_entrypoint__
             elif (
-                    network == opendata.__base_sepolia_entrypoint__
+                    network == vana.__base_sepolia_entrypoint__
                     or "entrypoint-base-sepolia.opendata.ai" in network
             ):
-                return "base_sepolia", opendata.__base_sepolia_entrypoint__
+                return "base_sepolia", vana.__base_sepolia_entrypoint__
             elif (
-                    network == opendata.__archive_entrypoint__
+                    network == vana.__archive_entrypoint__
                     or "archive.chain.opendata.ai" in network
             ):
-                return "archive", opendata.__archive_entrypoint__
+                return "archive", vana.__archive_entrypoint__
             elif "127.0.0.1" in network or "localhost" in network:
                 return "local", network
             else:
@@ -351,23 +351,23 @@ class ChainManager:
         This function is important for monitoring account holdings and managing financial transactions
         within the Vana ecosystem. It helps in assessing the economic status and capacity of network participants.
         """
-        opendata.logging.info(f"Fetching balance for address {address}")
+        vana.logging.info(f"Fetching balance for address {address}")
         try:
             @retry(delay=2, tries=3, backoff=2, max_delay=4, logger=logger)
             def make_web3_call_with_retry():
-                opendata.logging.info(f"Fetching balance for address {address}")
+                vana.logging.info(f"Fetching balance for address {address}")
                 return self.web3.eth.get_balance(address, block_identifier=block)
 
             result = make_web3_call_with_retry()
         except Exception as e:
-            opendata.logging.error(f"Error fetching balance for address {address}: {e}")
+            vana.logging.error(f"Error fetching balance for address {address}: {e}")
             return 0
 
         return Web3.from_wei(result, "ether")
 
     def transfer(
             self,
-            wallet: "opendata.Wallet",
+            wallet: "vana.Wallet",
             dest: str,
             amount: Union[Balance, float],
             wait_for_inclusion: bool = True,
@@ -380,7 +380,7 @@ class ChainManager:
         between nodes.
 
         Args:
-            wallet (opendata.Wallet): The wallet from which funds are being transferred.
+            wallet (vana.Wallet): The wallet from which funds are being transferred.
             dest (str): The destination public key address.
             amount (Union[Balance, float]): The amount to be transferred.
             wait_for_inclusion (bool, optional): Waits for the transaction to be included in a block.

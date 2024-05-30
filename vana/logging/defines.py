@@ -15,35 +15,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-from munch import Munch, munchify
-
-defaults: Munch = munchify(
-    {
-        "chain": {"network": "vana", "chain_endpoint": None, "_mock": False},
-        "priority": {"max_workers": 5, "maxsize": 10},
-        "wallet": {
-            "name": "default",
-            "hotkey": "default",
-            "path": "~/.opendata/wallets/",
-        },
-        "logging": {
-            "debug": False,
-            "trace": False,
-            "record_log": False,
-            "logging_dir": "~/.opendata/miners",
-        },
-    }
+BASE_LOG_FORMAT = "%(asctime)s | %(levelname)s | %(message)s"
+TRACE_LOG_FORMAT = (
+    f"%(asctime)s | %(levelname)s | %(name)s:%(filename)s:%(lineno)s | %(message)s"
 )
-
-from .wallets import (
-    NewColdkeyCommand,
-    NewHotkeyCommand,
-    RegenColdkeyCommand,
-    RegenColdkeypubCommand,
-    RegenHotkeyCommand,
-    UpdateWalletCommand,
-    WalletCreateCommand,
-    WalletBalanceCommand,
-    GetWalletHistoryCommand,
-)
-from .transfer import TransferCommand
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+OPENDATA_LOGGER_NAME = "vana"
+DEFAULT_LOG_FILE_NAME = "vana.log"
+DEFAULT_MAX_ROTATING_LOG_FILE_SIZE = 25 * 1024 * 1024
+DEFAULT_LOG_BACKUP_COUNT = 10
