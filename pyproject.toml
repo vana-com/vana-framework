@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Tim Nunamaker <tim@vana.com>", "Volodymyr Isai <volod@vana.com>", "Kahtaf Alam <kahtaf@vana.com>"]
 readme = "README.md"
+repository = "https://github.com/vana-com/vana-framework"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"
