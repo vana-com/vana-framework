@@ -24,12 +24,12 @@ To get started with Vana, follow these steps:
 
 1. Clone the repository:
 ```shell
-   git clone https://github.com/vana-com/vana-network.git
+git clone https://github.com/vana-com/vana-network.git
 ```
 
 2. Install the required dependencies using poetry:
 ```shell
-   poetry install
+poetry install
 ```
 3. Configure the environment variables by copying and modifying the `.env.example` file:
 
@@ -46,7 +46,7 @@ Coldkeys store funds securely, and operate functions such as transfers and staki
 
 
 ```bash
-$ poetry run python -m opendata.cli --no_version_checking wallet --help
+vanacli --help
 
 usage: vanacli <command> <command args> wallet [-h] {balance,create,new_hotkey,new_coldkey,regen_coldkey,regen_coldkeypub,regen_hotkey,update,history} ...
 
