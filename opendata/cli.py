@@ -285,7 +285,6 @@ class cli:
             sys.exit()
 
 
-# TODO: Refactor this to bin/vanacli
 def main():
     # Create the parser with shtab support
     parser = cli.__create_parser__()
