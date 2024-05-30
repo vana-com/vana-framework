@@ -23,8 +23,8 @@ from typing import Optional, Union, List, AsyncGenerator, Any
 import aiohttp
 from eth_account.messages import encode_defunct
 
-import opendata
-from opendata.utils.networking import get_external_ip
+import vana
+from vana.utils.networking import get_external_ip
 
 
 class NodeClient:
@@ -33,11 +33,11 @@ class NodeClient:
     """
 
     def __init__(
-            self, wallet: Optional[opendata.Wallet] = None
+            self, wallet: Optional[vana.Wallet] = None
     ):
         self.uuid = str(uuid.uuid1())
         self.external_ip = get_external_ip()
-        self.keypair = (wallet.hotkey if isinstance(wallet, opendata.Wallet) else wallet) or opendata.Wallet().hotkey
+        self.keypair = (wallet.hotkey if isinstance(wallet, vana.Wallet) else wallet) or vana.Wallet().hotkey
         self.message_history: list = []
         self._session: Optional[aiohttp.ClientSession] = None
 
@@ -120,7 +120,7 @@ class NodeClient:
         """
         Logs information about outgoing requests for debugging purposes.
         """
-        opendata.logging.trace(
+        vana.logging.trace(
             f"node_client | --> | {message.get_total_size()} B | {message.name} | {message.node_server.hotkey} | {message.node_server.ip}:{str(message.node_server.port)} | 0 | Success"
         )
 
@@ -128,11 +128,11 @@ class NodeClient:
         """
         Logs information about incoming responses for debugging and monitoring.
         """
-        opendata.logging.trace(
+        vana.logging.trace(
             f"node_client | <-- | {message.get_total_size()} B | {message.name} | {message.node_server.hotkey} | {message.node_server.ip}:{str(message.node_server.port)} | {message.node_client.status_code} | {message.node_client.status_message}"
         )
 
-    def query(self, *args, **kwargs) -> List[Union[AsyncGenerator[Any, Any], opendata.Message]]:
+    def query(self, *args, **kwargs) -> List[Union[AsyncGenerator[Any, Any], vana.Message]]:
         """
         Makes a synchronous request to multiple target NodeServers and returns the responses.
 
@@ -163,15 +163,15 @@ class NodeClient:
     async def forward(
             self,
             node_servers: Union[
-                List[Union[opendata.NodeServerInfo, opendata.NodeServer]],
-                Union[opendata.NodeServerInfo, opendata.NodeServer],
+                List[Union[vana.NodeServerInfo, vana.NodeServer]],
+                Union[vana.NodeServerInfo, vana.NodeServer],
             ],
-            message: opendata.Message = opendata.Message(),
+            message: vana.Message = vana.Message(),
             timeout: float = 60,
             deserialize: bool = True,
             run_async: bool = True,
     ) -> List[
-        Union[AsyncGenerator[Any, Any], opendata.Message]
+        Union[AsyncGenerator[Any, Any], vana.Message]
     ]:
         """
         Asynchronously sends requests to one or multiple NodeServers and collates their responses.
@@ -182,12 +182,12 @@ class NodeClient:
             is_list = False
             node_servers = [node_servers]
 
-        async def query_all_node_servers() -> Union[AsyncGenerator[Any, Any], opendata.Message]:
+        async def query_all_node_servers() -> Union[AsyncGenerator[Any, Any], vana.Message]:
             """
             Handles the processing of requests to all targeted node_servers
             """
 
-            async def single_node_server_response(target_node_server) -> Union[AsyncGenerator[Any, Any], opendata.Message]:
+            async def single_node_server_response(target_node_server) -> Union[AsyncGenerator[Any, Any], vana.Message]:
                 """
                 Manages the request and response process for a single node_server
                 """
@@ -212,11 +212,11 @@ class NodeClient:
 
     async def call(
             self,
-            target_node_server: Union[opendata.NodeServerInfo, opendata.NodeServer],
-            message: opendata.Message = opendata.Message(),
+            target_node_server: Union[vana.NodeServerInfo, vana.NodeServer],
+            message: vana.Message = vana.Message(),
             timeout: float = 12.0,
             deserialize: bool = True,
-    ) -> opendata.Message:
+    ) -> vana.Message:
         """
         Asynchronously sends a request to a specified NodeServer and processes the response.
         """
@@ -225,7 +225,7 @@ class NodeClient:
         start_time = time.time()
         target_node_server = (
             target_node_server.info()
-            if isinstance(target_node_server, opendata.NodeServer)
+            if isinstance(target_node_server, vana.NodeServer)
             else target_node_server
         )
 
@@ -263,7 +263,7 @@ class NodeClient:
 
             # Log message event history
             self.message_history.append(
-                opendata.Message.from_headers(message.to_headers())
+                vana.Message.from_headers(message.to_headers())
             )
 
             # Return the updated message object after deserializing if requested
@@ -274,10 +274,10 @@ class NodeClient:
 
     def preprocess_message_for_request(
             self,
-            target_node_server_info: opendata.NodeServerInfo,
-            message: opendata.Message,
+            target_node_server_info: vana.NodeServerInfo,
+            message: vana.Message,
             timeout: float = 12.0,
-    ) -> opendata.Message:
+    ) -> vana.Message:
         """
         Preprocesses the message for making a request. This includes building
         headers for NodeClient and NodeServer and signing the request.
@@ -295,16 +295,16 @@ class NodeClient:
         message.timeout = timeout
 
         # Build the NodeClient headers using the local system's details
-        message.node_client = opendata.TerminalInfo(
+        message.node_client = vana.TerminalInfo(
             ip=self.external_ip,
-            version=opendata.__version_as_int__,
+            version=vana.__version_as_int__,
             nonce=time.monotonic_ns(),
             uuid=self.uuid,
             hotkey=self.keypair.address,
         )
 
         # Build the NodeServer headers using the target NodeServer's details
-        message.node_server = opendata.TerminalInfo(
+        message.node_server = vana.TerminalInfo(
             ip=target_node_server_info.ip,
             port=target_node_server_info.port,
             hotkey=target_node_server_info.hotkey,
@@ -321,7 +321,7 @@ class NodeClient:
             self,
             server_response: aiohttp.ClientResponse,
             json_response: dict,
-            local_message: opendata.Message,
+            local_message: vana.Message,
     ):
         """
         Processes the server response, updates the local message state with the
@@ -351,7 +351,7 @@ class NodeClient:
                     pass
 
         # Extract server headers and overwrite None values in local message headers
-        server_headers = opendata.Message.from_headers(server_response.headers)
+        server_headers = vana.Message.from_headers(server_response.headers)
 
         # Merge node_client headers
         local_message.node_client.__dict__.update(

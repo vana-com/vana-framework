@@ -26,9 +26,9 @@ from typing import Callable, Optional, Dict, List
 import uvicorn
 from fastapi import FastAPI, APIRouter, Depends, Request
 
-import opendata
-from opendata.utils.fast_api_threaded_server import FastAPIThreadedServer
-from opendata.utils.networking import get_external_ip
+import vana
+from vana.utils.fast_api_threaded_server import FastAPIThreadedServer
+from vana.utils.networking import get_external_ip
 
 
 class NodeServer:
@@ -68,8 +68,8 @@ class NodeServer:
     """
 
     def __init__(self,
-                 wallet: Optional["opendata.Wallet"] = None,
-                 config: Optional["opendata.Config"] = None,
+                 wallet: Optional["vana.Wallet"] = None,
+                 config: Optional["vana.Config"] = None,
                  port: Optional[int] = None,
                  ip: Optional[str] = None,
                  external_ip: Optional[str] = None,
@@ -118,7 +118,7 @@ class NodeServer:
         self.app.include_router(self.router)
 
         # Attach default forward.
-        def ping(r: opendata.Message) -> opendata.Message:
+        def ping(r: vana.Message) -> vana.Message:
             return r
 
         self.attach(
@@ -127,10 +127,10 @@ class NodeServer:
 
         self.attach_cli_input()
 
-    def info(self) -> "opendata.NodeServerInfo":
+    def info(self) -> "vana.NodeServerInfo":
         """Returns the NodeServerInfo object associated with this NodeServer."""
-        return opendata.NodeServerInfo(
-            version=opendata.__version_as_int__,
+        return vana.NodeServerInfo(
+            version=vana.__version_as_int__,
             ip=self.external_ip,
             ip_type=4,
             port=self.external_port,
@@ -156,7 +156,7 @@ class NodeServer:
 
         # Assert that the first argument of 'forward_fn' is a subclass of 'Message'
         assert issubclass(
-            request_class, opendata.Message
+            request_class, vana.Message
         ), "The argument of forward_fn must inherit from Message"
 
         # Obtain the class name of the first argument of 'forward_fn'
@@ -206,13 +206,13 @@ class NodeServer:
         self.app.include_router(self.router)
 
     @classmethod
-    def config(cls) -> opendata.Config:
+    def config(cls) -> vana.Config:
         """
         Parses the command-line arguments to form a configuration object.
         """
         parser = argparse.ArgumentParser()
         NodeServer.add_args(parser)
-        return opendata.Config(parser, args=[])
+        return vana.Config(parser, args=[])
 
     @classmethod
     def add_args(cls, parser: argparse.ArgumentParser, prefix: Optional[str] = None):
@@ -293,7 +293,7 @@ class NodeServer:
         return body_dict
 
     @classmethod
-    def check_config(cls, config: "opendata.config"):
+    def check_config(cls, config: "vana.config"):
         """
         This method checks the configuration for the NodeServer's port and wallet.
         """
@@ -316,7 +316,7 @@ class NodeServer:
         self.started = False
         return self
 
-    def serve(self, dlp_uid: int, chain_manager: Optional["opendata.ChainManager"] = None) -> "NodeServer":
+    def serve(self, dlp_uid: int, chain_manager: Optional["vana.ChainManager"] = None) -> "NodeServer":
         """
         Registers the NodeServer with a specific DLP within the Vana network, identified by the ``dlp_uid``.
         """
@@ -324,7 +324,7 @@ class NodeServer:
             chain_manager.serve_node_server(dlp_uid=dlp_uid, node_server=self)
         return self
 
-    def unserve(self, dlp_uid: int, chain_manager: Optional["opendata.ChainManager"] = None) -> "NodeServer":
+    def unserve(self, dlp_uid: int, chain_manager: Optional["vana.ChainManager"] = None) -> "NodeServer":
         """
         De-registers the NodeServer with a specific DLP within the Vana network, identified by the ``dlp_uid``.
         """

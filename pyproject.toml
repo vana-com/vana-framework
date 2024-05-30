@@ -33,4 +33,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-vanacli = "opendata.cli:main"
+vanacli = "vana.cli:main"

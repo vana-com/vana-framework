@@ -18,7 +18,7 @@ import weakref
 from concurrent.futures import _base
 from typing import Callable
 
-from opendata.config import Config
+from vana.config import Config
 
 # Workers are created as daemon threads. This is done to allow the interpreter
 # to exit when there are still idle threads in a ThreadPoolExecutor's thread

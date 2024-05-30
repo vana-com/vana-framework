@@ -15,12 +15,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-import opendata
-
-
-def get_block_explorer_url(network: str, tx_hash: str):
-    url_template = opendata.block_explorer_tx_templates.get(network)
-    if url_template:
-        return url_template.format(tx_hash)
-    else:
-        return f"No block explorer URL found for {network}, configure it in opendata/__init__.py"
+BASE_LOG_FORMAT = "%(asctime)s | %(levelname)s | %(message)s"
+TRACE_LOG_FORMAT = (
+    f"%(asctime)s | %(levelname)s | %(name)s:%(filename)s:%(lineno)s | %(message)s"
+)
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+OPENDATA_LOGGER_NAME = "vana"
+DEFAULT_LOG_FILE_NAME = "vana.log"
+DEFAULT_MAX_ROTATING_LOG_FILE_SIZE = 25 * 1024 * 1024
+DEFAULT_LOG_BACKUP_COUNT = 10

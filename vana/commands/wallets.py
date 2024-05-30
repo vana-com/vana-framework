@@ -24,7 +24,7 @@ import requests
 from rich.prompt import Prompt, Confirm
 from rich.table import Table
 
-import opendata
+import vana
 from . import defaults
 
 
@@ -55,9 +55,9 @@ class RegenColdkeyCommand:
         It should be used with caution to avoid overwriting existing keys unintentionally.
     """
 
-    def run(cli: "opendata.cli"):
+    def run(cli: "vana.cli"):
         r"""Creates a new coldkey under this wallet."""
-        wallet = opendata.Wallet(config=cli.config)
+        wallet = vana.Wallet(config=cli.config)
 
         json_str: Optional[str] = None
         json_password: Optional[str] = None
@@ -78,7 +78,7 @@ class RegenColdkeyCommand:
         )
 
     @staticmethod
-    def check_config(config: "opendata.Config"):
+    def check_config(config: "vana.Config"):
         if not config.is_set("wallet.name") and not config.no_prompt:
             wallet_name = Prompt.ask("Enter wallet name", default=defaults.wallet.name)
             config.wallet.name = str(wallet_name)
@@ -148,8 +148,8 @@ class RegenColdkeyCommand:
             action="store_true",
             help="""Overwrite the old coldkey with the newly generated coldkey""",
         )
-        opendata.Wallet.add_args(regen_coldkey_parser)
-        # opendata.ChainManager.add_args(regen_coldkey_parser)
+        vana.Wallet.add_args(regen_coldkey_parser)
+        # vana.ChainManager.add_args(regen_coldkey_parser)
 
 
 class RegenColdkeypubCommand:
@@ -175,9 +175,9 @@ class RegenColdkeypubCommand:
         It is a recovery-focused utility that ensures continued access to wallet functionalities.
     """
 
-    def run(cli: "opendata.cli"):
+    def run(cli: "vana.cli"):
         r"""Creates a new coldkeypub under this wallet."""
-        wallet = opendata.Wallet(config=cli.config)
+        wallet = vana.Wallet(config=cli.config)
         wallet.regenerate_coldkeypub(
             h160_address=cli.config.get("h160_address"),
             public_key=cli.config.get("public_key_hex"),
@@ -185,7 +185,7 @@ class RegenColdkeypubCommand:
         )
 
     @staticmethod
-    def check_config(config: "opendata.Config"):
+    def check_config(config: "vana.Config"):
         if not config.is_set("wallet.name") and not config.no_prompt:
             wallet_name = Prompt.ask("Enter wallet name", default=defaults.wallet.name)
             config.wallet.name = str(wallet_name)
@@ -197,7 +197,7 @@ class RegenColdkeypubCommand:
                 config.public_key_hex = prompt_answer
             else:
                 config.h160_address = prompt_answer
-        if not opendata.utils.is_valid_opendata_address_or_public_key(
+        if not vana.utils.is_valid_opendata_address_or_public_key(
                 address=(
                         config.h160_address if config.h160_address else config.public_key_hex
                 )
@@ -235,8 +235,8 @@ class RegenColdkeypubCommand:
             action="store_true",
             help="""Overwrite the old coldkeypub file with the newly generated coldkeypub""",
         )
-        opendata.Wallet.add_args(regen_coldkeypub_parser)
-        opendata.ChainManager.add_args(regen_coldkeypub_parser)
+        vana.Wallet.add_args(regen_coldkeypub_parser)
+        vana.ChainManager.add_args(regen_coldkeypub_parser)
 
 
 class RegenHotkeyCommand:
@@ -267,9 +267,9 @@ class RegenHotkeyCommand:
         It should be used cautiously to avoid accidental overwrites of existing keys.
     """
 
-    def run(cli: "opendata.cli"):
+    def run(cli: "vana.cli"):
         r"""Creates a new coldkey under this wallet."""
-        wallet = opendata.Wallet(config=cli.config)
+        wallet = vana.Wallet(config=cli.config)
 
         json_str: Optional[str] = None
         json_password: Optional[str] = None
@@ -292,7 +292,7 @@ class RegenHotkeyCommand:
         )
 
     @staticmethod
-    def check_config(config: "opendata.Config"):
+    def check_config(config: "vana.Config"):
         if not config.is_set("wallet.name") and not config.no_prompt:
             wallet_name = Prompt.ask("Enter wallet name", default=defaults.wallet.name)
             config.wallet.name = str(wallet_name)
@@ -367,7 +367,7 @@ class RegenHotkeyCommand:
             default=False,
             help="""Overwrite the old hotkey with the newly generated hotkey""",
         )
-        opendata.Wallet.add_args(regen_hotkey_parser)
+        vana.Wallet.add_args(regen_hotkey_parser)
 
 
 class NewHotkeyCommand:
@@ -394,9 +394,9 @@ class NewHotkeyCommand:
         such as running multiple miners or separating operational roles within the network.
     """
 
-    def run(cli: "opendata.cli"):
+    def run(cli: "vana.cli"):
         """Creates a new hotkey under this wallet."""
-        wallet = opendata.Wallet(config=cli.config)
+        wallet = vana.Wallet(config=cli.config)
         wallet.create_new_hotkey(
             n_words=cli.config.n_words,
             use_password=cli.config.use_password,
@@ -404,7 +404,7 @@ class NewHotkeyCommand:
         )
 
     @staticmethod
-    def check_config(config: "opendata.Config"):
+    def check_config(config: "vana.Config"):
         if not config.is_set("wallet.name") and not config.no_prompt:
             wallet_name = Prompt.ask("Enter wallet name", default=defaults.wallet.name)
             config.wallet.name = str(wallet_name)
@@ -445,7 +445,7 @@ class NewHotkeyCommand:
             default=False,
             help="""Overwrite the old hotkey with the newly generated hotkey""",
         )
-        opendata.Wallet.add_args(new_hotkey_parser)
+        vana.Wallet.add_args(new_hotkey_parser)
 
 
 class NewColdkeyCommand:
@@ -472,9 +472,9 @@ class NewColdkeyCommand:
         It's a foundational step in establishing a secure presence on the Vana network.
     """
 
-    def run(cli: "opendata.cli"):
+    def run(cli: "vana.cli"):
         r"""Creates a new coldkey under this wallet."""
-        wallet = opendata.Wallet(config=cli.config)
+        wallet = vana.Wallet(config=cli.config)
         wallet.create_new_coldkey(
             n_words=cli.config.n_words,
             use_password=cli.config.use_password,
@@ -482,7 +482,7 @@ class NewColdkeyCommand:
         )
 
     @staticmethod
-    def check_config(config: "opendata.Config"):
+    def check_config(config: "vana.Config"):
         if not config.is_set("wallet.name") and not config.no_prompt:
             wallet_name = Prompt.ask("Enter wallet name", default=defaults.wallet.name)
             config.wallet.name = str(wallet_name)
@@ -519,7 +519,7 @@ class NewColdkeyCommand:
             default=False,
             help="""Overwrite the old coldkey with the newly generated coldkey""",
         )
-        opendata.Wallet.add_args(new_coldkey_parser)
+        vana.Wallet.add_args(new_coldkey_parser)
 
 
 class WalletCreateCommand:
@@ -547,9 +547,9 @@ class WalletCreateCommand:
         It ensures a fresh start with new keys for secure and effective participation in the network.
     """
 
-    def run(cli: "opendata.cli"):
+    def run(cli: "vana.cli"):
         r"""Creates a new coldkey and hotkey under this wallet."""
-        wallet = opendata.Wallet(config=cli.config)
+        wallet = vana.Wallet(config=cli.config)
         wallet.create_new_coldkey(
             n_words=cli.config.n_words,
             use_password=cli.config.use_password,
@@ -562,7 +562,7 @@ class WalletCreateCommand:
         )
 
     @staticmethod
-    def check_config(config: "opendata.Config"):
+    def check_config(config: "vana.Config"):
         if not config.is_set("wallet.name") and not config.no_prompt:
             wallet_name = Prompt.ask("Enter wallet name", default=defaults.wallet.name)
             config.wallet.name = str(wallet_name)
@@ -608,14 +608,14 @@ class WalletCreateCommand:
             default=False,
             help="""Overwrite the old hotkey with the newly generated hotkey""",
         )
-        opendata.Wallet.add_args(new_coldkey_parser)
+        vana.Wallet.add_args(new_coldkey_parser)
 
 
-def _get_coldkey_wallets_for_path(path: str) -> List["opendata.Wallet"]:
+def _get_coldkey_wallets_for_path(path: str) -> List["vana.Wallet"]:
     """Get all coldkey wallet names from path."""
     try:
         wallet_names = next(os.walk(os.path.expanduser(path)))[1]
-        return [opendata.Wallet(path=path, name=name) for name in wallet_names]
+        return [vana.Wallet(path=path, name=name) for name in wallet_names]
     except StopIteration:
         # No wallet files found.
         wallets = []
@@ -646,13 +646,13 @@ class UpdateWalletCommand:
     """
 
     @staticmethod
-    def run(cli: "opendata.cli"):
+    def run(cli: "vana.cli"):
         """Check if any of the wallets needs an update."""
         config = cli.config.copy()
         if config.get("all", d=False) == True:
             wallets = _get_coldkey_wallets_for_path(config.wallet.path)
         else:
-            wallets = [opendata.Wallet(config=config)]
+            wallets = [vana.Wallet(config=config)]
 
         for wallet in wallets:
             print("\n===== ", wallet, " =====")
@@ -665,10 +665,10 @@ class UpdateWalletCommand:
             help="""Updates the wallet security using NaCL instead of ansible vault.""",
         )
         update_wallet_parser.add_argument("--all", action="store_true")
-        opendata.Wallet.add_args(update_wallet_parser)
+        vana.Wallet.add_args(update_wallet_parser)
 
     @staticmethod
-    def check_config(config: "opendata.Config"):
+    def check_config(config: "vana.Config"):
         if config.get("all", d=False) == False:
             if not config.no_prompt:
                 if Confirm.ask("Do you want to update all legacy wallets?"):
@@ -677,11 +677,11 @@ class UpdateWalletCommand:
         # Ask the user to specify the wallet if the wallet name is not clear.
         if (
                 config.get("all", d=False) == False
-                and config.wallet.get("name") == opendata.defaults.wallet.name
+                and config.wallet.get("name") == vana.defaults.wallet.name
                 and not config.no_prompt
         ):
             wallet_name = Prompt.ask(
-                "Enter wallet name", default=opendata.defaults.wallet.name
+                "Enter wallet name", default=vana.defaults.wallet.name
             )
             config.wallet.name = str(wallet_name)
 
@@ -704,14 +704,14 @@ def _get_coldkey_h160_addresses_for_path(path: str) -> Tuple[List[str], List[str
                 coldkey_files.append(coldkey_path)
                 wallet_names.append(potential_wallet_name)
             else:
-                opendata.logging.warning(
+                vana.logging.warning(
                     f"{coldkey_path} does not exist. Excluding..."
                 )
         return coldkey_files, wallet_names
 
     coldkey_files, wallet_names = list_coldkeypub_files(path)
     addresses = [
-        opendata.keyfile(coldkey_path).keypair.address
+        vana.keyfile(coldkey_path).keypair.address
         for coldkey_path in coldkey_files
     ]
     return addresses, wallet_names
@@ -756,19 +756,19 @@ class WalletBalanceCommand:
     """
 
     @staticmethod
-    def run(cli: "opendata.cli"):
+    def run(cli: "vana.cli"):
         """Check the balance of the wallet."""
         try:
-            subtensor: "opendata.ChainManager" = opendata.ChainManager(config=cli.config)
+            subtensor: "vana.ChainManager" = vana.ChainManager(config=cli.config)
             WalletBalanceCommand._run(cli, subtensor)
         finally:
             if "subtensor" in locals():
                 subtensor.close()
-                opendata.logging.debug("closing subtensor connection")
+                vana.logging.debug("closing subtensor connection")
 
     @staticmethod
-    def _run(cli: "opendata.cli", chain_manager: "opendata.ChainManager"):
-        wallet = opendata.Wallet(config=cli.config)
+    def _run(cli: "vana.cli", chain_manager: "vana.ChainManager"):
+        wallet = vana.Wallet(config=cli.config)
 
         wallet_names = []
         coldkeys = []
@@ -802,7 +802,7 @@ class WalletBalanceCommand:
                 )
             }
         else:
-            coldkey_wallet = opendata.Wallet(config=cli.config)
+            coldkey_wallet = vana.Wallet(config=cli.config)
             if (
                     coldkey_wallet.coldkeypub_file.exists_on_device()
                     and not coldkey_wallet.coldkeypub_file.is_encrypted()
@@ -830,7 +830,7 @@ class WalletBalanceCommand:
                 }
 
             if not coldkey_wallet.coldkeypub_file.exists_on_device():
-                opendata.__console__.print("[bold red]No wallets found.")
+                vana.__console__.print("[bold red]No wallets found.")
                 return
 
         table = Table(show_footer=False)
@@ -882,7 +882,7 @@ class WalletBalanceCommand:
         table.box = None
         table.pad_edge = False
         table.width = None
-        opendata.__console__.print(table)
+        vana.__console__.print(table)
 
     @staticmethod
     def add_args(parser: argparse.ArgumentParser):
@@ -897,11 +897,11 @@ class WalletBalanceCommand:
             default=False,
         )
 
-        opendata.Wallet.add_args(balance_parser)
-        opendata.ChainManager.add_args(balance_parser)
+        vana.Wallet.add_args(balance_parser)
+        vana.ChainManager.add_args(balance_parser)
 
     @staticmethod
-    def check_config(config: "opendata.Config"):
+    def check_config(config: "vana.Config"):
         if (
                 not config.is_set("wallet.path")
                 and not config.no_prompt
@@ -924,14 +924,14 @@ class WalletBalanceCommand:
             network = Prompt.ask(
                 "Enter network",
                 default=defaults.chain.network,
-                choices=opendata.__networks__,
+                choices=vana.__networks__,
             )
             # config.subtensor.network = str(network)
             config.chain.network = str(network)
             (
                 _,
                 config.chain.chain_endpoint,
-            ) = opendata.ChainManager.determine_chain_endpoint_and_network(str(network))
+            ) = vana.ChainManager.determine_chain_endpoint_and_network(str(network))
 
 
 API_URL = "https://satori.vanascan.io/graphiql"
@@ -980,9 +980,9 @@ class GetWalletHistoryCommand:
     """
 
     @staticmethod
-    def run(cli: "opendata.cli"):
+    def run(cli: "vana.cli"):
         r"""Check the transfer history of the provided wallet."""
-        wallet = opendata.Wallet(config=cli.config)
+        wallet = vana.Wallet(config=cli.config)
         wallet_address = wallet.get_coldkeypub().to_checksum_address()
         # Fetch all transfers
         transfers = get_wallet_transfers(wallet_address)
@@ -990,7 +990,7 @@ class GetWalletHistoryCommand:
         # Create output table
         table = create_transfer_history_table(transfers)
 
-        opendata.__console__.print(table)
+        vana.__console__.print(table)
 
     @staticmethod
     def add_args(parser: argparse.ArgumentParser):
@@ -998,11 +998,11 @@ class GetWalletHistoryCommand:
             "history",
             help="""Fetch transfer history associated with the provided wallet""",
         )
-        opendata.Wallet.add_args(history_parser)
-        opendata.ChainManager.add_args(history_parser)
+        vana.Wallet.add_args(history_parser)
+        vana.ChainManager.add_args(history_parser)
 
     @staticmethod
-    def check_config(config: "opendata.Config"):
+    def check_config(config: "vana.Config"):
         if not config.is_set("wallet.name") and not config.no_prompt:
             wallet_name = Prompt.ask("Enter wallet name", default=defaults.wallet.name)
             config.wallet.name = str(wallet_name)
