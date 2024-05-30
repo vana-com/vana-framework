@@ -27,12 +27,8 @@ import uvicorn
 from fastapi import FastAPI, APIRouter, Depends, Request
 
 import opendata
-from opendata.chain_data import NodeServerInfo
-from opendata.config import Config
-from opendata.message import Message
 from opendata.utils.fast_api_threaded_server import FastAPIThreadedServer
 from opendata.utils.networking import get_external_ip
-from opendata.wallet import Wallet
 
 
 class NodeServer:
@@ -72,8 +68,8 @@ class NodeServer:
     """
 
     def __init__(self,
-                 wallet: Optional["Wallet"] = None,
-                 config: Optional["Config"] = None,
+                 wallet: Optional["opendata.Wallet"] = None,
+                 config: Optional["opendata.Config"] = None,
                  port: Optional[int] = None,
                  ip: Optional[str] = None,
                  external_ip: Optional[str] = None,
@@ -122,7 +118,7 @@ class NodeServer:
         self.app.include_router(self.router)
 
         # Attach default forward.
-        def ping(r: Message) -> Message:
+        def ping(r: opendata.Message) -> opendata.Message:
             return r
 
         self.attach(
@@ -131,9 +127,9 @@ class NodeServer:
 
         self.attach_cli_input()
 
-    def info(self) -> "NodeServerInfo":
+    def info(self) -> "opendata.NodeServerInfo":
         """Returns the NodeServerInfo object associated with this NodeServer."""
-        return NodeServerInfo(
+        return opendata.NodeServerInfo(
             version=opendata.__version_as_int__,
             ip=self.external_ip,
             ip_type=4,
@@ -160,7 +156,7 @@ class NodeServer:
 
         # Assert that the first argument of 'forward_fn' is a subclass of 'Message'
         assert issubclass(
-            request_class, Message
+            request_class, opendata.Message
         ), "The argument of forward_fn must inherit from Message"
 
         # Obtain the class name of the first argument of 'forward_fn'
@@ -210,13 +206,13 @@ class NodeServer:
         self.app.include_router(self.router)
 
     @classmethod
-    def config(cls) -> Config:
+    def config(cls) -> opendata.Config:
         """
         Parses the command-line arguments to form a configuration object.
         """
         parser = argparse.ArgumentParser()
         NodeServer.add_args(parser)
-        return Config(parser, args=[])
+        return opendata.Config(parser, args=[])
 
     @classmethod
     def add_args(cls, parser: argparse.ArgumentParser, prefix: Optional[str] = None):
@@ -297,7 +293,7 @@ class NodeServer:
         return body_dict
 
     @classmethod
-    def check_config(cls, config: "config"):
+    def check_config(cls, config: "opendata.config"):
         """
         This method checks the configuration for the NodeServer's port and wallet.
         """

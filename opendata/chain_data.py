@@ -18,7 +18,7 @@
 import json
 from dataclasses import dataclass, asdict
 
-from opendata.logging import logging
+import opendata
 from opendata.utils import networking
 
 
@@ -74,7 +74,7 @@ class NodeServerInfo:
         try:
             return json.dumps(asdict(self))
         except (TypeError, ValueError) as e:
-            logging.error(f"Error converting NodeServerInfo to string: {e}")
+            opendata.logging.error(f"Error converting NodeServerInfo to string: {e}")
             return NodeServerInfo(0, "", 0, 0, "", "").to_string()
 
     @classmethod
@@ -84,9 +84,9 @@ class NodeServerInfo:
             data = json.loads(s)
             return cls(**data)
         except json.JSONDecodeError as e:
-            logging.error(f"Error decoding JSON: {e}")
+            opendata.logging.error(f"Error decoding JSON: {e}")
         except TypeError as e:
-            logging.error(f"Type error: {e}")
+            opendata.logging.error(f"Type error: {e}")
         except ValueError as e:
-            logging.error(f"Value error: {e}")
+            opendata.logging.error(f"Value error: {e}")
         return NodeServerInfo(0, "", 0, 0, "", "")

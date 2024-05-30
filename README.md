@@ -24,7 +24,7 @@ To get started with Vana, follow these steps:
 
 1. Clone the repository:
 ```shell
-git clone https://github.com/vana-com/vana-network.git
+git clone https://github.com/vana-com/vana-framework.git
 ```
 
 2. Install the required dependencies using poetry:

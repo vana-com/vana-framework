@@ -24,7 +24,6 @@ from os.path import join
 from typing import List, Optional, Set, Dict
 
 import opendata
-from opendata.chain_data import NodeServerInfo
 
 
 def get_save_dir(network: str, dlp_uid: int) -> str:
@@ -74,7 +73,7 @@ class State:
     ):
         self.dlp_uid = dlp_uid
         self.network = network
-        self.node_servers: Set[NodeServerInfo] = set()
+        self.node_servers: Set[opendata.NodeServerInfo] = set()
         self._hotkeys: Set[str] = set()
         self.weights: Dict[str, float] = {}
         self.last_update = 0

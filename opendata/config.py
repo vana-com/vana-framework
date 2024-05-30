@@ -97,7 +97,7 @@ class Config(DefaultMunch):
                 "--no_version_checking",
                 action="store_true",
                 help="Set ``true`` to stop cli version checking.",
-                default=False,
+                default=True,
             )
         except:
             # this can fail if --no_version_checking has already been added.

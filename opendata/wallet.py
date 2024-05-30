@@ -27,8 +27,6 @@ from eth_account.signers.local import (
 from eth_keys.datatypes import PublicKey
 
 import opendata
-from opendata.config import Config
-from opendata.keyfile import keyfile
 from opendata.utils.wallet_utils import is_valid_opendata_address_or_public_key
 
 
@@ -54,7 +52,8 @@ class Wallet:
     """
     The wallet class in the handles wallet functionality needed for participating in the Vana network.
 
-    It manages two types of keys: coldkey and hotkey, each serving different purposes in network operations. Each wallet contains a coldkey and a hotkey.
+    It manages two types of keys: coldkey and hotkey, each serving different purposes in network operations.
+    Each wallet contains a coldkey and a hotkey.
 
     The coldkey is the user's primary key for holding stake in their wallet and is the only way that users
     can access DAT. Coldkeys can hold tokens and should be encrypted on your device.
@@ -104,7 +103,7 @@ class Wallet:
     """
 
     @classmethod
-    def config(cls) -> "Config":
+    def config(cls) -> "opendata.Config":
         """
         Get config from the argument parser.
 
@@ -113,7 +112,7 @@ class Wallet:
         """
         parser = argparse.ArgumentParser()
         cls.add_args(parser)
-        return Config(parser, args=[])
+        return opendata.Config(parser, args=[])
 
     @classmethod
     def help(cls):
@@ -173,7 +172,7 @@ class Wallet:
             name: str = None,
             hotkey: str = None,
             path: str = None,
-            config: "Config" = None,
+            config: "opendata.Config" = None,
     ):
         r"""
         Initialize the opendata wallet object containing a hot and coldkey.
@@ -281,7 +280,7 @@ class Wallet:
         return self
 
     @property
-    def hotkey_file(self) -> "keyfile":
+    def hotkey_file(self) -> "opendata.keyfile":
         """
         Property that returns the hotkey file.
 
@@ -290,10 +289,10 @@ class Wallet:
         """
         wallet_path = os.path.expanduser(os.path.join(self.path, self.name))
         hotkey_path = os.path.join(wallet_path, "hotkeys", self.hotkey_str)
-        return keyfile(path=hotkey_path)
+        return opendata.keyfile(path=hotkey_path)
 
     @property
-    def coldkey_file(self) -> "keyfile":
+    def coldkey_file(self) -> "opendata.keyfile":
         """
         Property that returns the coldkey file.
 
@@ -302,10 +301,10 @@ class Wallet:
         """
         wallet_path = os.path.expanduser(os.path.join(self.path, self.name))
         coldkey_path = os.path.join(wallet_path, "coldkey")
-        return keyfile(path=coldkey_path)
+        return opendata.keyfile(path=coldkey_path)
 
     @property
-    def coldkeypub_file(self) -> "keyfile":
+    def coldkeypub_file(self) -> "opendata.keyfile":
         """
         Property that returns the coldkeypub file.
 
@@ -314,14 +313,14 @@ class Wallet:
         """
         wallet_path = os.path.expanduser(os.path.join(self.path, self.name))
         coldkeypub_path = os.path.join(wallet_path, "coldkeypub.txt")
-        return keyfile(path=coldkeypub_path)
+        return opendata.keyfile(path=coldkeypub_path)
 
     def set_hotkey(
             self,
             account: LocalAccount,
             encrypt: bool = False,
             overwrite: bool = False,
-    ) -> "keyfile":
+    ) -> "opendata.keyfile":
         """
         Sets the hotkey for the wallet.
 
@@ -342,7 +341,7 @@ class Wallet:
             account: LocalAccount,
             encrypt: bool = False,
             overwrite: bool = False,
-    ) -> "keyfile":
+    ) -> "opendata.keyfile":
         """
         Sets the coldkeypub for the wallet.
 
@@ -365,7 +364,7 @@ class Wallet:
             account: LocalAccount,
             encrypt: bool = True,
             overwrite: bool = False,
-    ) -> "keyfile":
+    ) -> "opendata.keyfile":
         """
         Sets the coldkey for the wallet.
 

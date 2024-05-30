@@ -19,6 +19,7 @@ from munch import Munch, munchify
 
 defaults: Munch = munchify(
     {
+        "chain": {"network": "vana", "chain_endpoint": None, "_mock": False},
         "priority": {"max_workers": 5, "maxsize": 10},
         "wallet": {
             "name": "default",

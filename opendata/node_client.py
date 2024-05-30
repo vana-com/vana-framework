@@ -24,10 +24,6 @@ import aiohttp
 from eth_account.messages import encode_defunct
 
 import opendata
-from opendata import Wallet, NodeServer
-from opendata.chain_data import NodeServerInfo
-from opendata.logging import logging
-from opendata.message import Message, TerminalInfo
 from opendata.utils.networking import get_external_ip
 
 
@@ -37,11 +33,11 @@ class NodeClient:
     """
 
     def __init__(
-            self, wallet: Optional[Wallet] = None
+            self, wallet: Optional[opendata.Wallet] = None
     ):
         self.uuid = str(uuid.uuid1())
         self.external_ip = get_external_ip()
-        self.keypair = (wallet.hotkey if isinstance(wallet, Wallet) else wallet) or Wallet().hotkey
+        self.keypair = (wallet.hotkey if isinstance(wallet, opendata.Wallet) else wallet) or opendata.Wallet().hotkey
         self.message_history: list = []
         self._session: Optional[aiohttp.ClientSession] = None
 
@@ -124,7 +120,7 @@ class NodeClient:
         """
         Logs information about outgoing requests for debugging purposes.
         """
-        logging.trace(
+        opendata.logging.trace(
             f"node_client | --> | {message.get_total_size()} B | {message.name} | {message.node_server.hotkey} | {message.node_server.ip}:{str(message.node_server.port)} | 0 | Success"
         )
 
@@ -132,11 +128,11 @@ class NodeClient:
         """
         Logs information about incoming responses for debugging and monitoring.
         """
-        logging.trace(
+        opendata.logging.trace(
             f"node_client | <-- | {message.get_total_size()} B | {message.name} | {message.node_server.hotkey} | {message.node_server.ip}:{str(message.node_server.port)} | {message.node_client.status_code} | {message.node_client.status_message}"
         )
 
-    def query(self, *args, **kwargs) -> List[Union[AsyncGenerator[Any, Any], Message]]:
+    def query(self, *args, **kwargs) -> List[Union[AsyncGenerator[Any, Any], opendata.Message]]:
         """
         Makes a synchronous request to multiple target NodeServers and returns the responses.
 
@@ -167,15 +163,15 @@ class NodeClient:
     async def forward(
             self,
             node_servers: Union[
-                List[Union[NodeServerInfo, NodeServer]],
-                Union[NodeServerInfo, NodeServer],
+                List[Union[opendata.NodeServerInfo, opendata.NodeServer]],
+                Union[opendata.NodeServerInfo, opendata.NodeServer],
             ],
-            message: Message = Message(),
+            message: opendata.Message = opendata.Message(),
             timeout: float = 60,
             deserialize: bool = True,
             run_async: bool = True,
     ) -> List[
-        Union[AsyncGenerator[Any, Any], Message]
+        Union[AsyncGenerator[Any, Any], opendata.Message]
     ]:
         """
         Asynchronously sends requests to one or multiple NodeServers and collates their responses.
@@ -186,12 +182,12 @@ class NodeClient:
             is_list = False
             node_servers = [node_servers]
 
-        async def query_all_node_servers() -> Union[AsyncGenerator[Any, Any], Message]:
+        async def query_all_node_servers() -> Union[AsyncGenerator[Any, Any], opendata.Message]:
             """
             Handles the processing of requests to all targeted node_servers
             """
 
-            async def single_node_server_response(target_node_server) -> Union[AsyncGenerator[Any, Any], Message]:
+            async def single_node_server_response(target_node_server) -> Union[AsyncGenerator[Any, Any], opendata.Message]:
                 """
                 Manages the request and response process for a single node_server
                 """
@@ -216,11 +212,11 @@ class NodeClient:
 
     async def call(
             self,
-            target_node_server: Union[NodeServerInfo, NodeServer],
-            message: Message = Message(),
+            target_node_server: Union[opendata.NodeServerInfo, opendata.NodeServer],
+            message: opendata.Message = opendata.Message(),
             timeout: float = 12.0,
             deserialize: bool = True,
-    ) -> Message:
+    ) -> opendata.Message:
         """
         Asynchronously sends a request to a specified NodeServer and processes the response.
         """
@@ -229,7 +225,7 @@ class NodeClient:
         start_time = time.time()
         target_node_server = (
             target_node_server.info()
-            if isinstance(target_node_server, NodeServer)
+            if isinstance(target_node_server, opendata.NodeServer)
             else target_node_server
         )
 
@@ -267,7 +263,7 @@ class NodeClient:
 
             # Log message event history
             self.message_history.append(
-                Message.from_headers(message.to_headers())
+                opendata.Message.from_headers(message.to_headers())
             )
 
             # Return the updated message object after deserializing if requested
@@ -278,10 +274,10 @@ class NodeClient:
 
     def preprocess_message_for_request(
             self,
-            target_node_server_info: NodeServerInfo,
-            message: Message,
+            target_node_server_info: opendata.NodeServerInfo,
+            message: opendata.Message,
             timeout: float = 12.0,
-    ) -> Message:
+    ) -> opendata.Message:
         """
         Preprocesses the message for making a request. This includes building
         headers for NodeClient and NodeServer and signing the request.
@@ -299,7 +295,7 @@ class NodeClient:
         message.timeout = timeout
 
         # Build the NodeClient headers using the local system's details
-        message.node_client = TerminalInfo(
+        message.node_client = opendata.TerminalInfo(
             ip=self.external_ip,
             version=opendata.__version_as_int__,
             nonce=time.monotonic_ns(),
@@ -308,7 +304,7 @@ class NodeClient:
         )
 
         # Build the NodeServer headers using the target NodeServer's details
-        message.node_server = TerminalInfo(
+        message.node_server = opendata.TerminalInfo(
             ip=target_node_server_info.ip,
             port=target_node_server_info.port,
             hotkey=target_node_server_info.hotkey,
@@ -325,7 +321,7 @@ class NodeClient:
             self,
             server_response: aiohttp.ClientResponse,
             json_response: dict,
-            local_message: Message,
+            local_message: opendata.Message,
     ):
         """
         Processes the server response, updates the local message state with the
@@ -355,7 +351,7 @@ class NodeClient:
                     pass
 
         # Extract server headers and overwrite None values in local message headers
-        server_headers = Message.from_headers(server_response.headers)
+        server_headers = opendata.Message.from_headers(server_response.headers)
 
         # Merge node_client headers
         local_message.node_client.__dict__.update(

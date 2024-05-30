@@ -24,7 +24,6 @@ from typing import Optional, List, Any, Dict
 import pydantic
 
 import opendata
-from opendata import utils
 
 
 def get_size(obj, seen=None) -> int:
@@ -692,10 +691,10 @@ class Message(pydantic.BaseModel):
                     self.required_hash_fields is not None
                     and field in self.required_hash_fields
             ):
-                hashes.append(utils.hash(str(value)))
+                hashes.append(opendata.utils.hash(str(value)))
 
         # Hash and return the hashes that have been concatenated
-        return utils.hash("".join(hashes))
+        return opendata.utils.hash("".join(hashes))
 
     @classmethod
     def parse_headers_to_inputs(cls, headers: dict) -> dict:

@@ -32,11 +32,6 @@ from web3.contract.contract import ContractFunction
 from web3.exceptions import TransactionNotFound
 
 import opendata
-from opendata.chain_data import NodeServerInfo
-from opendata.config import Config
-from opendata.logging import logging
-from opendata.node_server import NodeServer
-from opendata.state import State
 from opendata.utils.misc import get_block_explorer_url
 
 logger = native_logging.getLogger("opendata")
@@ -105,7 +100,7 @@ class ChainManager:
 
     def __init__(
             self,
-            config: Optional[Config] = None,
+            config: Optional[opendata.Config] = None,
     ) -> None:
         """
         Initializes a ChainManager interface for interacting with the Vana blockchain.
@@ -120,9 +115,11 @@ class ChainManager:
             self.config.chain.network, config)
 
         # TODO: Temporarily use Redis to store some onchain data
-        self.db = redis.Redis(host=os.environ.get('REDIS_HOST'), port=int(os.environ.get('REDIS_PORT')),
-                              password=os.environ.get('REDIS_PASSWORD'), ssl=True, ssl_cert_reqs=None,
-                              decode_responses=True)
+        self.db = None
+        if 'REDIS_HOST' in os.environ:
+            self.db = redis.Redis(host=os.environ.get('REDIS_HOST'), port=int(os.environ.get('REDIS_PORT')),
+                                  password=os.environ.get('REDIS_PASSWORD'), ssl=True, ssl_cert_reqs=None,
+                                  decode_responses=True)
         self.db_namespace = os.environ.get('REDIS_PERSONAL_NS', "namespace:")
         opendata.logging.debug(
             f"Connected to {self.config.chain.network} network and {self.config.chain.chain_endpoint}."
@@ -134,7 +131,7 @@ class ChainManager:
     def config() -> "config":
         parser = argparse.ArgumentParser()
         ChainManager.add_args(parser)
-        return Config(parser, args=[])
+        return opendata.Config(parser, args=[])
 
     @classmethod
     def add_args(cls, parser: argparse.ArgumentParser, prefix: Optional[str] = None):
@@ -179,7 +176,7 @@ class ChainManager:
     def serve_node_server(
             self,
             dlp_uid: int,
-            node_server: "NodeServer"
+            node_server: "opendata.NodeServer"
     ) -> bool:
         """
         Registers a NodeServer endpoint on the network for a specific Node.
@@ -191,7 +188,7 @@ class ChainManager:
     def remove_node_server(
             self,
             dlp_uid: int,
-            node_server: "NodeServer"
+            node_server: "opendata.NodeServer"
     ) -> bool:
         """
         De-registers a NodeServer endpoint on the network for a specific Node.
@@ -200,16 +197,16 @@ class ChainManager:
         self.db.srem(f"{self.db_namespace}:node_servers", node_server.info().to_string())
         return True
 
-    def get_active_node_servers(self, omit: List[NodeServerInfo] = []) -> List["NodeServerInfo"]:
+    def get_active_node_servers(self, omit: List[opendata.NodeServerInfo] = []) -> List["opendata.NodeServerInfo"]:
         """
         Returns a list of active NodeServers on the network.
         TODO: Temporarily using Redis, but this should be read from a smart contract.
         """
         node_server_info_set = self.db.smembers(f"{self.db_namespace}:node_servers")
-        node_server_infos: List[NodeServerInfo] = []
+        node_server_infos: List[opendata.NodeServerInfo] = []
 
         for node_server_info_str in node_server_info_set:
-            node_server_info = NodeServerInfo.from_string(node_server_info_str)
+            node_server_info = opendata.NodeServerInfo.from_string(node_server_info_str)
             if node_server_info not in omit:
                 node_server_infos.append(node_server_info)
 
@@ -225,7 +222,7 @@ class ChainManager:
         Returns a synced state for a specified DLP within the Vana network. The state
         represents the network's structure, including node connections and interactions.
         """
-        state_ = State(
+        state_ = opendata.State(
             network=self.config.chain.network, dlp_uid=dlp_uid, lite=lite, sync=False
         )
         state_.sync(block=block, lite=lite, chain_manager=self)
@@ -248,18 +245,18 @@ class ChainManager:
             })
 
             signed_tx = self.web3.eth.account.sign_transaction(tx, private_key=account.key)
-            logging.info(f"Transaction hash: {signed_tx.hash.hex()}")
+            opendata.logging.info(f"Transaction hash: {signed_tx.hash.hex()}")
 
             tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
             tx_receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
-            logging.info(f"Transaction hash: {tx_hash.hex()}")
-            logging.info(f"Transaction receipt: {tx_receipt}")
+            opendata.logging.info(f"Transaction hash: {tx_hash.hex()}")
+            opendata.logging.info(f"Transaction receipt: {tx_receipt}")
             url = get_block_explorer_url(self.config.chain.network, tx_hash.hex())
-            logging.info(f"View transaction on block explorer: {url}")
+            opendata.logging.info(f"View transaction on block explorer: {url}")
 
             return tx_hash, tx_receipt
         except Exception as e:
-            logging.error(f"Failed to call contract function: {e}")
+            opendata.logging.error(f"Failed to call contract function: {e}")
 
     def get_current_block(self) -> int:
         """
@@ -278,7 +275,8 @@ class ChainManager:
         """
         Cleans up resources for this ChainManager instance like active websocket connection and active extensions
         """
-        self.db.close()
+        if self.db:
+            self.db.close()
 
     def get_total_stake_for_coldkey(
             self, h160_address: str, block: Optional[int] = None

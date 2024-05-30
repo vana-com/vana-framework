@@ -30,13 +30,12 @@ from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from eth_account import Account
+from eth_account.signers.local import LocalAccount
 from eth_keys.datatypes import PublicKey
 from nacl import pwhash, secret
 from password_strength import PasswordPolicy
 from rich.prompt import Confirm
-from eth_account import Account
-from eth_account.signers.local import LocalAccount
-from eth_keys import KeyAPI
 
 import opendata
 from opendata.errors import KeyFileError
