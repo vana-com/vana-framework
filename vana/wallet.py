@@ -137,7 +137,7 @@ class Wallet:
         try:
             default_name = os.getenv("OD_WALLET_NAME") or "default"
             default_hotkey = os.getenv("OD_WALLET_NAME") or "default"
-            default_path = os.getenv("OD_WALLET_PATH") or "~/.opendata/wallets/"
+            default_path = os.getenv("OD_WALLET_PATH") or "~/.vana/wallets/"
             parser.add_argument(
                 "--no_prompt",
                 dest="no_prompt",
@@ -149,7 +149,7 @@ class Wallet:
                 "--" + prefix_str + "wallet.name",
                 required=False,
                 default=default_name,
-                help="The name of the wallet to unlock for running opendata "
+                help="The name of the wallet to unlock for running vana "
                      "(name mock is reserved for mocking this wallet)",
             )
             parser.add_argument(
@@ -162,7 +162,7 @@ class Wallet:
                 "--" + prefix_str + "wallet.path",
                 required=False,
                 default=default_path,
-                help="The path to your opendata wallets",
+                help="The path to your vana wallets",
             )
         except argparse.ArgumentError as e:
             pass
@@ -175,12 +175,12 @@ class Wallet:
             config: "vana.Config" = None,
     ):
         r"""
-        Initialize the opendata wallet object containing a hot and coldkey.
+        Initialize the vana wallet object containing a hot and coldkey.
 
         Args:
             name (str, optional): The name of the wallet to unlock for running vana. Defaults to ``default``.
             hotkey (str, optional): The name of hotkey used to running the miner. Defaults to ``default``.
-            path (str, optional): The path to your opendata wallets. Defaults to ``~/.opendata/wallets/``.
+            path (str, optional): The path to your vana wallets. Defaults to ``~/.vana/wallets/``.
             config (Config, optional): Wallet.config(). Defaults to ``None``.
         """
         # Fill config from passed args using command line defaults.

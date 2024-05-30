@@ -24,13 +24,13 @@ defaults: Munch = munchify(
         "wallet": {
             "name": "default",
             "hotkey": "default",
-            "path": "~/.opendata/wallets/",
+            "path": "~/.vana/wallets/",
         },
         "logging": {
             "debug": False,
             "trace": False,
             "record_log": False,
-            "logging_dir": "~/.opendata/miners",
+            "logging_dir": "~/.vana/miners",
         },
     }
 )

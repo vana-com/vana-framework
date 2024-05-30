@@ -31,7 +31,7 @@ def get_save_dir(network: str, dlp_uid: int) -> str:
     Return directory path of the state file from ``network`` and ``dlp_uid``.
     """
     return os.path.expanduser(
-        f"~/.opendata/state/network-{str(network)}/dlpuid-{str(dlp_uid)}/"
+        f"~/.vana/state/network-{str(network)}/dlpuid-{str(dlp_uid)}/"
     )
 
 

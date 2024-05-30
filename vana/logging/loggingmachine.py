@@ -357,7 +357,7 @@ class LoggingMachine(StateMachine):
             default_logging_trace = os.getenv("OD_LOGGING_TRACE") or False
             default_logging_record_log = os.getenv("OD_LOGGING_RECORD_LOG") or False
             default_logging_logging_dir = (
-                    os.getenv("OD_LOGGING_LOGGING_DIR") or "~/.opendata/miners"
+                    os.getenv("OD_LOGGING_LOGGING_DIR") or "~/.vana/miners"
             )
             parser.add_argument(
                 "--" + prefix_str + "logging.debug",
