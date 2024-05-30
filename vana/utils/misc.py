@@ -15,21 +15,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-"""
-Standardized logging for Vana.
-"""
+import vana
 
-import logging as _logging
 
-from opendata.logging.loggingmachine import LoggingMachine
-
-logging = LoggingMachine(LoggingMachine.config())
-
-# Disable logging for external libraries
-_logging.basicConfig(level=_logging.INFO)
-_logging.getLogger('httpcore').setLevel(_logging.WARNING)
-_logging.getLogger('httpcore').propagate = False
-_logging.getLogger("web3").setLevel(_logging.WARNING)
-_logging.getLogger("web3").propagate = False
-_logging.getLogger("urllib3").setLevel(_logging.WARNING)
-_logging.getLogger("urllib3").propagate = False
+def get_block_explorer_url(network: str, tx_hash: str):
+    url_template = vana.block_explorer_tx_templates.get(network)
+    if url_template:
+        return url_template.format(tx_hash)
+    else:
+        return f"No block explorer URL found for {network}, configure it in vana/__init__.py"

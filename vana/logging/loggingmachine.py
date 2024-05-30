@@ -27,8 +27,8 @@ from typing import NamedTuple
 
 from statemachine import StateMachine, State
 
-import opendata
-from opendata.logging.defines import (
+import vana
+from vana.logging.defines import (
     TRACE_LOG_FORMAT,
     DATE_FORMAT,
     OPENDATA_LOGGER_NAME,
@@ -36,8 +36,8 @@ from opendata.logging.defines import (
     DEFAULT_MAX_ROTATING_LOG_FILE_SIZE,
     DEFAULT_LOG_BACKUP_COUNT,
 )
-from opendata.logging.format import StreamFormatter, FileFormatter
-from opendata.logging.helpers import all_loggers
+from vana.logging.format import StreamFormatter, FileFormatter
+from vana.logging.helpers import all_loggers
 
 
 class LoggingConfig(NamedTuple):
@@ -83,7 +83,7 @@ class LoggingMachine(StateMachine):
             | Disabled.to(Disabled)
     )
 
-    def __init__(self, config: "opendata.Config", name: str = OPENDATA_LOGGER_NAME):
+    def __init__(self, config: "vana.Config", name: str = OPENDATA_LOGGER_NAME):
         # basics
         super(LoggingMachine, self).__init__()
         self._queue = mp.Queue(-1)
@@ -169,7 +169,7 @@ class LoggingMachine(StateMachine):
 
     def _initialize_logger(self, name, config):
         """
-        Initialize logging for opendata.
+        Initialize logging for vana.
 
         Since the initial state is Default, logging level for the module logger
         is INFO, and all third-party loggers are silenced. Subsequent state
@@ -342,7 +342,7 @@ class LoggingMachine(StateMachine):
     def get_level(self):
         return self._logger.level
 
-    def check_config(self, config: "opendata.Config"):
+    def check_config(self, config: "vana.Config"):
         assert config.logging
 
     def help(self):
@@ -357,7 +357,7 @@ class LoggingMachine(StateMachine):
             default_logging_trace = os.getenv("OD_LOGGING_TRACE") or False
             default_logging_record_log = os.getenv("OD_LOGGING_RECORD_LOG") or False
             default_logging_logging_dir = (
-                    os.getenv("OD_LOGGING_LOGGING_DIR") or "~/.opendata/miners"
+                    os.getenv("OD_LOGGING_LOGGING_DIR") or "~/.vana/miners"
             )
             parser.add_argument(
                 "--" + prefix_str + "logging.debug",
@@ -396,11 +396,11 @@ class LoggingMachine(StateMachine):
         """
         parser = argparse.ArgumentParser()
         cls.add_args(parser)
-        return opendata.Config(parser, args=[])
+        return vana.Config(parser, args=[])
 
     def __call__(
             self,
-            config: "opendata.Config" = None,
+            config: "vana.Config" = None,
             debug: bool = None,
             trace: bool = None,
             record_log: bool = None,

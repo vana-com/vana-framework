@@ -63,10 +63,10 @@ options:
   -h, --help            show this help message and exit
 ```
 
-You should be able to view your keys by navigating to `~/.opendata/wallets`
+You should be able to view your keys by navigating to `~/.vana/wallets`
 ```bash
-$ tree ~/.opendata/
-    .opendata/                  # Root directory.
+$ tree ~/.vana/
+    .vana/                  # Root directory.
         wallets/                # The folder containing all opendata wallets.
             default/            # The name of your wallet, "default"
                 coldkey         # You encrypted coldkey.
@@ -74,7 +74,7 @@ $ tree ~/.opendata/
                 hotkeys/        # The folder containing all of your hotkeys.
                     default     # You unencrypted hotkey information.
 ```
-Your default wallet ```Wallet (default, default, ~/.opendata/wallets/)``` is always used unless you specify otherwise. 
+Your default wallet ```Wallet (default, default, ~/.vana/wallets/)``` is always used unless you specify otherwise. 
 Be sure to store your mnemonics safely. 
 If you lose your password to your wallet, or the access to the machine where the wallet is stored, you can always regenerate the coldkey using the mnemonic you saved from above.
 ```bash

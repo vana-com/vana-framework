@@ -23,7 +23,7 @@ from dataclasses import asdict
 from os.path import join
 from typing import List, Optional, Set, Dict
 
-import opendata
+import vana
 
 
 def get_save_dir(network: str, dlp_uid: int) -> str:
@@ -31,7 +31,7 @@ def get_save_dir(network: str, dlp_uid: int) -> str:
     Return directory path of the state file from ``network`` and ``dlp_uid``.
     """
     return os.path.expanduser(
-        f"~/.opendata/state/network-{str(network)}/dlpuid-{str(dlp_uid)}/"
+        f"~/.vana/state/network-{str(network)}/dlpuid-{str(dlp_uid)}/"
     )
 
 
@@ -73,7 +73,7 @@ class State:
     ):
         self.dlp_uid = dlp_uid
         self.network = network
-        self.node_servers: Set[opendata.NodeServerInfo] = set()
+        self.node_servers: Set[vana.NodeServerInfo] = set()
         self._hotkeys: Set[str] = set()
         self.weights: Dict[str, float] = {}
         self.last_update = 0
@@ -88,7 +88,7 @@ class State:
             self,
             block: Optional[int] = None,
             lite: bool = True,
-            chain_manager: Optional["opendata.ChainManager"] = None,
+            chain_manager: Optional["vana.ChainManager"] = None,
     ):
         """
         Synchronizes the state with the network's current state.

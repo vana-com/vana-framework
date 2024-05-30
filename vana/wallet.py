@@ -26,8 +26,8 @@ from eth_account.signers.local import (
 )
 from eth_keys.datatypes import PublicKey
 
-import opendata
-from opendata.utils.wallet_utils import is_valid_opendata_address_or_public_key
+import vana
+from vana.utils.wallet_utils import is_valid_opendata_address_or_public_key
 
 
 def display_mnemonic_msg(mnemonic: str, key_type: str):
@@ -103,7 +103,7 @@ class Wallet:
     """
 
     @classmethod
-    def config(cls) -> "opendata.Config":
+    def config(cls) -> "vana.Config":
         """
         Get config from the argument parser.
 
@@ -112,7 +112,7 @@ class Wallet:
         """
         parser = argparse.ArgumentParser()
         cls.add_args(parser)
-        return opendata.Config(parser, args=[])
+        return vana.Config(parser, args=[])
 
     @classmethod
     def help(cls):
@@ -137,7 +137,7 @@ class Wallet:
         try:
             default_name = os.getenv("OD_WALLET_NAME") or "default"
             default_hotkey = os.getenv("OD_WALLET_NAME") or "default"
-            default_path = os.getenv("OD_WALLET_PATH") or "~/.opendata/wallets/"
+            default_path = os.getenv("OD_WALLET_PATH") or "~/.vana/wallets/"
             parser.add_argument(
                 "--no_prompt",
                 dest="no_prompt",
@@ -149,7 +149,7 @@ class Wallet:
                 "--" + prefix_str + "wallet.name",
                 required=False,
                 default=default_name,
-                help="The name of the wallet to unlock for running opendata "
+                help="The name of the wallet to unlock for running vana "
                      "(name mock is reserved for mocking this wallet)",
             )
             parser.add_argument(
@@ -162,7 +162,7 @@ class Wallet:
                 "--" + prefix_str + "wallet.path",
                 required=False,
                 default=default_path,
-                help="The path to your opendata wallets",
+                help="The path to your vana wallets",
             )
         except argparse.ArgumentError as e:
             pass
@@ -172,15 +172,15 @@ class Wallet:
             name: str = None,
             hotkey: str = None,
             path: str = None,
-            config: "opendata.Config" = None,
+            config: "vana.Config" = None,
     ):
         r"""
-        Initialize the opendata wallet object containing a hot and coldkey.
+        Initialize the vana wallet object containing a hot and coldkey.
 
         Args:
-            name (str, optional): The name of the wallet to unlock for running opendata. Defaults to ``default``.
+            name (str, optional): The name of the wallet to unlock for running vana. Defaults to ``default``.
             hotkey (str, optional): The name of hotkey used to running the miner. Defaults to ``default``.
-            path (str, optional): The path to your opendata wallets. Defaults to ``~/.opendata/wallets/``.
+            path (str, optional): The path to your vana wallets. Defaults to ``~/.vana/wallets/``.
             config (Config, optional): Wallet.config(). Defaults to ``None``.
         """
         # Fill config from passed args using command line defaults.
@@ -188,13 +188,13 @@ class Wallet:
             config = Wallet.config()
         self.config = copy.deepcopy(config)
         self.config.wallet.name = name or self.config.wallet.get(
-            "name", opendata.defaults.wallet.name
+            "name", vana.defaults.wallet.name
         )
         self.config.wallet.hotkey = hotkey or self.config.wallet.get(
-            "hotkey", opendata.defaults.wallet.hotkey
+            "hotkey", vana.defaults.wallet.hotkey
         )
         self.config.wallet.path = path or self.config.wallet.get(
-            "path", opendata.defaults.wallet.path
+            "path", vana.defaults.wallet.path
         )
 
         self.name = self.config.wallet.name
@@ -280,7 +280,7 @@ class Wallet:
         return self
 
     @property
-    def hotkey_file(self) -> "opendata.keyfile":
+    def hotkey_file(self) -> "vana.keyfile":
         """
         Property that returns the hotkey file.
 
@@ -289,10 +289,10 @@ class Wallet:
         """
         wallet_path = os.path.expanduser(os.path.join(self.path, self.name))
         hotkey_path = os.path.join(wallet_path, "hotkeys", self.hotkey_str)
-        return opendata.keyfile(path=hotkey_path)
+        return vana.keyfile(path=hotkey_path)
 
     @property
-    def coldkey_file(self) -> "opendata.keyfile":
+    def coldkey_file(self) -> "vana.keyfile":
         """
         Property that returns the coldkey file.
 
@@ -301,10 +301,10 @@ class Wallet:
         """
         wallet_path = os.path.expanduser(os.path.join(self.path, self.name))
         coldkey_path = os.path.join(wallet_path, "coldkey")
-        return opendata.keyfile(path=coldkey_path)
+        return vana.keyfile(path=coldkey_path)
 
     @property
-    def coldkeypub_file(self) -> "opendata.keyfile":
+    def coldkeypub_file(self) -> "vana.keyfile":
         """
         Property that returns the coldkeypub file.
 
@@ -313,14 +313,14 @@ class Wallet:
         """
         wallet_path = os.path.expanduser(os.path.join(self.path, self.name))
         coldkeypub_path = os.path.join(wallet_path, "coldkeypub.txt")
-        return opendata.keyfile(path=coldkeypub_path)
+        return vana.keyfile(path=coldkeypub_path)
 
     def set_hotkey(
             self,
             account: LocalAccount,
             encrypt: bool = False,
             overwrite: bool = False,
-    ) -> "opendata.keyfile":
+    ) -> "vana.keyfile":
         """
         Sets the hotkey for the wallet.
 
@@ -341,7 +341,7 @@ class Wallet:
             account: LocalAccount,
             encrypt: bool = False,
             overwrite: bool = False,
-    ) -> "opendata.keyfile":
+    ) -> "vana.keyfile":
         """
         Sets the coldkeypub for the wallet.
 
@@ -364,7 +364,7 @@ class Wallet:
             account: LocalAccount,
             encrypt: bool = True,
             overwrite: bool = False,
-    ) -> "opendata.keyfile":
+    ) -> "vana.keyfile":
         """
         Sets the coldkey for the wallet.
 

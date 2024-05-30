@@ -20,10 +20,10 @@ import sys
 
 from rich.prompt import Prompt
 
-import opendata
+import vana
 from . import defaults
 
-console = opendata.__console__
+console = vana.__console__
 
 
 class TransferCommand:
@@ -51,22 +51,22 @@ class TransferCommand:
     """
 
     @staticmethod
-    def run(cli: "opendata.cli"):
+    def run(cli: "vana.cli"):
         r"""Transfer token of amount to destination."""
         try:
-            chain_manager: "opendata.ChainManager" = opendata.ChainManager(
+            chain_manager: "vana.ChainManager" = vana.ChainManager(
                 config=cli.config
             )
             TransferCommand._run(cli, chain_manager)
         finally:
             if "chain_manager" in locals():
                 chain_manager.close()
-                opendata.logging.debug("closing chain_manager connection")
+                vana.logging.debug("closing chain_manager connection")
 
     @staticmethod
-    def _run(cli: "opendata.cli", chain_manager: "opendata.ChainManager"):
+    def _run(cli: "vana.cli", chain_manager: "vana.ChainManager"):
         r"""Transfer token of amount to destination."""
-        wallet = opendata.Wallet(config=cli.config)
+        wallet = vana.Wallet(config=cli.config)
         chain_manager.transfer(
             wallet=wallet,
             dest=cli.config.dest,
@@ -76,7 +76,7 @@ class TransferCommand:
         )
 
     @staticmethod
-    def check_config(config: "opendata.Config"):
+    def check_config(config: "vana.Config"):
         if not config.is_set("wallet.name") and not config.no_prompt:
             wallet_name = Prompt.ask("Enter wallet name", default=defaults.wallet.name)
             config.wallet.name = str(wallet_name)
@@ -84,18 +84,18 @@ class TransferCommand:
         # Get destination.
         if not config.dest and not config.no_prompt:
             dest = Prompt.ask("Enter destination public key: (h160 or secp256k1)")
-            if not opendata.utils.is_valid_opendata_address_or_public_key(dest):
+            if not vana.utils.is_valid_opendata_address_or_public_key(dest):
                 sys.exit()
             else:
                 config.dest = str(dest)
 
         # Get current balance and print to user.
         if not config.no_prompt:
-            wallet = opendata.Wallet(config=config)
-            chain_manager = opendata.ChainManager(config=config)
-            with opendata.__console__.status(":satellite: Checking Balance..."):
+            wallet = vana.Wallet(config=config)
+            chain_manager = vana.ChainManager(config=config)
+            with vana.__console__.status(":satellite: Checking Balance..."):
                 account_balance = chain_manager.get_balance(wallet.coldkeypub.to_checksum_address())
-                opendata.__console__.print(
+                vana.__console__.print(
                     "Balance: [green]{}[/green]".format(account_balance)
                 )
 
@@ -130,5 +130,5 @@ class TransferCommand:
             "--amount", dest="amount", type=float, required=False
         )
 
-        opendata.Wallet.add_args(transfer_parser)
-        opendata.ChainManager.add_args(transfer_parser)
+        vana.Wallet.add_args(transfer_parser)
+        vana.ChainManager.add_args(transfer_parser)

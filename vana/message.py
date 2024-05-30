@@ -23,7 +23,7 @@ from typing import Optional, List, Any, Dict
 
 import pydantic
 
-import opendata
+import vana
 
 
 def get_size(obj, seen=None) -> int:
@@ -454,7 +454,7 @@ class Message(pydantic.BaseModel):
     node_client: Optional[TerminalInfo] = pydantic.Field(
         title="NodeClient",
         description="NodeClient Terminal Information",
-        examples="opendata.TerminalInfo",
+        examples="vana.TerminalInfo",
         default=TerminalInfo(),
         allow_mutation=True,
         repr=False,
@@ -464,7 +464,7 @@ class Message(pydantic.BaseModel):
     node_server: Optional[TerminalInfo] = pydantic.Field(
         title="NodeServer",
         description="NodeServer Terminal Information",
-        examples="opendata.TerminalInfo",
+        examples="vana.TerminalInfo",
         default=TerminalInfo(),
         allow_mutation=True,
         repr=False,
@@ -691,10 +691,10 @@ class Message(pydantic.BaseModel):
                     self.required_hash_fields is not None
                     and field in self.required_hash_fields
             ):
-                hashes.append(opendata.utils.hash(str(value)))
+                hashes.append(vana.utils.hash(str(value)))
 
         # Hash and return the hashes that have been concatenated
-        return opendata.utils.hash("".join(hashes))
+        return vana.utils.hash("".join(hashes))
 
     @classmethod
     def parse_headers_to_inputs(cls, headers: dict) -> dict:
@@ -741,7 +741,7 @@ class Message(pydantic.BaseModel):
                     new_key = key.split("od_header_node_server_")[1]
                     inputs_dict["node_server"][new_key] = value
                 except Exception as e:
-                    opendata.logging.error(
+                    vana.logging.error(
                         f"Error while parsing 'node_server' header {key}: {e}"
                     )
                     continue
@@ -751,7 +751,7 @@ class Message(pydantic.BaseModel):
                     new_key = key.split("od_header_node_client_")[1]
                     inputs_dict["node_client"][new_key] = value
                 except Exception as e:
-                    opendata.logging.error(
+                    vana.logging.error(
                         f"Error while parsing 'node_client' header {key}: {e}"
                     )
                     continue
@@ -767,12 +767,12 @@ class Message(pydantic.BaseModel):
                         base64.b64decode(value.encode()).decode("utf-8")
                     )
                 except json.JSONDecodeError as e:
-                    opendata.logging.error(
+                    vana.logging.error(
                         f"Error while json decoding 'input_obj' header {key}: {e}"
                     )
                     continue
                 except Exception as e:
-                    opendata.logging.error(
+                    vana.logging.error(
                         f"Error while parsing 'input_obj' header {key}: {e}"
                     )
                     continue

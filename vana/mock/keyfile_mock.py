@@ -18,7 +18,7 @@
 from eth_account import Account
 from eth_account.signers.local import LocalAccount
 
-from opendata.keyfile import keyfile, serialized_keypair_to_keyfile_data
+from vana.keyfile import keyfile, serialized_keypair_to_keyfile_data
 
 
 class MockKeyfile(keyfile):

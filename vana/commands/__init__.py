@@ -15,12 +15,35 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-import opendata
+from munch import Munch, munchify
 
+defaults: Munch = munchify(
+    {
+        "chain": {"network": "vana", "chain_endpoint": None, "_mock": False},
+        "priority": {"max_workers": 5, "maxsize": 10},
+        "wallet": {
+            "name": "default",
+            "hotkey": "default",
+            "path": "~/.vana/wallets/",
+        },
+        "logging": {
+            "debug": False,
+            "trace": False,
+            "record_log": False,
+            "logging_dir": "~/.vana/miners",
+        },
+    }
+)
 
-def get_block_explorer_url(network: str, tx_hash: str):
-    url_template = opendata.block_explorer_tx_templates.get(network)
-    if url_template:
-        return url_template.format(tx_hash)
-    else:
-        return f"No block explorer URL found for {network}, configure it in opendata/__init__.py"
+from .wallets import (
+    NewColdkeyCommand,
+    NewHotkeyCommand,
+    RegenColdkeyCommand,
+    RegenColdkeypubCommand,
+    RegenHotkeyCommand,
+    UpdateWalletCommand,
+    WalletCreateCommand,
+    WalletBalanceCommand,
+    GetWalletHistoryCommand,
+)
+from .transfer import TransferCommand
