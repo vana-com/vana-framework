@@ -20,11 +20,11 @@ We are building towards a user-owned foundation model, trained by 100M users who
 
 ## Getting Started
 
-To get started with Vana, follow these steps:
+To get started interacting with Vana:
 
 1. Clone the repository:
 ```shell
-   git clone https://github.com/vana-com/vana-network.git
+   git clone https://github.com/vana-com/vana-framework.git
 ```
 
 2. Install the required dependencies using poetry:
@@ -40,10 +40,9 @@ poetry run python -m chatgpt.nodes.validator
 
 # Wallets
 
-Wallets are the core ownership and identity technology around which all functions on Vana are carried out. 
-Vana wallets consists of a coldkey and hotkey where the coldkey may contain many hotkeys, while each hotkey can only belong to a single coldkey. 
-Coldkeys store funds securely, and operate functions such as transfers and staking, while hotkeys are used for all online operations such as signing queries, running miners and validating.
+Wallets are the foundational ownership and identity mechanism facilitating all Vana functions. A Vana wallet consists of a coldkey and associated hotkeys. A coldkey can contain multiple hotkeys, but each hotkey belongs to only one coldkey.
 
+Coldkeys securely store funds and handle transfers and staking. Hotkeys are used for online operations, including signing queries and running validators.
 
 ```bash
 $ poetry run python -m opendata.cli --no_version_checking wallet --help
@@ -54,13 +53,13 @@ positional arguments:
   {balance,create,new_hotkey,new_coldkey,regen_coldkey,regen_coldkeypub,regen_hotkey,update,history}
                         Commands for managing and viewing wallets.
     balance             Checks the balance of the wallet.
-    create              Creates a new coldkey (for containing balance) under the specified path.
-    new_hotkey          Creates a new hotkey (for running a miner) under the specified path.
-    new_coldkey         Creates a new coldkey (for containing balance) under the specified path.
+    create              Creates a new coldkey (for managing balance) under the specified path
+    new_hotkey          Creates a new hotkey (for running a validator) under the specified path
+    new_coldkey         Creates a new coldkey (for containing balance) under the specified path
     regen_coldkey       Regenerates a coldkey from a passed value
-    regen_coldkeypub    Regenerates a coldkeypub from the public part of the coldkey.
+    regen_coldkeypub    Regenerates a coldkeypub from the public part of the coldkey
     regen_hotkey        Regenerates a hotkey from a passed mnemonic
-    update              Updates the wallet security using NaCL instead of ansible vault.
+    update              Updates the wallet security by replacing ansible vault with NaCl
     history             Fetch transfer history associated with the provided wallet
 
 options:
@@ -78,20 +77,20 @@ $ tree ~/.opendata/
                 hotkeys/        # The folder containing all of your hotkeys.
                     default     # You unencrypted hotkey information.
 ```
-Your default wallet ```Wallet (default, default, ~/.opendata/wallets/)``` is always used unless you specify otherwise. 
-Be sure to store your mnemonics safely. 
-If you lose your password to your wallet, or the access to the machine where the wallet is stored, you can always regenerate the coldkey using the mnemonic you saved from above.
+Your default wallet ```Wallet (default, default, ~/.opendata/wallets/)``` is used unless you specify otherwise. 
+Make sure to store your mnemonic phrase safely. If you lose your password, or access to the machine where the wallet is stored, you can regenerate the coldkey using the mnemonic phrase.
 ```bash
 $ poetry run python -m opendata.cli --no_version_checking wallet regen_coldkey --mnemonic **** *** **** **** ***** **** *** **** **** **** ***** *****
 ```
 
 ## Using the cli
-The Opendata command line interface (`opendata.cli`) is the primary command line tool for interacting with the Vana network.
-It can be used to deploy nodes, manage wallets, stake/unstake, nominate, transfer tokens, and more.
+The Opendata command line interface (`opendata.cli`) is the primary command line tool for interacting with the Vana network. It allows you to deploy nodes, manage wallets, stake/unstake, nominate, transfer tokens, and more. 
+
+This is a first python implementation. We welcome new implementations in other languages.
 
 ### Basic Usage
 
-To get the list of all the available commands and their descriptions, you can use:
+To list all available commands:
 
 ```bash
 poetry run python -m opendata.cli --help
