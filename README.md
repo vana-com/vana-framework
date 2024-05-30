@@ -67,7 +67,7 @@ options:
   -h, --help            show this help message and exit
 ```
 
-You should be able to view your keys by navigating to ~/.opendata/wallets or viewed by running ```vanacli wallet list```
+You should be able to view your keys by navigating to `~/.opendata/wallets`
 ```bash
 $ tree ~/.opendata/
     .opendata/                  # Root directory.
@@ -82,7 +82,7 @@ Your default wallet ```Wallet (default, default, ~/.opendata/wallets/)``` is alw
 Be sure to store your mnemonics safely. 
 If you lose your password to your wallet, or the access to the machine where the wallet is stored, you can always regenerate the coldkey using the mnemonic you saved from above.
 ```bash
-$ poetry run python -m opendata.cli --no_version_checking wallet regen_coldkey --mnemonic **** *** **** **** ***** **** *** **** **** **** ***** *****
+vanacli wallet regen_coldkey --mnemonic **** *** **** **** ***** **** *** **** **** **** ***** *****
 ```
 
 ## Using the cli
@@ -94,7 +94,7 @@ It can be used to deploy nodes, manage wallets, stake/unstake, nominate, transfe
 To get the list of all the available commands and their descriptions, you can use:
 
 ```bash
-poetry run python -m opendata.cli --help
+vanacli --help
 
 usage: vanacli <command> <command args>
 
