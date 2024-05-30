@@ -33,10 +33,6 @@ poetry install
 ```
 3. Configure the environment variables by copying and modifying the `.env.example` file:
 
-4. Run the application:
-```shell
-poetry run python -m chatgpt.nodes.validator
-```
 
 # Wallets
 
@@ -86,7 +82,7 @@ vanacli wallet regen_coldkey --mnemonic **** *** **** **** ***** **** *** **** *
 ```
 
 ## Using the cli
-The Opendata command line interface (`opendata.cli`) is the primary command line tool for interacting with the Vana network.
+The command line interface (`vanacli`) is the primary command line tool for interacting with the Vana network.
 It can be used to deploy nodes, manage wallets, stake/unstake, nominate, transfer tokens, and more.
 
 ### Basic Usage
