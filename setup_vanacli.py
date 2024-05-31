@@ -21,6 +21,9 @@ cd "{project_dir}"
 # Get the full path to the Poetry executable
 POETRY_EXECUTABLE=$(which poetry)
 
+# Install dependencies using Poetry
+"$POETRY_EXECUTABLE" install
+
 # Run the Python script with the provided arguments
 "$POETRY_EXECUTABLE" run python -c "from vana.cli import main; main()" "$@"
 '''
