@@ -711,7 +711,7 @@ def _get_coldkey_h160_addresses_for_path(path: str) -> Tuple[List[str], List[str
 
     coldkey_files, wallet_names = list_coldkeypub_files(path)
     addresses = [
-        vana.keyfile(coldkey_path).keypair.address
+        vana.keyfile(coldkey_path).keypair.to_checksum_address()
         for coldkey_path in coldkey_files
     ]
     return addresses, wallet_names
