@@ -30,6 +30,7 @@ from rich.prompt import Confirm
 from web3 import Web3
 from web3.contract.contract import ContractFunction
 from web3.exceptions import TransactionNotFound
+from web3.middleware import geth_poa_middleware
 
 import vana
 from vana.utils.misc import get_block_explorer_url
@@ -125,6 +126,7 @@ class ChainManager:
             f"Connected to {self.config.chain.network} network and {self.config.chain.chain_endpoint}."
         )
         self.web3 = Web3(Web3.HTTPProvider(self.config.chain.chain_endpoint))
+        self.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
         self.validator = None
 
     @staticmethod
