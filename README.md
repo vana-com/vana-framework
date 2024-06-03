@@ -33,6 +33,12 @@ poetry install
 ```
 3. Configure the environment variables by copying and modifying the `.env.example` file:
 
+4. Setup vanacli
+
+```bash
+python setup_vanacli.py
+> vanacli command set up successfully!
+```
 
 # Wallets
 
