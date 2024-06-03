@@ -118,19 +118,22 @@ def debug(on: bool = True):
     logging.set_debug(on)
 
 
-__networks__ = ["vana", "base_sepolia", "local", "test", "archive"]
+__networks__ = ["vana", "satori", "moksha", "local", "test", "archive"]
 
-__vana_entrypoint__ = "http://34.172.243.254:8545"
+__vana_entrypoint__ = "http://rpc.vana.com"
 
-__base_sepolia_entrypoint__ = "https://sepolia.base.org"
+__satori_entrypoint__ = "http://rpc.satori.vana.com"
 
-__archive_entrypoint__ = "wss://archive.chain.opendata.ai:443/"
+__moksha_entrypoint__ = "http://rpc.moksha.vana.com"
+
+__archive_entrypoint__ = "wss://archive.vana.com:443/"
 
 __local_entrypoint__ = "ws://127.0.0.1:9944"
 
 block_explorer_tx_templates = {
     "vana": "https://vanascan.io/tx/{}",
-    "base_sepolia": "https://sepolia.basescan.org/tx/{}",
+    "moksha": "https://moksha.vanascan.io/tx/{}",
+    "satori": "https://satori.vanascan.io/tx/{}",
 }
 
 configs = [
