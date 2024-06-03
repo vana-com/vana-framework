@@ -148,6 +148,7 @@ class ChainManager:
                 type=str,
                 help="""The chain network flag. The likely choices are:
                                             -- vana (main network)
+                                            -- satori (satori test network)
                                             -- test (test network)
                                             -- local (local running network)
                                         """,
@@ -302,11 +303,13 @@ class ChainManager:
         """
         if network is None:
             return None, None
-        if network in ["vana", "base_sepolia", "local", "test", "archive"]:
+        if network in ["vana", "moksha", "satori", "local", "test", "archive"]:
             if network == "vana":
                 return network, vana.__vana_entrypoint__
-            if network == "base_sepolia":
-                return network, vana.__base_sepolia_entrypoint__
+            if network == "moksha":
+                return network, vana.__moksha_entrypoint__
+            if network == "satori":
+                return network, vana.__satori_entrypoint__
             elif network == "local":
                 return network, vana.__local_entrypoint__
             elif network == "archive":
@@ -314,17 +317,22 @@ class ChainManager:
         else:
             if (
                     network == vana.__vana_entrypoint__
-                    or "entrypoint-vana.opendata.ai" in network
+                    or "rpc.vana" in network
             ):
                 return "vana", vana.__vana_entrypoint__
             elif (
-                    network == vana.__base_sepolia_entrypoint__
-                    or "entrypoint-base-sepolia.opendata.ai" in network
+                    network == vana.__moksha_entrypoint__
+                    or "rpc.moksha.vana" in network
             ):
-                return "base_sepolia", vana.__base_sepolia_entrypoint__
+                return "moksha", vana.__moksha_entrypoint__
+            elif (
+                    network == vana.__satori_entrypoint__
+                    or "rpc.satori.vana" in network
+            ):
+                return "satori", vana.__satori_entrypoint__
             elif (
                     network == vana.__archive_entrypoint__
-                    or "archive.chain.opendata.ai" in network
+                    or "archive.vana" in network
             ):
                 return "archive", vana.__archive_entrypoint__
             elif "127.0.0.1" in network or "localhost" in network:
