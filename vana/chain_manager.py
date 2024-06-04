@@ -120,12 +120,11 @@ class ChainManager:
             self.db = redis.Redis(host=os.environ.get('REDIS_HOST'), port=int(os.environ.get('REDIS_PORT')),
                                   password=os.environ.get('REDIS_PASSWORD'), ssl=True, ssl_cert_reqs=None,
                                   decode_responses=True)
-        self.db_namespace = os.environ.get('REDIS_PERSONAL_NS', "namespace:")
+        self.db_namespace = os.environ.get('REDIS_PERSONAL_NS', "namespace")
         vana.logging.debug(
             f"Connected to {self.config.chain.network} network and {self.config.chain.chain_endpoint}."
         )
         self.web3 = Web3(Web3.HTTPProvider(self.config.chain.chain_endpoint))
-        self.validator = None
 
     @staticmethod
     def config() -> "config":
@@ -139,7 +138,7 @@ class ChainManager:
         try:
             default_network = os.getenv("OD_CHAIN_NETWORK") or "vana"
             default_chain_endpoint = (
-                    os.getenv("OD_CHAIN_CHAIN_ENDPOINT")
+                    os.getenv("OD_CHAIN_NETWORK_ENDPOINT")
                     or vana.__vana_entrypoint__
             )
             parser.add_argument(
@@ -303,7 +302,7 @@ class ChainManager:
         """
         if network is None:
             return None, None
-        if network in ["vana", "moksha", "satori", "local", "test", "archive"]:
+        if network in vana.__networks__:
             if network == "vana":
                 return network, vana.__vana_entrypoint__
             if network == "moksha":
