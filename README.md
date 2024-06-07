@@ -35,11 +35,8 @@ poetry install
 
 4. Setup vanacli
 
-```bash
-python setup_vanacli.py
-> vanacli command set up successfully!
-
-# Restart CLI to use `vanacli` command
+```shell
+pip install vana
 ```
 
 # Wallets
