@@ -15,11 +15,26 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-__version__ = "0.0.1"
-
+import toml
 import rich
 
 from .config import Config
+
+
+def get_version_from_pyproject():
+    """
+    Get the version from the pyproject.toml file.
+    :return:
+    """
+    try:
+        with open("pyproject.toml", "r") as pyproject:
+            project_data = toml.load(pyproject)
+        return project_data['tool']['poetry']['version']
+    except (KeyError, FileNotFoundError):
+        return "0.0.1"
+
+
+__version__ = get_version_from_pyproject()
 
 version_split = __version__.split(".")
 __version_as_int__: int = (
