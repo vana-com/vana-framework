@@ -17,11 +17,14 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-import sys
-import shtab
 import argparse
-import vana
+import sys
+from importlib.metadata import entry_points
 from typing import List, Optional
+
+import shtab
+
+import vana
 from .commands import (
     GetWalletHistoryCommand,
     NewColdkeyCommand,
@@ -104,6 +107,25 @@ COMMANDS = {
         },
     },
 }
+
+
+def load_external_commands():
+    """
+    Load external commands from entry points.
+    Used to extend CLI functionality
+    """
+    eps = entry_points(group='vanacli.commands')
+    for entry_point in eps:
+        command = entry_point.load()
+        command_name = command.__name__.lower().replace('command', '')
+        COMMANDS[command_name] = {
+            "name": command_name,
+            "aliases": [],  # TODO, support external command aliases
+            "help": command.__doc__.strip().split('\n')[0],
+            "commands": {
+                command_name: command,
+            },
+        }
 
 
 class CLIErrorParser(argparse.ArgumentParser):
@@ -286,6 +308,8 @@ class cli:
 
 
 def main():
+    load_external_commands()
+
     # Create the parser with shtab support
     parser = cli.__create_parser__()
     args, unknown = parser.parse_known_args()
@@ -300,7 +324,7 @@ def main():
     except KeyboardInterrupt:
         print('KeyboardInterrupt')
     except RuntimeError as e:
-       print(f'RuntimeError: {e}')
+        print(f'RuntimeError: {e}')
 
 
 if __name__ == '__main__':
