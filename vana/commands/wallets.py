@@ -17,18 +17,18 @@
 
 import argparse
 import os
-import sys
-from typing import Optional, List, Tuple
-
 import requests
+import sys
+import vana
 from rich.prompt import Prompt, Confirm
 from rich.table import Table
+from typing import Optional, List, Tuple
+from vana.commands.base_command import BaseCommand
 
-import vana
 from . import defaults
 
 
-class RegenColdkeyCommand:
+class RegenColdkeyCommand(BaseCommand):
     """
     Executes the ``regen_coldkey`` command to regenerate a coldkey for a wallet on the Vana network.
 
@@ -152,7 +152,7 @@ class RegenColdkeyCommand:
         # vana.ChainManager.add_args(regen_coldkey_parser)
 
 
-class RegenColdkeypubCommand:
+class RegenColdkeypubCommand(BaseCommand):
     """
     Executes the ``regen_coldkeypub`` command to regenerate the public part of a coldkey (coldkeypub) for a wallet on the Vana network.
 
@@ -239,7 +239,7 @@ class RegenColdkeypubCommand:
         vana.ChainManager.add_args(regen_coldkeypub_parser)
 
 
-class RegenHotkeyCommand:
+class RegenHotkeyCommand(BaseCommand):
     """
     Executes the ``regen_hotkey`` command to regenerate a hotkey for a wallet on the Vana network.
 
@@ -370,7 +370,7 @@ class RegenHotkeyCommand:
         vana.Wallet.add_args(regen_hotkey_parser)
 
 
-class NewHotkeyCommand:
+class NewHotkeyCommand(BaseCommand):
     """
     Executes the ``new_hotkey`` command to create a new hotkey under a wallet on the Vana network.
 
@@ -448,7 +448,7 @@ class NewHotkeyCommand:
         vana.Wallet.add_args(new_hotkey_parser)
 
 
-class NewColdkeyCommand:
+class NewColdkeyCommand(BaseCommand):
     """
     Executes the ``new_coldkey`` command to create a new coldkey under a wallet on the Vana network.
 
@@ -522,7 +522,7 @@ class NewColdkeyCommand:
         vana.Wallet.add_args(new_coldkey_parser)
 
 
-class WalletCreateCommand:
+class WalletCreateCommand(BaseCommand):
     """
     Executes the ``create`` command to generate both a new coldkey and hotkey under a specified wallet on the Vana network.
 
@@ -622,7 +622,7 @@ def _get_coldkey_wallets_for_path(path: str) -> List["vana.Wallet"]:
     return wallets
 
 
-class UpdateWalletCommand:
+class UpdateWalletCommand(BaseCommand):
     """
     Executes the ``update`` command to check and potentially update the security of the wallets in the Vana network.
 
@@ -717,7 +717,7 @@ def _get_coldkey_h160_addresses_for_path(path: str) -> Tuple[List[str], List[str
     return addresses, wallet_names
 
 
-class WalletBalanceCommand:
+class WalletBalanceCommand(BaseCommand):
     """
     Executes the ``balance`` command to check the balance of the wallet on the Vana network.
 
@@ -958,7 +958,7 @@ query ($first: Int!, $after: Cursor, $filter: TransferFilter, $order: [Transfers
 """
 
 
-class GetWalletHistoryCommand:
+class GetWalletHistoryCommand(BaseCommand):
     """
     Executes the ``history`` command to fetch the latest transfers of the provided wallet on the Vana network.
 

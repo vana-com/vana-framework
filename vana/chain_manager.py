@@ -24,16 +24,15 @@ from decimal import Decimal
 from typing import Optional, List, Union
 
 import redis
+import vana
 from eth_account.signers.local import LocalAccount
 from retry import retry
 from rich.prompt import Confirm
+from vana.utils.misc import get_block_explorer_url
 from web3 import Web3
 from web3.contract.contract import ContractFunction
 from web3.exceptions import TransactionNotFound
 from web3.middleware import geth_poa_middleware
-
-import vana
-from vana.utils.misc import get_block_explorer_url
 
 logger = native_logging.getLogger("opendata")
 
@@ -110,8 +109,6 @@ class ChainManager:
             config = self.config()
         self.config = copy.deepcopy(config)
 
-        # self.chain_endpoint, self.network = ChainManager.setup_config(self.config.chain.network, config)
-        # TODO: is this an issue?
         self.config.chain.chain_endpoint, self.config.chain.network = ChainManager.setup_config(
             self.config.chain.network, config)
 
@@ -162,18 +159,6 @@ class ChainManager:
         except argparse.ArgumentError:
             # re-parsing arguments.
             pass
-
-    def register(
-            self,
-            wallet: "vana.Wallet",
-            dlpuid: int
-    ) -> bool:
-        """
-        Registers a node on the network using the provided wallet.
-        TODO: Temporarily using Redis, but this should be sent to a smart contract.
-        """
-        self.db.sadd(f"{self.db_namespace}:hotkeys", wallet.hotkey.address)
-        return True
 
     def serve_node_server(
             self,
