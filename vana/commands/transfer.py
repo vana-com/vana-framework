@@ -17,16 +17,16 @@
 
 import argparse
 import sys
-
-from rich.prompt import Prompt
-
 import vana
+from rich.prompt import Prompt
+from vana.commands.base_command import BaseCommand
+
 from . import defaults
 
 console = vana.__console__
 
 
-class TransferCommand:
+class TransferCommand(BaseCommand):
     """
     Executes the ``transfer`` command to transfer DAT tokens from one account to another on the Vana network.
 

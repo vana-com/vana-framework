@@ -18,13 +18,12 @@
 # DEALINGS IN THE SOFTWARE.
 
 import argparse
+import shtab
 import sys
+import vana
 from importlib.metadata import entry_points
 from typing import List, Optional
 
-import shtab
-
-import vana
 from .commands import (
     GetWalletHistoryCommand,
     NewColdkeyCommand,
@@ -45,15 +44,14 @@ ALIAS_TO_COMMAND = {
     "root": "root",
     "wallet": "wallet",
     "stake": "stake",
-    "sudo": "sudo",
     "r": "root",
     "w": "wallet",
     "st": "stake",
-    "su": "sudo",
     "roots": "root",
     "wallets": "wallet",
     "stakes": "stake",
-    "sudos": "sudo",
+    "dlp": "dlp",
+    "d": "dlp",
     "i": "info",
     "info": "info",
 }
@@ -91,10 +89,10 @@ COMMANDS = {
 
         },
     },
-    "sudo": {
-        "name": "sudo",
-        "aliases": ["su", "sudos"],
-        "help": "Commands for DLP management",
+    "dlp": {
+        "name": "dlp",
+        "aliases": ["d"],
+        "help": "DLP-specific commands for DLP management",
         "commands": {
 
         },
@@ -118,13 +116,8 @@ def load_external_commands():
     for entry_point in eps:
         command = entry_point.load()
         command_name = command.__name__.lower().replace('command', '')
-        COMMANDS[command_name] = {
-            "name": command_name,
-            "aliases": [],  # TODO, support external command aliases
-            "help": command.__doc__.strip().split('\n')[0],
-            "commands": {
-                command_name: command,
-            },
+        COMMANDS["dlp"]["commands"] = {
+            command_name: command,
         }
 
 

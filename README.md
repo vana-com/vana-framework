@@ -102,12 +102,11 @@ usage: vanacli <command> <command args>
 vana cli v0.0.1
 
 positional arguments:
-  {root,r,roots,wallet,w,wallets,stake,st,stakes,sudo,su,sudos,info,i}
+  {root,r,roots,wallet,w,wallets,stake,st,stakes,su,info,i}
     root (r, roots)     Commands for managing and viewing the root network.
     wallet (w, wallets)
                         Commands for managing and viewing wallets.
     stake (st, stakes)  Commands for staking and removing stake from hotkey accounts.
-    sudo (su, sudos)    Commands for DLP management
     info (i)            Instructions for enabling autocompletion for the CLI.
 
 options:
