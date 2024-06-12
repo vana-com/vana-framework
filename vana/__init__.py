@@ -122,11 +122,11 @@ __networks__ = ["vana", "satori", "moksha", "local", "test", "archive"]
 
 __vana_entrypoint__ = "http://rpc.vana.com"
 
-__satori_entrypoint__ = "http://rpc.satori.vana.com"
+__satori_entrypoint__ = "http://rpc.satori.vana.org"
 
-__moksha_entrypoint__ = "http://rpc.moksha.vana.com"
+__moksha_entrypoint__ = "http://rpc.moksha.vana.org"
 
-__archive_entrypoint__ = "wss://archive.vana.com:443/"
+__archive_entrypoint__ = "wss://archive.vana.org:443"
 
 __local_entrypoint__ = "ws://127.0.0.1:9944"
 
