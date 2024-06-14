@@ -113,12 +113,10 @@ def load_external_commands():
     Used to extend CLI functionality
     """
     eps = entry_points(group='vanacli.commands')
+    COMMANDS["dlp"]["commands"] = {}
     for entry_point in eps:
         command = entry_point.load()
-        command_name = command.__name__.lower().replace('command', '')
-        COMMANDS["dlp"]["commands"] = {
-            command_name: command,
-        }
+        COMMANDS["dlp"]["commands"][entry_point.name] = command
 
 
 class CLIErrorParser(argparse.ArgumentParser):
