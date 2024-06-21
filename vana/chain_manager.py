@@ -19,18 +19,19 @@ import argparse
 import copy
 import logging as native_logging
 import os
-import time
-from decimal import Decimal
-from typing import Optional, List, Union
-
 import redis
+import time
 import vana
+from decimal import Decimal
 from eth_account.signers.local import LocalAccount
 from retry import retry
 from rich.prompt import Confirm
+from typing import Optional, List, Union
 from vana.utils.misc import get_block_explorer_url
+from vana.utils.web3 import decode_custom_error
 from web3 import Web3
 from web3.contract.contract import ContractFunction
+from web3.exceptions import ContractCustomError
 from web3.exceptions import TransactionNotFound
 from web3.middleware import geth_poa_middleware
 
@@ -242,6 +243,9 @@ class ChainManager:
             vana.logging.info(f"View transaction on block explorer: {url}")
 
             return tx_hash, tx_receipt
+        except ContractCustomError as e:
+            decoded_error = decode_custom_error(function.contract_abi, e.data)
+            vana.logging.error(f"Failed to call contract function: {decoded_error}")
         except Exception as e:
             vana.logging.error(f"Failed to call contract function: {e}")
 
