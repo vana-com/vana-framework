@@ -117,7 +117,7 @@ class ChainManager:
 
         # TODO: Temporarily use Redis to store some onchain data
         self.db = None
-        if 'REDIS_HOST' in os.environ:
+        if all(var in os.environ for var in ['REDIS_HOST', 'REDIS_PASSWORD', 'REDIS_PORT']):
             self.db = redis.Redis(host=os.environ.get('REDIS_HOST'), port=int(os.environ.get('REDIS_PORT')),
                                   password=os.environ.get('REDIS_PASSWORD'), ssl=True, ssl_cert_reqs=None,
                                   decode_responses=True)
@@ -172,7 +172,8 @@ class ChainManager:
         Registers a NodeServer endpoint on the network for a specific Node.
         TODO: Temporarily using Redis, but this should be sent to a smart contract.
         """
-        self.db.sadd(f"{self.db_namespace}:node_servers", node_server.info().to_string())
+        if self.db:
+            self.db.sadd(f"{self.db_namespace}:node_servers", node_server.info().to_string())
         return True
 
     def remove_node_server(
@@ -184,7 +185,8 @@ class ChainManager:
         De-registers a NodeServer endpoint on the network for a specific Node.
         TODO: Temporarily using Redis, but this should be sent to a smart contract.
         """
-        self.db.srem(f"{self.db_namespace}:node_servers", node_server.info().to_string())
+        if self.db:
+            self.db.srem(f"{self.db_namespace}:node_servers", node_server.info().to_string())
         return True
 
     def get_active_node_servers(self, omit: List[vana.NodeServerInfo] = []) -> List["vana.NodeServerInfo"]:
@@ -192,15 +194,17 @@ class ChainManager:
         Returns a list of active NodeServers on the network.
         TODO: Temporarily using Redis, but this should be read from a smart contract.
         """
-        node_server_info_set = self.db.smembers(f"{self.db_namespace}:node_servers")
-        node_server_infos: List[vana.NodeServerInfo] = []
+        if self.db:
+            node_server_info_set = self.db.smembers(f"{self.db_namespace}:node_servers")
+            node_server_infos: List[vana.NodeServerInfo] = []
 
-        for node_server_info_str in node_server_info_set:
-            node_server_info = vana.NodeServerInfo.from_string(node_server_info_str)
-            if node_server_info not in omit:
-                node_server_infos.append(node_server_info)
+            for node_server_info_str in node_server_info_set:
+                node_server_info = vana.NodeServerInfo.from_string(node_server_info_str)
+                if node_server_info not in omit:
+                    node_server_infos.append(node_server_info)
 
-        return node_server_infos
+            return node_server_infos
+        return []
 
     def state(
             self,
