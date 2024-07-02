@@ -9,7 +9,6 @@ repository = "https://github.com/vana-com/vana-framework"
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"
 python-dotenv = "^1.0.1"
-redis = "^5.0.4"
 pydantic = "^2.7.1"
 fastapi = "^0.111.0"
 uvicorn = "^0.29.0"
