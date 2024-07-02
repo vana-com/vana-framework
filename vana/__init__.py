@@ -120,7 +120,7 @@ def debug(on: bool = True):
 
 __networks__ = ["vana", "satori", "moksha", "local", "test", "archive"]
 
-__vana_entrypoint__ = "https://rpc.vana.com"
+__vana_entrypoint__ = "https://rpc.vana.org"
 
 __satori_entrypoint__ = "https://rpc.satori.vana.org"
 
