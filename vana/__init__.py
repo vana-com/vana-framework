@@ -156,5 +156,22 @@ _______\///________\///________\///__\///_____\/////__\///________\///__
 """
 
 import sys
-if __name__ != "__main__" and 'vanacli' not in sys.argv[0]:
+import os
+
+def is_cli_context():
+    """
+    Determine if the current context is a CLI invocation by checking how the script is being executed.
+    """
+    if sys.argv[0] == '-c':
+        return True
+
+    main_module = sys.modules.get('__main__')
+    if main_module:
+        module_name = getattr(main_module, '__name__', '')
+        file_name = os.path.basename(getattr(main_module, '__file__', ''))
+        return 'cli' in module_name.lower() or 'cli' in file_name.lower()
+
+    return False
+
+if not is_cli_context():
     print(banner)
