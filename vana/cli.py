@@ -35,6 +35,7 @@ from .commands import (
     UpdateWalletCommand,
     WalletBalanceCommand,
     WalletCreateCommand,
+    ExportPrivateKeyCommand,
 )
 
 # Create a console instance for CLI display.
@@ -79,6 +80,7 @@ COMMANDS = {
             "regen_hotkey": RegenHotkeyCommand,
             "update": UpdateWalletCommand,
             "history": GetWalletHistoryCommand,
+            "export_private_key": ExportPrivateKeyCommand,
         },
     },
     "stake": {

@@ -23,7 +23,6 @@ import time
 from decimal import Decimal
 from typing import Optional, List, Union
 
-import redis
 from eth_account.signers.local import LocalAccount
 from retry import retry
 from rich.prompt import Confirm
@@ -45,7 +44,6 @@ Balance = Union[int, Decimal]
 class ChainManager:
     """
     The ChainManager class is an interface for interacting with the Vana blockchain.
-    At the moment, we use Redis to manage state centrally
     """
 
     @staticmethod
@@ -115,13 +113,6 @@ class ChainManager:
         self.config.chain.chain_endpoint, self.config.chain.network = ChainManager.setup_config(
             self.config.chain.network, config)
 
-        # TODO: Temporarily use Redis to store some onchain data
-        self.db = None
-        if all(var in os.environ for var in ['REDIS_HOST', 'REDIS_PASSWORD', 'REDIS_PORT']):
-            self.db = redis.Redis(host=os.environ.get('REDIS_HOST'), port=int(os.environ.get('REDIS_PORT')),
-                                  password=os.environ.get('REDIS_PASSWORD'), ssl=True, ssl_cert_reqs=None,
-                                  decode_responses=True)
-        self.db_namespace = os.environ.get('REDIS_PERSONAL_NS', "namespace")
         vana.logging.debug(
             f"Connected to {self.config.chain.network} network and {self.config.chain.chain_endpoint}."
         )
@@ -170,10 +161,8 @@ class ChainManager:
     ) -> bool:
         """
         Registers a NodeServer endpoint on the network for a specific Node.
-        TODO: Temporarily using Redis, but this should be sent to a smart contract.
+        TODO: this could be implemented via a smart contract.
         """
-        if self.db:
-            self.db.sadd(f"{self.db_namespace}:node_servers", node_server.info().to_string())
         return True
 
     def remove_node_server(
@@ -183,27 +172,15 @@ class ChainManager:
     ) -> bool:
         """
         De-registers a NodeServer endpoint on the network for a specific Node.
-        TODO: Temporarily using Redis, but this should be sent to a smart contract.
+        TODO: this could be implemented via to a smart contract.
         """
-        if self.db:
-            self.db.srem(f"{self.db_namespace}:node_servers", node_server.info().to_string())
         return True
 
     def get_active_node_servers(self, omit: List[vana.NodeServerInfo] = []) -> List["vana.NodeServerInfo"]:
         """
         Returns a list of active NodeServers on the network.
-        TODO: Temporarily using Redis, but this should be read from a smart contract.
+        TODO: this could be implemented via a smart contract.
         """
-        if self.db:
-            node_server_info_set = self.db.smembers(f"{self.db_namespace}:node_servers")
-            node_server_infos: List[vana.NodeServerInfo] = []
-
-            for node_server_info_str in node_server_info_set:
-                node_server_info = vana.NodeServerInfo.from_string(node_server_info_str)
-                if node_server_info not in omit:
-                    node_server_infos.append(node_server_info)
-
-            return node_server_infos
         return []
 
     def state(
@@ -281,8 +258,7 @@ class ChainManager:
         """
         Cleans up resources for this ChainManager instance like active websocket connection and active extensions
         """
-        if self.db:
-            self.db.close()
+        pass
 
     def get_total_stake_for_coldkey(
             self, h160_address: str, block: Optional[int] = None

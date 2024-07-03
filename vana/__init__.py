@@ -120,7 +120,7 @@ def debug(on: bool = True):
 
 __networks__ = ["vana", "satori", "moksha", "local", "test", "archive"]
 
-__vana_entrypoint__ = "https://rpc.vana.com"
+__vana_entrypoint__ = "https://rpc.vana.org"
 
 __satori_entrypoint__ = "https://rpc.satori.vana.org"
 
@@ -143,3 +143,35 @@ configs = [
     logging.get_config(),
 ]
 defaults = Config.merge_all(configs)
+
+banner =r"""_/\\\________/\\\_____/\\\\\\\\\_____/\\\\\_____/\\\_____/\\\\\\\\\\\___
+_\/\\\_______\/\\\___/\\\\\\\\\\\\\__\/\\\\\\___\/\\\___/\\\\\\\\\\\\\__
+_\//\\\______/\\\___/\\\/////////\\\_\/\\\/\\\__\/\\\__/\\\/////////\\\_
+__\//\\\____/\\\___\/\\\_______\/\\\_\/\\\//\\\_\/\\\_\/\\\_______\/\\\_
+___\//\\\__/\\\____\/\\\\\\\\\\\\\\\_\/\\\\//\\\\/\\\_\/\\\\\\\\\\\\\\\_
+____\//\\\/\\\_____\/\\\/////////\\\_\/\\\_\//\\\/\\\_\/\\\/////////\\\_
+_____\//\\\\\______\/\\\_______\/\\\_\/\\\__\//\\\\\\_\/\\\_______\/\\\_
+______\//\\\_______\/\\\_______\/\\\_\/\\\___\//\\\\\_\/\\\_______\/\\\_
+_______\///________\///________\///__\///_____\/////__\///________\///__
+"""
+
+import sys
+import os
+
+def is_cli_context():
+    """
+    Determine if the current context is a CLI invocation by checking how the script is being executed.
+    """
+    if sys.argv[0] == '-c':
+        return True
+
+    main_module = sys.modules.get('__main__')
+    if main_module:
+        module_name = getattr(main_module, '__name__', '')
+        file_name = os.path.basename(getattr(main_module, '__file__', ''))
+        return 'cli' in module_name.lower() or 'cli' in file_name.lower()
+
+    return False
+
+if not is_cli_context():
+    print(banner)
