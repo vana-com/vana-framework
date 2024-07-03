@@ -23,21 +23,19 @@ We are building towards a user-owned foundation model, trained by 100M users who
 To get started with Vana, follow these steps:
 
 1. Clone the repository:
-```shell
-git clone https://github.com/vana-com/vana-framework.git
-```
+    ```shell
+    git clone https://github.com/vana-com/vana-framework.git
+    ```
 
 2. Install the required dependencies using poetry:
-```shell
-poetry install
-```
-3. Configure the environment variables by copying and modifying the `.env.example` file:
+    ```shell
+    poetry install
+    ```
+3. Setup vanacli
 
-4. Setup vanacli
-
-```shell
-pip install vana
-```
+    ```shell
+    pip install vana
+    ```
 
 # Wallets
 
