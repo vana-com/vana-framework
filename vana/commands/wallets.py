@@ -16,16 +16,22 @@
 # DEALINGS IN THE SOFTWARE.
 
 import argparse
+from getpass import getpass
 import os
 import requests
 import sys
 import vana
+from rich.console import Console
+from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 from rich.table import Table
 from typing import Optional, List, Tuple
 from vana.commands.base_command import BaseCommand
 
 from . import defaults
+from ..wallet import display_private_key_msg
+
+console = Console()
 
 
 class RegenColdkeyCommand(BaseCommand):
@@ -1092,3 +1098,92 @@ def create_transfer_history_table(transfers):
     table.pad_edge = False
     table.width = None
     return table
+
+
+class ExportPrivateKeyCommand(BaseCommand):
+    """
+    Executes the `export_private_key` command to securely export the private key of a wallet on the Vana network.
+
+    This command allows users to export their private key after providing the correct password and confirming their action.
+
+    Usage:
+        Users must specify whether they want to export the coldkey or hotkey private key.
+        The command requires password authentication for the coldkey and includes multiple confirmation steps.
+
+    Args:
+        key_type (str): Either 'coldkey' or 'hotkey'.
+
+    Example usage:
+        vanacli wallet export_private_key --key_type coldkey
+
+    Note:
+        This command should be used with extreme caution. Exposing private keys can lead to loss of funds if mishandled.
+    """
+
+    @staticmethod
+    def run(cli: "vana.cli"):
+        wallet = vana.Wallet(config=cli.config)
+        key_type = cli.config.wallet.key_type.lower()
+
+        if key_type not in ['coldkey', 'hotkey']:
+            console.print("[bold red]Error:[/bold red] Key type must be either 'coldkey' or 'hotkey'.")
+            return
+
+        console.print(Panel.fit(
+            "[bold yellow]WARNING: Exporting private keys is a sensitive operation.\n"
+            "Never share your private key with anyone.\n"
+            "Ensure you are in a secure, private environment before proceeding.[/bold yellow]"
+        ))
+
+        if not console.input("[bold red]Do you understand the risks? (yes/no): [/bold red]").lower() == 'yes':
+            console.print("Operation cancelled.")
+            return
+
+        if key_type == 'coldkey':
+            password = getpass("Enter your coldkey password: ")
+            try:
+                account = wallet.get_coldkey(password=password)
+            except Exception as e:
+                console.print(f"[bold red]Error:[/bold red] {str(e)}")
+                return
+        else:  # hotkey
+            try:
+                account = wallet.get_hotkey()
+            except Exception as e:
+                console.print(f"[bold red]Error:[/bold red] {str(e)}")
+                return
+
+        private_key = account.key.hex()
+        display_private_key_msg(private_key, key_type)
+
+    @staticmethod
+    def add_args(parser: argparse.ArgumentParser):
+        export_private_key_parser = parser.add_parser(
+            "export_private_key",
+            help="Export the private key of a wallet."
+        )
+        export_private_key_parser.add_argument(
+            '--key_type',
+            type=str,
+            choices=['coldkey', 'hotkey'],
+            required=False,
+            help="Specify whether to export the coldkey or hotkey private key."
+        )
+        vana.Wallet.add_args(export_private_key_parser)
+
+    @staticmethod
+    def check_config(config: "vana.Config"):
+        if not config.is_set("wallet.name") and not config.no_prompt:
+            wallet_name = Prompt.ask("Enter wallet name", default=vana.defaults.wallet.name)
+            config.wallet.name = str(wallet_name)
+
+        if not config.wallet.get('key_type'):
+            if not config.no_prompt:
+                key_type = Prompt.ask(
+                    "Enter key type",
+                    choices=['coldkey', 'hotkey'],
+                    default='coldkey'
+                )
+                config.wallet.key_type = key_type
+            else:
+                raise ValueError("--key_type argument is required when using --no_prompt")

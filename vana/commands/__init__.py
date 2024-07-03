@@ -45,5 +45,6 @@ from .wallets import (
     WalletCreateCommand,
     WalletBalanceCommand,
     GetWalletHistoryCommand,
+    ExportPrivateKeyCommand,
 )
 from .transfer import TransferCommand
