@@ -26,9 +26,29 @@ from eth_account.signers.local import (
 )
 from eth_keys.datatypes import PublicKey
 
+from rich.panel import Panel
+
 import vana
 from vana.utils.wallet_utils import is_valid_opendata_address_or_public_key
 
+
+def display_private_key_msg(private_key: str, key_type: str):
+    """
+    Display the private key and a warning message about its sensitivity.
+
+    Args:
+        private_key (str): The private key to display.
+        key_type (str): Type of the key (coldkey or hotkey).
+    """
+    vana.__console__.print(Panel.fit(
+        f"[bold green]Your {key_type} private key:[/bold green]\n\n"
+        f"[yellow]{private_key}[/yellow]\n\n"
+        "[bold red]IMPORTANT:[/bold red] Store this private key in a secure (preferably offline) place.\n"
+        "Anyone with this private key has full control over the associated account.\n\n"
+        f"You can use this private key to import your {key_type} into other wallets.\n"
+        "The command to regenerate the key using this private key is:\n"
+        f"[cyan]vanacli w regen_{key_type} --seed {private_key}[/cyan]"
+    ))
 
 def display_mnemonic_msg(mnemonic: str, key_type: str):
     """
@@ -38,14 +58,15 @@ def display_mnemonic_msg(mnemonic: str, key_type: str):
         mnemonic (str): Mnemonic string.
         key_type (str): Type of the key (coldkey or hotkey).
     """
-    print("\nIMPORTANT: Store this mnemonic in a secure (preferable offline place), as anyone "
-          "who has possession of this mnemonic can use it to regenerate the key and access your tokens. \n")
-    print("The mnemonic to the new {} is:\n\n{}\n".format(key_type, mnemonic))
-    print(
-        "You can use the mnemonic to recreate the key in case it gets lost. The command to use to regenerate the key using this mnemonic is:"
-    )
-    print("vanacli w regen_{} --mnemonic {}".format(key_type, mnemonic))
-    print("")
+    vana.__console__.print(Panel.fit(
+        f"[bold green]Your {key_type} mnemonic phrase:[/bold green]\n\n"
+        f"[yellow]{mnemonic}[/yellow]\n\n"
+        "[bold red]IMPORTANT:[/bold red] Store this mnemonic in a secure (preferably offline) place.\n"
+        "Anyone with this mnemonic can regenerate the key and access your tokens.\n\n"
+        f"You can use this mnemonic to recreate the {key_type} in case it gets lost.\n"
+        "The command to regenerate the key using this mnemonic is:\n"
+        f"[cyan]vanacli w regen_{key_type} --mnemonic {mnemonic}[/cyan]"
+    ))
 
 
 class Wallet:
