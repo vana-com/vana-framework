@@ -26,13 +26,10 @@ from eth_account.signers.local import (
 )
 from eth_keys.datatypes import PublicKey
 
-from rich.console import Console
 from rich.panel import Panel
 
 import vana
 from vana.utils.wallet_utils import is_valid_opendata_address_or_public_key
-
-console = Console()
 
 
 def display_private_key_msg(private_key: str, key_type: str):
@@ -43,7 +40,7 @@ def display_private_key_msg(private_key: str, key_type: str):
         private_key (str): The private key to display.
         key_type (str): Type of the key (coldkey or hotkey).
     """
-    console.print(Panel.fit(
+    vana.__console__.print(Panel.fit(
         f"[bold green]Your {key_type} private key:[/bold green]\n\n"
         f"[yellow]{private_key}[/yellow]\n\n"
         "[bold red]IMPORTANT:[/bold red] Store this private key in a secure (preferably offline) place.\n"
@@ -61,7 +58,7 @@ def display_mnemonic_msg(mnemonic: str, key_type: str):
         mnemonic (str): Mnemonic string.
         key_type (str): Type of the key (coldkey or hotkey).
     """
-    console.print(Panel.fit(
+    vana.__console__.print(Panel.fit(
         f"[bold green]Your {key_type} mnemonic phrase:[/bold green]\n\n"
         f"[yellow]{mnemonic}[/yellow]\n\n"
         "[bold red]IMPORTANT:[/bold red] Store this mnemonic in a secure (preferably offline) place.\n"

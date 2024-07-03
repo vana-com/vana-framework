@@ -21,7 +21,6 @@ import os
 import requests
 import sys
 import vana
-from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 from rich.table import Table
@@ -30,8 +29,6 @@ from vana.commands.base_command import BaseCommand
 
 from . import defaults
 from ..wallet import display_private_key_msg
-
-console = Console()
 
 
 class RegenColdkeyCommand(BaseCommand):
@@ -1126,17 +1123,17 @@ class ExportPrivateKeyCommand(BaseCommand):
         key_type = cli.config.wallet.key_type.lower()
 
         if key_type not in ['coldkey', 'hotkey']:
-            console.print("[bold red]Error:[/bold red] Key type must be either 'coldkey' or 'hotkey'.")
+            vana.__console__.print("[bold red]Error:[/bold red] Key type must be either 'coldkey' or 'hotkey'.")
             return
 
-        console.print(Panel.fit(
+        vana.__console__.print(Panel.fit(
             "[bold yellow]WARNING: Exporting private keys is a sensitive operation.\n"
             "Never share your private key with anyone.\n"
             "Ensure you are in a secure, private environment before proceeding.[/bold yellow]"
         ))
 
-        if not console.input("[bold red]Do you understand the risks? (yes/no): [/bold red]").lower() == 'yes':
-            console.print("Operation cancelled.")
+        if not vana.__console__.input("[bold red]Do you understand the risks? (yes/no): [/bold red]").lower() == 'yes':
+            vana.__console__.print("Operation cancelled.")
             return
 
         if key_type == 'coldkey':
@@ -1144,13 +1141,13 @@ class ExportPrivateKeyCommand(BaseCommand):
             try:
                 account = wallet.get_coldkey(password=password)
             except Exception as e:
-                console.print(f"[bold red]Error:[/bold red] {str(e)}")
+                vana.__console__.print(f"[bold red]Error:[/bold red] {str(e)}")
                 return
         else:  # hotkey
             try:
                 account = wallet.get_hotkey()
             except Exception as e:
-                console.print(f"[bold red]Error:[/bold red] {str(e)}")
+                vana.__console__.print(f"[bold red]Error:[/bold red] {str(e)}")
                 return
 
         private_key = account.key.hex()
