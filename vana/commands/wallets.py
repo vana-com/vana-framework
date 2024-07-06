@@ -1046,7 +1046,7 @@ def create_transfer_history_table(transfers):
         "Id",
         "From",
         "To",
-        "Amount (DAT)",
+        "Amount (VANA)",
         "Transaction Id",
         "Block Number",
         "URL (vanascan)",

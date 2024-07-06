@@ -28,17 +28,17 @@ console = vana.__console__
 
 class TransferCommand(BaseCommand):
     """
-    Executes the ``transfer`` command to transfer DAT tokens from one account to another on the Vana network.
+    Executes the ``transfer`` command to transfer VANA tokens from one account to another on the Vana network.
 
     This command is used for transactions between different accounts, enabling users to send tokens to other participants on the network.
 
     Usage:
-        The command requires specifying the destination address (public key) and the amount of DAT to be transferred.
+        The command requires specifying the destination address (public key) and the amount of VANA to be transferred.
         It checks for sufficient balance and prompts for confirmation before proceeding with the transaction.
 
     Optional arguments:
         - ``--dest`` (str): The destination address for the transfer. This can be in the form of an h160 or secp256k1 public key.
-        - ``--amount`` (float): The amount of DAT tokens to transfer.
+        - ``--amount`` (float): The amount of VANA tokens to transfer.
 
     The command displays the user's current balance before prompting for the amount to transfer, ensuring transparency and accuracy in the transaction.
 
@@ -101,20 +101,20 @@ class TransferCommand(BaseCommand):
 
         # Get amount.
         if not config.get("amount"):
-            amount = Prompt.ask("Enter DAT amount to transfer")
+            amount = Prompt.ask("Enter VANA amount to transfer")
             if not config.no_prompt:
                 try:
                     config.amount = float(amount)
                 except ValueError:
                     console.print(
-                        ":cross_mark:[red] Invalid DAT amount[/red] [bold white]{}[/bold white]".format(
+                        ":cross_mark:[red] Invalid VANA amount[/red] [bold white]{}[/bold white]".format(
                             amount
                         )
                     )
                     sys.exit()
             else:
                 console.print(
-                    ":cross_mark:[red] Invalid DAT amount[/red] [bold white]{}[/bold white]".format(
+                    ":cross_mark:[red] Invalid VANA amount[/red] [bold white]{}[/bold white]".format(
                         amount
                     )
                 )
@@ -123,7 +123,7 @@ class TransferCommand(BaseCommand):
     @staticmethod
     def add_args(parser: argparse.ArgumentParser):
         transfer_parser = parser.add_parser(
-            "transfer", help="""Transfer DAT between accounts."""
+            "transfer", help="""Transfer VANA between accounts."""
         )
         transfer_parser.add_argument("--dest", dest="dest", type=str, required=False)
         transfer_parser.add_argument(
