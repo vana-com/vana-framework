@@ -77,7 +77,7 @@ class Wallet:
     Each wallet contains a coldkey and a hotkey.
 
     The coldkey is the user's primary key for holding stake in their wallet and is the only way that users
-    can access DAT. Coldkeys can hold tokens and should be encrypted on your device.
+    can access VANA. Coldkeys can hold tokens and should be encrypted on your device.
 
     The coldkey is the primary key used for securing the wallet's stake in the Vana network and
     is critical for financial transactions like staking and unstaking tokens. It's recommended to keep the
