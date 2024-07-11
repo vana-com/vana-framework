@@ -36,6 +36,9 @@ import vana
 from vana.utils.misc import get_block_explorer_url
 from vana.utils.web3 import decode_custom_error
 
+import threading
+from utils.circuit_breaker import CircuitBreaker
+
 logger = native_logging.getLogger("opendata")
 
 Balance = Union[int, Decimal]
@@ -118,6 +121,25 @@ class ChainManager:
         )
         self.web3 = Web3(Web3.HTTPProvider(self.config.chain.chain_endpoint))
         self.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+
+        self.circuit_breaker = CircuitBreaker(failure_threshold=5, reset_timeout=3600)  # 1 hour timeout
+        self.rpc_health_thread = threading.Thread(target=self._check_rpc_health, daemon=True)
+        self.rpc_health_thread.start()
+
+    def _check_rpc_health(self):
+        while True:
+            self.check_rpc_health()
+            # Check every minute
+            time.sleep(60)
+
+    def check_rpc_health(self):
+        try:
+            block_number = self.get_current_block()
+            vana.logging.info(f"RPC is healthy. Current block number: {block_number}")
+            return True
+        except Exception as e:
+            vana.logging.warning(f"RPC health check failed: {e}")
+            return False
 
     @staticmethod
     def config() -> "config":
@@ -241,6 +263,7 @@ class ChainManager:
         except Exception as e:
             vana.logging.error(f"Failed to read from contract function: {e}")
 
+    @retry(exceptions=(Exception,), tries=10, delay=1, backoff=2, max_delay=60)
     def get_current_block(self) -> int:
         """
         Returns the current block number on the blockchain. This function provides the latest block
@@ -252,13 +275,21 @@ class ChainManager:
         Knowing the current block number is essential for querying real-time data and performing time-sensitive
         operations on the blockchain. It serves as a reference point for network activities and data synchronization.
         """
-        return self.web3.eth.block_number
+        return self.circuit_breaker.call(self._get_current_block)
+
+    def _get_current_block(self) -> int:
+        try:
+            return self.web3.eth.block_number
+        except Exception as e:
+            vana.logging.error(f"Error fetching current block number: {e}")
+            raise
 
     def close(self):
         """
         Cleans up resources for this ChainManager instance like active websocket connection and active extensions
         """
-        pass
+        if hasattr(self, 'rpc_health_thread') and self.rpc_health_thread.is_alive():
+            self.rpc_health_thread.join(timeout=5)
 
     def get_total_stake_for_coldkey(
             self, h160_address: str, block: Optional[int] = None
@@ -325,6 +356,7 @@ class ChainManager:
     #### Legacy ####
     ################
 
+    @retry(exceptions=(Exception,), tries=10, delay=1, backoff=2, max_delay=60)
     def get_balance(self, address: str, block: Optional[int] = None) -> Balance:
         """
         Retrieves the token balance of a specific address within the Vana network. This function queries
@@ -340,21 +372,26 @@ class ChainManager:
         This function is important for monitoring account holdings and managing financial transactions
         within the Vana ecosystem. It helps in assessing the economic status and capacity of network participants.
         """
+        return self.circuit_breaker.call(self._get_balance, address, block)
+
+    def _get_balance(self, address: str, block: Optional[int] = None) -> Balance:
         vana.logging.info(f"Fetching balance for address {address}")
         try:
-            @retry(delay=2, tries=3, backoff=2, max_delay=4, logger=logger)
-            def make_web3_call_with_retry():
-                vana.logging.info(f"Fetching balance for address {address}")
-                return self.web3.eth.get_balance(address, block_identifier=block)
-
-            result = make_web3_call_with_retry()
+            result = self.web3.eth.get_balance(address, block_identifier=block)
         except Exception as e:
             vana.logging.error(f"Error fetching balance for address {address}: {e}")
-            return 0
+            raise
 
         return Web3.from_wei(result, "ether")
 
-    def transfer(
+    @retry(exceptions=(Exception,), tries=10, delay=1, backoff=2, max_delay=60)
+    def transfer(self, wallet: "vana.Wallet", dest: str, amount: Union[Balance, float],
+                 wait_for_inclusion: bool = True, wait_for_finalization: bool = False,
+                 prompt: bool = False) -> bool:
+        return self.circuit_breaker.call(self._transfer, wallet, dest, amount,
+                                         wait_for_inclusion, wait_for_finalization, prompt)
+
+    def _transfer(
             self,
             wallet: "vana.Wallet",
             dest: str,
@@ -422,32 +459,36 @@ class ChainManager:
 
         # Send the transaction.
         logger.info("Sending transaction...")
-        txn_hash = self.web3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        try:
+            txn_hash = self.web3.eth.send_raw_transaction(signed_txn.rawTransaction)
 
-        # Wait for transaction inclusion.
-        if wait_for_inclusion:
-            try:
-                receipt = self.web3.eth.wait_for_transaction_receipt(txn_hash, timeout=120)
-                if receipt.status == 1:
-                    logger.info(f"Transaction included in block {receipt.blockNumber}. Hash: {txn_hash.hex()}")
-                else:
-                    logger.error("Transaction failed.")
+            # Wait for transaction inclusion.
+            if wait_for_inclusion:
+                try:
+                    receipt = self.web3.eth.wait_for_transaction_receipt(txn_hash, timeout=120)
+                    if receipt.status == 1:
+                        logger.info(f"Transaction included in block {receipt.blockNumber}. Hash: {txn_hash.hex()}")
+                    else:
+                        logger.error("Transaction failed.")
+                        return False
+                except TransactionNotFound:
+                    logger.error("Transaction not found within timeout period.")
                     return False
-            except TransactionNotFound:
-                logger.error("Transaction not found within timeout period.")
-                return False
 
-        # Wait for transaction finalization.
-        if wait_for_finalization:
-            try:
-                while True:
-                    receipt = self.web3.eth.get_transaction_receipt(txn_hash)
-                    if receipt.blockNumber is not None:
-                        logger.info(f"Transaction finalized in block {receipt.blockNumber}. Hash: {txn_hash.hex()}")
-                        break
-                    time.sleep(2)
-            except TransactionNotFound:
-                logger.error("Transaction not found within timeout period.")
-                return False
+            # Wait for transaction finalization.
+            if wait_for_finalization:
+                try:
+                    while True:
+                        receipt = self.web3.eth.get_transaction_receipt(txn_hash)
+                        if receipt.blockNumber is not None:
+                            logger.info(f"Transaction finalized in block {receipt.blockNumber}. Hash: {txn_hash.hex()}")
+                            break
+                        time.sleep(2)
+                except TransactionNotFound:
+                    logger.error("Transaction not found within timeout period.")
+                    return False
 
-        return True
+            return True
+        except Exception as e:
+            logger.error(f"Error during transfer: {e}")
+            raise
