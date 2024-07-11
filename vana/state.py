@@ -84,6 +84,27 @@ class State:
         if sync:
             self.sync(block=None, lite=lite)
 
+        self.cache_file = f"state_cache_{network}_{dlp_uid}.json"
+
+    def save_cache(self):
+        cache_data = {
+            "node_servers": [ns.__dict__ for ns in self.node_servers],
+            "weights": self.weights,
+            "last_update": self.last_update,
+            "block": self.block
+        }
+        with open(self.cache_file, 'w') as f:
+            json.dump(cache_data, f)
+
+    def load_cache(self):
+        if os.path.exists(self.cache_file):
+            with open(self.cache_file, 'r') as f:
+                cache_data = json.load(f)
+            self.node_servers = set([vana.NodeServerInfo(**ns) for ns in cache_data['node_servers']])
+            self.weights = cache_data['weights']
+            self.last_update = cache_data['last_update']
+            self.block = cache_data['block']
+
     def sync(
             self,
             block: Optional[int] = None,
@@ -93,9 +114,14 @@ class State:
         """
         Synchronizes the state with the network's current state.
         """
-        self.node_servers = chain_manager.get_active_node_servers()
-        self.last_update = time.time()
-        self.block = chain_manager.get_current_block()
+        try:
+            self.node_servers = chain_manager.get_active_node_servers()
+            self.last_update = time.time()
+            self.block = chain_manager.get_current_block()
+            self.save_cache()
+        except Exception as e:
+            vana.logging.error(f"Failed to sync state: {e}")
+            self.load_cache()
 
     def set_hotkeys(self, hotkeys: List[str]):
         """
