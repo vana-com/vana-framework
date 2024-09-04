@@ -36,6 +36,7 @@ from .commands import (
     WalletBalanceCommand,
     WalletCreateCommand,
     ExportPrivateKeyCommand,
+    RegisterCommand,
 )
 
 # Create a console instance for CLI display.
@@ -104,6 +105,14 @@ COMMANDS = {
         "aliases": ["i"],
         "help": "Instructions for enabling autocompletion for the CLI.",
         "commands": {
+        },
+    },
+    "register": {
+        "name": "register",
+        "aliases": ["reg"],
+        "help": "Register a validator node on the Vana network.",
+        "commands": {
+            "register": RegisterCommand,
         },
     },
 }
