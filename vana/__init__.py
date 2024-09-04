@@ -130,6 +130,8 @@ __archive_entrypoint__ = "wss://archive.vana.org:443"
 
 __local_entrypoint__ = "ws://127.0.0.1:9944"
 
+__satori_tee_pool_contract_address = "0x88790ffF10E952ffc13Be22a442616eAfE081594"
+
 block_explorer_tx_templates = {
     "vana": "https://vanascan.io/tx/{}",
     "moksha": "https://moksha.vanascan.io/tx/{}",
