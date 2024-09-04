@@ -124,7 +124,6 @@ class SatyaCommand(BaseCommand):
         if config.satya_command == "register":
             SatyaRegisterCommand.check_config(config)
 
-
     @staticmethod
     def run(cli: "vana.cli"):
         if cli.config.satya_command == "register":
