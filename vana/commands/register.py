@@ -1,29 +1,13 @@
-# The MIT License (MIT)
-# Copyright © 2024 Corsali, Inc. dba Vana
-
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
-# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of
-# the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-# THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-# DEALINGS IN THE SOFTWARE.
-
 import argparse
 import vana
 from vana.commands.base_command import BaseCommand
 from rich.prompt import Prompt, Confirm
+from web3 import Web3
 
 
-class RegisterCommand(BaseCommand):
+class SatyaRegisterCommand(BaseCommand):
     """
-    Executes the `register` command to register a validator node on the Vana network using TEE Pool Contract.
+    Executes the `satya register` command to register a validator node on the Vana network.
 
     This command allows users to register a validator node with a specified name, URL, and wallet.
     It interacts with the TeePoolImplementation smart contract to add the validator as a TEE.
@@ -37,7 +21,7 @@ class RegisterCommand(BaseCommand):
         wallet (str): The name of the wallet to use for registration.
 
     Example usage:
-        vanacli register satya --url=https://teenode.com --wallet=validator_4000
+        vanacli satya register mynode --url=https://teenode.com --wallet=validator_4000
     """
 
     @staticmethod
@@ -46,48 +30,35 @@ class RegisterCommand(BaseCommand):
             chain_manager: "vana.ChainManager" = vana.ChainManager(config=cli.config)
             wallet = vana.Wallet(config=cli.config)
 
-            # Connect to the contract
+            # Contract details
             contract_address = vana.__satori_tee_pool_contract_address
             contract_abi = [
                 {
                     "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "teeAddress",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "string",
-                            "name": "url",
-                            "type": "string"
-                        }
+                        {"internalType": "address", "name": "teeAddress", "type": "address"},
+                        {"internalType": "string", "name": "url", "type": "string"}
                     ],
                     "name": "addTee",
                     "outputs": [],
                     "stateMutability": "nonpayable",
                     "type": "function"
                 }
-            ]
+            ]  # This is a simplified ABI, you may need to provide the full ABI
+
+            # Create contract instance
             contract = chain_manager.web3.eth.contract(address=contract_address, abi=contract_abi)
 
-            # Prepare transaction
-            transaction = contract.functions.addTee(
-                wallet.hotkey.address,
-                cli.config.url
-            ).build_transaction({
-                'from': wallet.hotkey.address,
-                'nonce': chain_manager.web3.eth.get_transaction_count(wallet.hotkey.address),
-            })
+            # Prepare function call
+            function_call = contract.functions.addTee(wallet.hotkey.address, cli.config.url)
 
-            # Sign and send transaction
-            signed_txn = wallet.hotkey.sign_transaction(transaction)
-            tx_hash = chain_manager.web3.eth.send_raw_transaction(signed_txn.rawTransaction)
+            # Send transaction using chain_manager
+            tx_hash, tx_receipt = chain_manager.send_transaction(
+                function=function_call,
+                account=wallet.hotkey
+            )
 
-            # Wait for transaction receipt
-            tx_receipt = chain_manager.web3.eth.wait_for_transaction_receipt(tx_hash)
-
-            if tx_receipt['status'] == 1:
-                vana.__console__.print(f"[bold green]Successfully registered validator node '{cli.config.name}' with URL '{cli.config.url}'[/bold green]")
+            if tx_receipt and tx_receipt['status'] == 1:
+                vana.__console__.print(f"[bold green]Successfully registered validator '{cli.config.name}' with URL '{cli.config.url}'[/bold green]")
                 vana.__console__.print(f"Transaction hash: {tx_hash.hex()}")
             else:
                 vana.__console__.print("[bold red]Transaction failed. Please check the contract state and try again.[/bold red]")
@@ -101,15 +72,12 @@ class RegisterCommand(BaseCommand):
 
     @staticmethod
     def add_args(parser: argparse.ArgumentParser):
-        register_parser = parser.add_parser(
-            "register", help="Register a validator node on the Vana network."
-        )
-        register_parser.add_argument("name", type=str, help="The name of the validator to register")
-        register_parser.add_argument("--url", type=str, required=True, help="The URL of the validator node")
-        register_parser.add_argument("--wallet", type=str, required=True, help="The name of the wallet to use for registration")
+        parser.add_argument("name", type=str, help="The name of the validator to register")
+        parser.add_argument("--url", type=str, required=True, help="The URL of the validator node")
+        parser.add_argument("--wallet", type=str, required=True, help="The name of the wallet to use for registration")
 
-        vana.Wallet.add_args(register_parser)
-        vana.ChainManager.add_args(register_parser)
+        vana.Wallet.add_args(parser)
+        vana.ChainManager.add_args(parser)
 
     @staticmethod
     def check_config(config: "vana.Config"):
@@ -130,3 +98,34 @@ class RegisterCommand(BaseCommand):
             if not Confirm.ask("Do you want to proceed with the registration?"):
                 vana.__console__.print("Registration cancelled.")
                 exit(0)
+
+
+class SatyaCommand(BaseCommand):
+    """
+    Handles 'satya' related commands for the Vana CLI.
+    """
+
+    @staticmethod
+    def add_args(parser: argparse.ArgumentParser):
+        satya_parser = parser.add_parser("satya", help="Satya-related commands")
+        subparsers = satya_parser.add_subparsers(dest="satya_command", required=True)
+
+        # Register command
+        register_parser = subparsers.add_parser("register", help="Register a validator node on the Vana network")
+        SatyaRegisterCommand.add_args(register_parser)
+
+        # More Satya-related commands can be added here in the future
+        # For example:
+        # deregister_parser = subparsers.add_parser("deregister", help="Deregister a validator node from the Vana network")
+        # SatyaDeregisterCommand.add_args(deregister_parser), etc.
+
+    @staticmethod
+    def check_config(config: "vana.Config"):
+        if config.satya_command == "register":
+            SatyaRegisterCommand.check_config(config)
+
+
+    @staticmethod
+    def run(cli: "vana.cli"):
+        if cli.config.satya_command == "register":
+            SatyaRegisterCommand.run(cli)
