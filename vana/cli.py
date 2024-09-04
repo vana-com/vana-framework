@@ -112,7 +112,7 @@ COMMANDS = {
         "aliases": [],
         "help": "Satya-related commands for validator management.",
         "commands": {
-            "register": SatyaCommand,
+            "satya": SatyaCommand,
         },
     },
 }

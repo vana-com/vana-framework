@@ -1,8 +1,24 @@
+# The MIT License (MIT)
+# Copyright © 2024 Corsali, Inc. dba Vana
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the “Software”), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+# and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of
+# the Software.
+
+# THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+# THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+
 import argparse
 import vana
 from vana.commands.base_command import BaseCommand
 from rich.prompt import Prompt, Confirm
-from web3 import Web3
 
 
 class SatyaRegisterCommand(BaseCommand):
@@ -35,15 +51,23 @@ class SatyaRegisterCommand(BaseCommand):
             contract_abi = [
                 {
                     "inputs": [
-                        {"internalType": "address", "name": "teeAddress", "type": "address"},
-                        {"internalType": "string", "name": "url", "type": "string"}
+                        {
+                            "internalType": "address",
+                            "name": "teeAddress",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "url",
+                            "type": "string"
+                        }
                     ],
                     "name": "addTee",
                     "outputs": [],
                     "stateMutability": "nonpayable",
                     "type": "function"
                 }
-            ]  # This is a simplified ABI, you may need to provide the full ABI
+            ]
 
             # Create contract instance
             contract = chain_manager.web3.eth.contract(address=contract_address, abi=contract_abi)
@@ -106,25 +130,26 @@ class SatyaCommand(BaseCommand):
     """
 
     @staticmethod
+    def run(cli: "vana.cli"):
+        if cli.config.subcommand == "register":
+            SatyaRegisterCommand.run(cli)
+        else:
+            vana.__console__.print("[bold red]Invalid subcommand. Use 'register' or see help for more options.[/bold red]")
+
+    @staticmethod
     def add_args(parser: argparse.ArgumentParser):
-        satya_parser = parser.add_parser("satya", help="Satya-related commands")
-        subparsers = satya_parser.add_subparsers(dest="satya_command", required=True)
+        subparsers = parser.add_subparsers(dest="subcommand", required=True)
 
         # Register command
         register_parser = subparsers.add_parser("register", help="Register a validator node on the Vana network")
         SatyaRegisterCommand.add_args(register_parser)
 
-        # More Satya-related commands can be added here in the future
+        # More Satya-related commands here in the future
         # For example:
         # deregister_parser = subparsers.add_parser("deregister", help="Deregister a validator node from the Vana network")
         # SatyaDeregisterCommand.add_args(deregister_parser), etc.
 
     @staticmethod
     def check_config(config: "vana.Config"):
-        if config.satya_command == "register":
+        if config.subcommand == "register":
             SatyaRegisterCommand.check_config(config)
-
-    @staticmethod
-    def run(cli: "vana.cli"):
-        if cli.config.satya_command == "register":
-            SatyaRegisterCommand.run(cli)
