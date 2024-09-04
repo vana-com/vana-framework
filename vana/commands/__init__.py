@@ -48,3 +48,4 @@ from .wallets import (
     ExportPrivateKeyCommand,
 )
 from .transfer import TransferCommand
+from .register import RegisterCommand
