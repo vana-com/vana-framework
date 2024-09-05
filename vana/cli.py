@@ -36,7 +36,7 @@ from .commands import (
     WalletBalanceCommand,
     WalletCreateCommand,
     ExportPrivateKeyCommand,
-    SatyaCommand,
+    SatyaCommand
 )
 
 # Create a console instance for CLI display.
@@ -109,10 +109,10 @@ COMMANDS = {
     },
     "satya": {
         "name": "satya",
-        "aliases": [],
-        "help": "Satya-related commands for validator management.",
+        "aliases": ["s"],
+        "help": "Commands for interacting with the Satya protocol.",
         "commands": {
-            "satya": SatyaCommand,
+            "register": SatyaCommand,
         },
     },
 }
