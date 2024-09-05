@@ -316,7 +316,7 @@ class NodeServer:
         self.started = False
         return self
 
-    def serve(self, dlp_uid: int, chain_manager: Optional["vana.ChainManager"] = None) -> "NodeServer":
+    def serve(self, dlp_uid: Optional[int] = None, chain_manager: Optional["vana.ChainManager"] = None) -> "NodeServer":
         """
         Registers the NodeServer with a specific DLP within the Vana network, identified by the ``dlp_uid``.
         """
