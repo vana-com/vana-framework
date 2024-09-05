@@ -38,7 +38,7 @@ class RegisterCommand(BaseCommand):
         wallet (str): The name of the wallet to use for registration.
 
     Example usage:
-        vanacli register satya --url=https://teenode.com --wallet=validator_4000
+        vanacli register satya --url=https://teenode.com --wallet=dlp-owner
     """
 
     @staticmethod
@@ -71,24 +71,11 @@ class RegisterCommand(BaseCommand):
                     "stateMutability": "nonpayable",
                     "type": "function"
                 }
-            ]
+            ]  # TODO: Use ABIs when available
             contract = chain_manager.web3.eth.contract(address=contract_address, abi=contract_abi)
 
-            # Prepare transaction
-            transaction = contract.functions.addTee(
-                wallet.hotkey.address,
-                cli.config.url
-            ).build_transaction({
-                'from': wallet.hotkey.address,
-                'nonce': chain_manager.web3.eth.get_transaction_count(wallet.hotkey.address),
-            })
-
-            # Sign and send transaction
-            signed_txn = wallet.hotkey.sign_transaction(transaction)
-            tx_hash = chain_manager.web3.eth.send_raw_transaction(signed_txn.rawTransaction)
-
-            # Wait for transaction receipt
-            tx_receipt = chain_manager.web3.eth.wait_for_transaction_receipt(tx_hash)
+            add_tee_function = contract.functions.addTee(wallet.hotkey.address, cli.config.url)
+            tx_hash, tx_receipt = chain_manager.send_transaction(add_tee_function, wallet.hotkey)
 
             if tx_receipt['status'] == 1:
                 vana.__console__.print(f"[bold green]Successfully registered validator node '{cli.config.name}' with URL '{cli.config.url}'[/bold green]")
@@ -112,6 +99,7 @@ class RegisterCommand(BaseCommand):
         )
         satya_parser.add_argument("--url", type=str, required=False, help="The URL to register.")
         satya_parser.add_argument("--wallet.name", type=str, required=False, help="The name of the wallet to use for registration.")
+        satya_parser.add_argument("--chain.network", type=str, required=False, help="The network to use for registration.")
 
     @staticmethod
     def check_config(config: "vana.Config"):
