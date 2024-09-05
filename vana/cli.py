@@ -36,6 +36,7 @@ from .commands import (
     WalletBalanceCommand,
     WalletCreateCommand,
     ExportPrivateKeyCommand,
+    RegisterCommand
 )
 
 # Create a console instance for CLI display.
@@ -45,6 +46,7 @@ ALIAS_TO_COMMAND = {
     "root": "root",
     "wallet": "wallet",
     "stake": "stake",
+    "satya": "satya",
     "r": "root",
     "w": "wallet",
     "st": "stake",
@@ -106,6 +108,14 @@ COMMANDS = {
         "commands": {
         },
     },
+    "satya": {
+        "name": "satya",
+        "aliases": ["s"],
+        "help": "Commands for interacting with the Satya protocol.",
+        "commands": {
+            "register": RegisterCommand,
+        },
+    },
 }
 
 
@@ -117,9 +127,11 @@ def load_external_commands():
     eps = entry_points(group='vanacli.commands')
     COMMANDS["dlp"]["commands"] = {}
     for entry_point in eps:
-        command = entry_point.load()
-        COMMANDS["dlp"]["commands"][entry_point.name] = command
-
+        try:
+            command = entry_point.load()
+            COMMANDS["dlp"]["commands"][entry_point.name] = command
+        except Exception as e:
+            pass
 
 class CLIErrorParser(argparse.ArgumentParser):
     """
