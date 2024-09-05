@@ -48,4 +48,4 @@ from .wallets import (
     ExportPrivateKeyCommand,
 )
 from .transfer import TransferCommand
-from .satya import SatyaCommand
+from .satya import RegisterCommand
