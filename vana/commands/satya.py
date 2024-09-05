@@ -29,7 +29,7 @@ class SatyaCommand(BaseCommand):
     @staticmethod
     def run(cli: "vana.cli"):
         """Register a URL with the Satya protocol."""
-        url = cli.config.satya.url
+        url = cli.config.url
         vana.__console__.print(f"Registering URL with Satya: [bold]{url}[/bold]")
         # TODO: Implement actual registration logic
 
@@ -42,8 +42,6 @@ class SatyaCommand(BaseCommand):
 
     @staticmethod
     def check_config(config: "vana.Config"):
-        if not config.get("satya"):
-            config.satya = vana.Config()
-        if not config.satya.get("url") and not config.no_prompt:
+        if not config.get("url") and not config.no_prompt:
             url = Prompt.ask("Enter the URL to register")
             config.satya.url = url
