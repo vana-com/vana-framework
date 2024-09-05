@@ -78,7 +78,7 @@ class RegisterCommand(BaseCommand):
             tx_hash, tx_receipt = chain_manager.send_transaction(add_tee_function, wallet.hotkey)
 
             if tx_receipt['status'] == 1:
-                vana.__console__.print(f"[bold green]Successfully registered validator node '{cli.config.name}' with URL '{cli.config.url}'[/bold green]")
+                vana.__console__.print(f"[bold green]Successfully registered validator node with URL '{cli.config.url} and address {wallet.hotkey.address}'[/bold green]")
                 vana.__console__.print(f"Transaction hash: {tx_hash.hex()}")
             else:
                 vana.__console__.print("[bold red]Transaction failed. Please check the contract state and try again.[/bold red]")
