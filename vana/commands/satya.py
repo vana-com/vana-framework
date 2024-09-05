@@ -47,12 +47,11 @@ class RegisterCommand(BaseCommand):
         url = cli.config.url
         vana.__console__.print(f"Registering URL with Satya: [bold]{url}[/bold]")
         try:
-            # TODO: Currently fails on the next line
-            chain_manager: "vana.ChainManager" = vana.ChainManager(config=cli.config)
-            wallet = vana.Wallet(config=cli.config)
+            chain_manager: "vana.ChainManager" = vana.ChainManager(config=cli.config if cli.config.chain else None)
+            wallet = vana.Wallet(config=cli.config if cli.config.wallet else None)
 
             # Connect to the contract
-            contract_address = vana.__satori_tee_pool_contract_address
+            contract_address = "0x88790ffF10E952ffc13Be22a442616eAfE081594"  # TODO. Move to config
             contract_abi = [
                 {
                     "inputs": [
@@ -112,6 +111,7 @@ class RegisterCommand(BaseCommand):
             "register", help="Register a URL with the Satya protocol."
         )
         satya_parser.add_argument("--url", type=str, required=False, help="The URL to register.")
+        satya_parser.add_argument("--wallet.name", type=str, required=False, help="The name of the wallet to use for registration.")
 
     @staticmethod
     def check_config(config: "vana.Config"):
