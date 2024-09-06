@@ -610,7 +610,7 @@ class Message(pydantic.BaseModel):
         if self.node_server:
             headers.update(
                 {
-                    f"od_header_node_server_{k}": str(v)
+                    f"header_node_server_{k}": str(v)
                     for k, v in self.node_server.dict().items()
                     if v is not None
                 }
@@ -618,7 +618,7 @@ class Message(pydantic.BaseModel):
         if self.node_client:
             headers.update(
                 {
-                    f"od_header_node_client_{k}": str(v)
+                    f"header_node_client_{k}": str(v)
                     for k, v in self.node_client.dict().items()
                     if v is not None
                 }
@@ -642,7 +642,7 @@ class Message(pydantic.BaseModel):
                     encoded_value = base64.b64encode(serialized_value.encode()).decode(
                         "utf-8"
                     )
-                    headers[f"od_header_input_obj_{field}"] = encoded_value
+                    headers[f"header_input_obj_{field}"] = encoded_value
                 except TypeError as e:
                     raise ValueError(
                         f"Error serializing {field} with value {value}. Objects must be json serializable."
@@ -713,8 +713,8 @@ class Message(pydantic.BaseModel):
         Example::
 
             received_headers = {
-                'od_header_node_server_address': '127.0.0.1',
-                'od_header_node_client_port': '8080',
+                'header_node_server_address': '127.0.0.1',
+                'header_node_client_port': '8080',
                 # Other headers...
             }
             inputs = Message.parse_headers_to_inputs(received_headers)
@@ -736,9 +736,9 @@ class Message(pydantic.BaseModel):
         # Iterate over each item in the headers
         for key, value in headers.items():
             # Handle 'NodeServer' headers
-            if "od_header_node_server_" in key:
+            if "header_node_server_" in key:
                 try:
-                    new_key = key.split("od_header_node_server_")[1]
+                    new_key = key.split("header_node_server_")[1]
                     inputs_dict["node_server"][new_key] = value
                 except Exception as e:
                     vana.logging.error(
@@ -746,9 +746,9 @@ class Message(pydantic.BaseModel):
                     )
                     continue
             # Handle 'NodeClient' headers
-            elif "od_header_node_client_" in key:
+            elif "header_node_client_" in key:
                 try:
-                    new_key = key.split("od_header_node_client_")[1]
+                    new_key = key.split("header_node_client_")[1]
                     inputs_dict["node_client"][new_key] = value
                 except Exception as e:
                     vana.logging.error(
@@ -756,9 +756,9 @@ class Message(pydantic.BaseModel):
                     )
                     continue
             # Handle 'input_obj' headers
-            elif "od_header_input_obj" in key:
+            elif "header_input_obj" in key:
                 try:
-                    new_key = key.split("od_header_input_obj_")[1]
+                    new_key = key.split("header_input_obj_")[1]
                     # Skip if the key already exists in the dictionary
                     if new_key in inputs_dict:
                         continue
@@ -800,8 +800,8 @@ class Message(pydantic.BaseModel):
         Example::
 
             received_headers = {
-                'od_header_node_server_address': '127.0.0.1',
-                'od_header_node_client_port': '8080',
+                'header_node_server_address': '127.0.0.1',
+                'header_node_client_port': '8080',
                 # Other headers...
             }
             message = Message.from_headers(received_headers)

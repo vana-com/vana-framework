@@ -16,10 +16,12 @@
 # DEALINGS IN THE SOFTWARE.
 
 import argparse
+import traceback
+
 from rich.prompt import Prompt
+
 import vana
 from vana.commands.base_command import BaseCommand
-import traceback
 
 
 class RegisterCommand(BaseCommand):
@@ -38,7 +40,7 @@ class RegisterCommand(BaseCommand):
         wallet (str): The name of the wallet to use for registration.
 
     Example usage:
-        vanacli register satya --url=https://teenode.com --wallet=dlp-owner
+        vanacli satya register --url=https://teenode.com --wallet.name=dlp-owner --chain.network=satori
     """
 
     @staticmethod
@@ -47,50 +49,22 @@ class RegisterCommand(BaseCommand):
         url = cli.config.url
         vana.__console__.print(f"Registering URL with Satya: [bold]{url}[/bold]")
         try:
-            chain_manager: "vana.ChainManager" = vana.ChainManager(config=cli.config if cli.config.chain else None)
+            vana_client = vana.Client(config=cli.config)
             wallet = vana.Wallet(config=cli.config if cli.config.wallet else None)
 
-            # Connect to the contract
-            contract_address = "0x88790ffF10E952ffc13Be22a442616eAfE081594"  # TODO. Move to config
-            contract_abi = [
-                {
-                    "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "teeAddress",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "string",
-                            "name": "url",
-                            "type": "string"
-                        }
-                    ],
-                    "name": "addTee",
-                    "outputs": [],
-                    "stateMutability": "nonpayable",
-                    "type": "function"
-                }
-            ]  # TODO: Use ABIs when available
-            contract = chain_manager.web3.eth.contract(address=contract_address, abi=contract_abi)
-
-            add_tee_function = contract.functions.addTee(wallet.hotkey.address, cli.config.url)
-            tx_hash, tx_receipt = chain_manager.send_transaction(add_tee_function, wallet.hotkey)
+            tx_hash, tx_receipt = vana_client.register_tee(cli.config.url)
 
             if tx_receipt['status'] == 1:
-                vana.__console__.print(f"[bold green]Successfully registered validator node with URL '{cli.config.url} and address {wallet.hotkey.address}'[/bold green]")
+                vana.__console__.print(
+                    f"[bold green]Successfully registered validator node with URL '{cli.config.url} and address {wallet.hotkey.address}'[/bold green]")
                 vana.__console__.print(f"Transaction hash: {tx_hash.hex()}")
             else:
-                vana.__console__.print("[bold red]Transaction failed. Please check the contract state and try again.[/bold red]")
+                vana.__console__.print(
+                    "[bold red]Transaction failed. Please check the contract state and try again.[/bold red]")
 
         except Exception as e:
             vana.__console__.print(f"[bold red]Error:[/bold red] {str(e)}")
-            # Print stack trace
             traceback.print_exc()
-        finally:
-            if "chain_manager" in locals():
-                chain_manager.close()
-                vana.logging.debug("closing chain_manager connection")
 
     @staticmethod
     def add_args(parser: argparse.ArgumentParser):
@@ -98,11 +72,13 @@ class RegisterCommand(BaseCommand):
             "register", help="Register a URL with the Satya protocol."
         )
         satya_parser.add_argument("--url", type=str, required=False, help="The URL to register.")
-        satya_parser.add_argument("--wallet.name", type=str, required=False, help="The name of the wallet to use for registration.")
-        satya_parser.add_argument("--chain.network", type=str, required=False, help="The network to use for registration.")
+        satya_parser.add_argument("--wallet.name", type=str, required=False,
+                                  help="The name of the wallet to use for registration.")
+        satya_parser.add_argument("--chain.network", type=str, required=False,
+                                  help="The network to use for registration.")
 
     @staticmethod
     def check_config(config: "vana.Config"):
         if not config.get("url") and not config.no_prompt:
             url = Prompt.ask("Enter the URL to register")
-            config.satya.url = url
+            config.url = url

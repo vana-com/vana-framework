@@ -165,11 +165,12 @@ class NodeServer:
         ].annotation.__name__
 
         # Add the endpoint to the router, making it available on both GET and POST methods
+        dependencies = [Depends(self.verify_body_integrity)] if self.config.node_server.verify_body_integrity else []
         self.router.add_api_route(
             f"/{request_name}",
             forward_fn,
             methods=["GET", "POST"],
-            dependencies=[Depends(self.verify_body_integrity)],
+            dependencies=dependencies,
         )
         self.app.include_router(self.router)
 
@@ -222,11 +223,11 @@ class NodeServer:
         prefix_str = "" if prefix is None else prefix + "."
         try:
             # Get default values from environment variables or use default values
-            default_node_server_port = os.getenv("OD_NODESERVER_PORT") or 8091
-            default_node_server_ip = os.getenv("OD_NODESERVER_IP") or "[::]"
-            default_node_server_external_port = os.getenv("OD_NODESERVER_EXTERNAL_PORT") or None
-            default_node_server_external_ip = os.getenv("OD_NODESERVER_EXTERNAL_IP") or None
-            default_node_server_max_workers = os.getenv("OD_NODESERVER_MAX_WORKERS") or 10
+            default_node_server_port = os.getenv("NODESERVER_PORT") or 8091
+            default_node_server_ip = os.getenv("NODESERVER_IP") or "[::]"
+            default_node_server_external_port = os.getenv("NODESERVER_EXTERNAL_PORT") or None
+            default_node_server_external_ip = os.getenv("NODESERVER_EXTERNAL_IP") or None
+            default_node_server_max_workers = os.getenv("NODESERVER_MAX_WORKERS") or 10
 
             # Add command-line arguments to the parser
             parser.add_argument(
@@ -261,6 +262,12 @@ class NodeServer:
                 help="""The maximum number connection handler threads working simultaneously on this endpoint.
                             The grpc server distributes new worker threads to service requests up to this number.""",
                 default=default_node_server_max_workers,
+            )
+            parser.add_argument(
+                "--" + prefix_str + "node_server.verify_body_integrity",
+                type=bool,
+                help="""Whether to verify the integrity of the body of incoming HTTP requests.""",
+                default=True,
             )
 
         except argparse.ArgumentError:
@@ -316,7 +323,7 @@ class NodeServer:
         self.started = False
         return self
 
-    def serve(self, dlp_uid: int, chain_manager: Optional["vana.ChainManager"] = None) -> "NodeServer":
+    def serve(self, dlp_uid: Optional[int] = None, chain_manager: Optional["vana.ChainManager"] = None) -> "NodeServer":
         """
         Registers the NodeServer with a specific DLP within the Vana network, identified by the ``dlp_uid``.
         """

@@ -353,11 +353,11 @@ class LoggingMachine(StateMachine):
         """Accept specific arguments fro parser"""
         prefix_str = "" if prefix == None else prefix + "."
         try:
-            default_logging_debug = os.getenv("OD_LOGGING_DEBUG") or False
-            default_logging_trace = os.getenv("OD_LOGGING_TRACE") or False
-            default_logging_record_log = os.getenv("OD_LOGGING_RECORD_LOG") or False
+            default_logging_debug = os.getenv("LOGGING_DEBUG") or False
+            default_logging_trace = os.getenv("LOGGING_TRACE") or False
+            default_logging_record_log = os.getenv("LOGGING_RECORD_LOG") or False
             default_logging_logging_dir = (
-                    os.getenv("OD_LOGGING_LOGGING_DIR") or "~/.vana/miners"
+                    os.getenv("LOGGING_LOGGING_DIR") or "~/.vana/miners"
             )
             parser.add_argument(
                 "--" + prefix_str + "logging.debug",

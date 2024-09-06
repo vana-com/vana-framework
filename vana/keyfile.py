@@ -235,7 +235,7 @@ def get_coldkey_password_from_environment(coldkey_name: str) -> Optional[str]:
         password (str): The password retrieved from the environment variables, or ``None`` if not found.
     """
     for env_var in os.environ:
-        if env_var.upper().startswith("OD_COLD_PW_") and env_var.upper().endswith(
+        if env_var.upper().startswith("COLD_PW_") and env_var.upper().endswith(
                 coldkey_name.upper()
         ):
             return os.getenv(env_var)
