@@ -156,9 +156,9 @@ class Wallet:
         """
         prefix_str = "" if prefix is None else prefix + "."
         try:
-            default_name = os.getenv("OD_WALLET_NAME") or "default"
-            default_hotkey = os.getenv("OD_WALLET_NAME") or "default"
-            default_path = os.getenv("OD_WALLET_PATH") or "~/.vana/wallets/"
+            default_name = os.getenv("WALLET_NAME") or "default"
+            default_hotkey = os.getenv("WALLET_NAME") or "default"
+            default_path = os.getenv("WALLET_PATH") or "~/.vana/wallets/"
             parser.add_argument(
                 "--no_prompt",
                 dest="no_prompt",

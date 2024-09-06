@@ -129,9 +129,9 @@ class ChainManager:
     def add_args(cls, parser: argparse.ArgumentParser, prefix: Optional[str] = None):
         prefix_str = "" if prefix is None else f"{prefix}."
         try:
-            default_network = os.getenv("OD_CHAIN_NETWORK") or "vana"
+            default_network = os.getenv("CHAIN_NETWORK") or "vana"
             default_chain_endpoint = (
-                    os.getenv("OD_CHAIN_NETWORK_ENDPOINT")
+                    os.getenv("CHAIN_NETWORK_ENDPOINT")
                     or vana.__vana_entrypoint__
             )
             parser.add_argument(

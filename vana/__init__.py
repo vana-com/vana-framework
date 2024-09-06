@@ -107,6 +107,7 @@ from .state import State
 from .message import Message, TerminalInfo
 from .node_server import NodeServer
 from .node_client import NodeClient
+from .client import Client
 
 
 # Logging helpers.
@@ -144,7 +145,7 @@ configs = [
 ]
 defaults = Config.merge_all(configs)
 
-banner =r"""_/\\\________/\\\_____/\\\\\\\\\_____/\\\\\_____/\\\_____/\\\\\\\\\\\___
+banner = r"""_/\\\________/\\\_____/\\\\\\\\\_____/\\\\\_____/\\\_____/\\\\\\\\\\\___
 _\/\\\_______\/\\\___/\\\\\\\\\\\\\__\/\\\\\\___\/\\\___/\\\\\\\\\\\\\__
 _\//\\\______/\\\___/\\\/////////\\\_\/\\\/\\\__\/\\\__/\\\/////////\\\_
 __\//\\\____/\\\___\/\\\_______\/\\\_\/\\\//\\\_\/\\\_\/\\\_______\/\\\_
@@ -157,6 +158,7 @@ _______\///________\///________\///__\///_____\/////__\///________\///__
 
 import sys
 import os
+
 
 def is_cli_context():
     """
@@ -172,6 +174,7 @@ def is_cli_context():
         return 'cli' in module_name.lower() or 'cli' in file_name.lower()
 
     return False
+
 
 if not is_cli_context():
     print(banner)
