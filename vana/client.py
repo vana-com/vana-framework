@@ -25,18 +25,22 @@ class Client:
         self.network = self.config.chain.network
 
         # Load contracts
-        data_registry_contract_path = os.path.join(os.path.dirname(__file__),
-                                                   "contracts/DataRegistryImplementation.json")
+        data_registry_contract_path = os.path.join(
+            os.path.dirname(__file__),
+            "contracts/DataRegistry.json"
+        )
         with open(data_registry_contract_path) as f:
             self.data_registry_contract = self.chain_manager.web3.eth.contract(
-                address=contracts[self.network]["DataRegistryImplementation"],
+                address=contracts[self.network]["DataRegistry"],
                 abi=json.load(f)
             )
-        tee_pool_contract_path = os.path.join(os.path.dirname(__file__),
-                                              "contracts/TeePoolImplementation.json")
+        tee_pool_contract_path = os.path.join(
+            os.path.dirname(__file__),
+            "contracts/TeePool.json"
+        )
         with open(tee_pool_contract_path) as f:
             self.tee_pool_contract = self.chain_manager.web3.eth.contract(
-                address=contracts[self.network]["TeePoolImplementation"],
+                address=contracts[self.network]["TeePool"],
                 abi=json.load(f)
             )
 
