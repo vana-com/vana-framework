@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "vana"
-version = "0.11.0"
+version = "0.12.0"
 description = ""
 authors = ["Tim Nunamaker <tim@vana.com>", "Volodymyr Isai <volod@vana.com>", "Kahtaf Alam <kahtaf@vana.com>"]
 readme = "README.md"
 repository = "https://github.com/vana-com/vana-framework"
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.13"
+python = ">=3.10,<3.13"
 python-dotenv = "^1.0.1"
 pydantic = "^2.7.1"
 fastapi = "^0.111.0"
