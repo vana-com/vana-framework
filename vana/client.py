@@ -63,3 +63,33 @@ class Client:
     def register_tee(self, url: str):
         register_fn = self.tee_pool_contract.functions.addTee(self.wallet.hotkey.address, url)
         return self.chain_manager.send_transaction(register_fn, self.wallet.hotkey)
+
+    def add_proof(self, job_id: int, proof: dict):
+        """
+        Add a proof for a job to the Data Registry contract.
+
+        :param job_id: The ID of the job
+        :param proof: A dictionary containing the proof data
+        :return: Transaction receipt
+        """
+
+        # Construct the ProofData tuple
+        proof_data = (
+            proof['data']['score'],
+            proof['data']['timestamp'],
+            proof['data']['metadata'],
+            proof['data']['proofUrl'],
+            proof['data']['instruction']
+        )
+
+        # Construct the Proof tuple
+        proof_tuple = (
+            proof['signature'],
+            proof_data
+        )
+
+        # Call the addProof function on the contract
+        add_proof_fn = self.data_registry_contract.functions.addProof(job_id, proof_tuple)
+
+        # Send the transaction
+        return self.chain_manager.send_transaction(add_proof_fn, self.wallet.hotkey)
