@@ -17,6 +17,11 @@
 
 import json
 from dataclasses import dataclass, asdict
+from typing import Optional
+
+from eth_account.messages import encode_defunct
+from pydantic import BaseModel
+from web3 import Web3
 
 import vana
 from vana.utils import networking
@@ -90,3 +95,32 @@ class NodeServerInfo:
         except ValueError as e:
             vana.logging.error(f"Value error: {e}")
         return NodeServerInfo(0, "", 0, 0, "", "")
+
+
+class ProofData(BaseModel):
+    score: int
+    timestamp: int
+    metadata: Optional[str] = ""
+    proof_url: Optional[str] = ""
+    instruction: str
+
+
+class Proof(BaseModel):
+    signature: Optional[str] = ""
+    data: ProofData
+
+    def sign(self, wallet):
+        packed_data = Web3().solidity_keccak(
+            ['uint256', 'uint256', 'string', 'string', 'string'],
+            [
+                self.data.score,
+                self.data.timestamp,
+                self.data.metadata,
+                self.data.proof_url,
+                self.data.instruction
+            ]
+        )
+
+        message = encode_defunct(packed_data)
+        self.signature = wallet.hotkey.sign_message(message).signature.hex()
+        return self
