@@ -7,6 +7,7 @@ from typing import Optional
 import vana
 from vana.chain_data import Proof, ProofData
 from vana.contracts import contracts
+from vana.utils.web3 import as_wad
 
 
 class Client:
@@ -97,7 +98,7 @@ class Client:
         proof_tuple = (
             signed_proof.signature,
             (
-                signed_proof.data.score,
+                as_wad(signed_proof.data.score),
                 signed_proof.data.timestamp,
                 signed_proof.data.metadata,
                 signed_proof.data.proof_url,

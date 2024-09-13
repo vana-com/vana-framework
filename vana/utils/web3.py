@@ -15,8 +15,9 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-from eth_abi import decode
 from typing import Union
+
+from eth_abi import decode
 from web3 import Web3
 from web3.types import ABI
 
@@ -54,3 +55,21 @@ def decode_custom_error(contract_abi: ABI, error_data: Union[str, bytes]) -> str
                 return error_message
 
     return f"Unknown error({error_data})"
+
+
+def as_wad(num: float = 0) -> int:
+    """
+    Convert a number to its equivalent in wei.
+    :param num:
+    :return:
+    """
+    return int(num * 1e18)
+
+
+def from_wad(num: int = 0) -> float:
+    """
+    Convert a number from wei to its equivalent.
+    :param num:
+    :return:
+    """
+    return num / 1e18

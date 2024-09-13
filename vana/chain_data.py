@@ -25,6 +25,7 @@ from web3 import Web3
 
 import vana
 from vana.utils import networking
+from vana.utils.web3 import as_wad
 
 
 @dataclass
@@ -98,7 +99,7 @@ class NodeServerInfo:
 
 
 class ProofData(BaseModel):
-    score: int
+    score: float
     timestamp: int
     metadata: Optional[str] = ""
     proof_url: Optional[str] = ""
@@ -113,7 +114,7 @@ class Proof(BaseModel):
         packed_data = Web3().solidity_keccak(
             ['uint256', 'uint256', 'string', 'string', 'string'],
             [
-                self.data.score,
+                as_wad(self.data.score),
                 self.data.timestamp,
                 self.data.metadata,
                 self.data.proof_url,
