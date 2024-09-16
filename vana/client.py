@@ -73,6 +73,21 @@ class Client:
 
     # TEE Pool Contract
 
+    def get_tee(self, address: str):
+        """
+        Get the TEE information for a registered TEE
+        :param address: Address (hotkey) of TEE
+        :return: Transaction hex, Transaction receipt
+        """
+        get_tee_fn = self.tee_pool_contract.functions.tees(address)
+        tee = self.chain_manager.read_contract_fn(get_tee_fn)
+        if tee is None:
+            return None
+        (teeAddress, url, status, amount, withdrawnAmount) = tee
+        if url == "":
+            return None
+        return tee
+
     def register_tee(self, url: str):
         """
         Register a TEE compute node with the TEE Pool contract.
