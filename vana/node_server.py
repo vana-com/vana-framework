@@ -101,7 +101,8 @@ class NodeServer:
             if self.config.node_server.external_port is not None
             else self.config.node_server.port
         )
-        self.full_address = str(self.config.node_server.ip) + ":" + str(self.config.node_server.port)
+        self.full_address = str(self.ip) + ":" + str(self.port)
+        self.full_external_address = str(self.external_ip) + ":" + str(self.external_port)
         self.started = False
 
         # Request default functions.
