@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vana"
-version = "0.12.0"
+version = "0.13.0"
 description = ""
 authors = ["Tim Nunamaker <tim@vana.com>", "Volodymyr Isai <volod@vana.com>", "Kahtaf Alam <kahtaf@vana.com>"]
 readme = "README.md"
