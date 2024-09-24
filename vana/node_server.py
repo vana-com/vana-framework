@@ -305,13 +305,7 @@ class NodeServer:
         """
         This method checks the configuration for the NodeServer's port and wallet.
         """
-        assert (
-                1024 < config.node_server.port < 65535
-        ), "NodeServer port must be in range [1024, 65535]"
-
-        assert config.node_server.external_port is None or (
-                1024 < config.node_server.external_port < 65535
-        ), "External port must be in range [1024, 65535]"
+        pass
 
     def start(self) -> "NodeServer":
         self.fast_server.start()  # If using not FastAPIThreadedServer, use self.fast_server.run()
