@@ -9,13 +9,19 @@ from vana.contracts import contracts
 
 def fetch_and_save_contract_abi(network, contract_name, contract_hash):
     try:
-        # Make the GET request to the API
         BASE_URL = f"https://api.{network}.vanascan.io/api/v2/smart-contracts"
-        response = requests.get(f"{BASE_URL}/{contract_hash}")
-        response.raise_for_status()
+
+        # Get details about the proxy contract
+        proxy_response = requests.get(f"{BASE_URL}/{contract_hash}")
+        proxy_response.raise_for_status()
+        implementation_address = proxy_response.json()["decoded_constructor_args"][0][0]
+
+        # Fetch ABI from the implementation
+        implementation_response = requests.get(f"{BASE_URL}/{implementation_address}")
+        implementation_response.raise_for_status()
 
         # Extract the ABI from the response
-        abi = response.json().get('abi')
+        abi = implementation_response.json().get('abi')
         if not abi:
             vana.logging.error(f"No ABI found for contract {contract_name} with hash {contract_hash}")
             return
