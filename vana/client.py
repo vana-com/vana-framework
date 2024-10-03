@@ -114,7 +114,7 @@ class Client:
             signed_proof.signature,
             (
                 as_wad(signed_proof.data.score),
-                signed_proof.data.timestamp,
+                signed_proof.data.dlp_id,
                 signed_proof.data.metadata,
                 signed_proof.data.proof_url,
                 signed_proof.data.instruction,
