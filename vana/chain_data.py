@@ -100,7 +100,7 @@ class NodeServerInfo:
 
 class ProofData(BaseModel):
     score: float
-    timestamp: int
+    dlp_id: int
     metadata: Optional[str] = ""
     proof_url: Optional[str] = ""
     instruction: str
@@ -115,7 +115,7 @@ class Proof(BaseModel):
             ['uint256', 'uint256', 'string', 'string', 'string'],
             [
                 as_wad(self.data.score),
-                self.data.timestamp,
+                self.data.dlp_id,
                 self.data.metadata,
                 self.data.proof_url,
                 self.data.instruction
