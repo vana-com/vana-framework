@@ -2,6 +2,7 @@ import json
 import os
 
 import requests
+from web3 import Web3
 
 import vana
 from vana.contracts import contracts
@@ -9,15 +10,21 @@ from vana.contracts import contracts
 
 def fetch_and_save_contract_abi(network, contract_name, contract_hash):
     try:
-        BASE_URL = f"https://api.{network}.vanascan.io/api/v2/smart-contracts"
+        base_url = f"https://api.{network}.vanascan.io/api/v2/smart-contracts"
+        rpc_url = f"https://rpc.{network}.vana.org"
 
-        # Get details about the proxy contract
-        proxy_response = requests.get(f"{BASE_URL}/{contract_hash}")
-        proxy_response.raise_for_status()
-        implementation_address = proxy_response.json()["decoded_constructor_args"][0][0]
+        # Connect to the network
+        w3 = Web3(Web3.HTTPProvider(rpc_url))
+
+        # ERC1967 implementation slot
+        implementation_slot = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc'
+
+        # Get the implementation address
+        implementation_address = w3.eth.get_storage_at(contract_hash, int(implementation_slot))
+        implementation_address = '0x' + implementation_address.hex()[-40:]
 
         # Fetch ABI from the implementation
-        implementation_response = requests.get(f"{BASE_URL}/{implementation_address}")
+        implementation_response = requests.get(f"{base_url}/{implementation_address}")
         implementation_response.raise_for_status()
 
         # Extract the ABI from the response
@@ -39,7 +46,7 @@ def fetch_and_save_contract_abi(network, contract_name, contract_hash):
 
 
 def update_contract_abis():
-    network = os.environ.get("CHAIN_NETWORK", "satori")
+    network = os.environ.get("CHAIN_NETWORK", "moksha")
     if network not in contracts:
         network = "satori"
 
