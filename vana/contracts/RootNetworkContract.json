@@ -1012,6 +1012,30 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "dlpId",
+        "type": "uint256"
+      }
+    ],
+    "name": "estimatedDlpReward",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "historyRewardEstimation",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "stakeRewardEstimation",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "components": [
           {
             "internalType": "address payable",
@@ -1552,6 +1576,30 @@
     "name": "unstake",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "stakerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "dlpId",
+        "type": "uint256"
+      }
+    ],
+    "name": "unstakebleAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
