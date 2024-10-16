@@ -88,13 +88,14 @@ class Client:
             return None
         return tee
 
-    def register_tee(self, url: str):
+    def register_tee(self, url: str, public_key: str):
         """
         Register a TEE compute node with the TEE Pool contract.
-        :param url:
+        :param url: URL where the TEE is reachable
+        :param public_key: Public key of the TEE node
         :return: Transaction hex, Transaction receipt
         """
-        register_fn = self.tee_pool_contract.functions.addTee(self.wallet.hotkey.address, url)
+        register_fn = self.tee_pool_contract.functions.addTee(self.wallet.hotkey.address, url, public_key)
         return self.chain_manager.send_transaction(register_fn, self.wallet.hotkey)
 
     def add_proof(self, proof_data: ProofData, file_id: int | None = None, job_id: int | None = None):
