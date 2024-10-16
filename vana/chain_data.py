@@ -99,6 +99,7 @@ class NodeServerInfo:
 
 
 class ProofData(BaseModel):
+    file_url: str
     score: float
     dlp_id: int
     metadata: Optional[str] = ""
@@ -112,8 +113,9 @@ class Proof(BaseModel):
 
     def sign(self, wallet):
         packed_data = Web3().solidity_keccak(
-            ['uint256', 'uint256', 'string', 'string', 'string'],
+            ['string', 'uint256', 'uint256', 'string', 'string', 'string'],
             [
+                self.data.file_url,
                 as_wad(self.data.score),
                 self.data.dlp_id,
                 self.data.metadata,
