@@ -83,7 +83,7 @@ class Client:
         tee = self.chain_manager.read_contract_fn(get_tee_fn)
         if tee is None:
             return None
-        (teeAddress, url, status, amount, withdrawnAmount) = tee
+        (teeAddress, url, status, amount, withdrawnAmount, jobsCount, publicKey) = tee
         if url == "":
             return None
         return tee
