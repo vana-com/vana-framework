@@ -427,6 +427,28 @@ class Wallet:
         """
         return self.hotkey_file.get_keypair(password=password)
 
+    def get_hotkey_public_key(self) -> str:
+        """
+        Gets the public key of the hotkey as a hexadecimal string.
+
+        Returns:
+            str: The public key of the hotkey in hexadecimal format.
+
+        Raises:
+            AttributeError: If the hotkey is not set.
+        """
+        if self._hotkey is None:
+            self._hotkey = self.hotkey_file.keypair
+
+        if self._hotkey is None:
+            raise AttributeError("Hotkey is not set. Please ensure the hotkey is properly initialized.")
+
+        # Get the public key as bytes
+        public_key_bytes = self._hotkey._key_obj.public_key.to_bytes()
+
+        # Convert the bytes to a hexadecimal string
+        return '0x' + public_key_bytes.hex()
+
     def get_coldkeypub(self, password: str = None) -> PublicKey:
         """
         Gets the coldkeypub from the wallet.

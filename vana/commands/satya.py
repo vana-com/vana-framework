@@ -40,7 +40,7 @@ class RegisterCommand(BaseCommand):
         wallet (str): The name of the wallet to use for registration.
 
     Example usage:
-        vanacli satya register --url=https://teenode.com --wallet.name=dlp-owner --chain.network=satori
+        vanacli satya register --url=https://teenode.com --wallet.name=dlp-owner --chain.network=moksha
     """
 
     @staticmethod
@@ -52,11 +52,10 @@ class RegisterCommand(BaseCommand):
             vana_client = vana.Client(config=cli.config)
             wallet = vana.Wallet(config=cli.config if cli.config.wallet else None)
 
-            tx_hash, tx_receipt = vana_client.register_tee(cli.config.url)
-
+            tx_hash, tx_receipt = vana_client.register_tee(cli.config.url, wallet.get_hotkey_public_key())
             if tx_receipt['status'] == 1:
                 vana.__console__.print(
-                    f"[bold green]Successfully registered validator node with URL '{cli.config.url} and address {wallet.hotkey.address}'[/bold green]")
+                    f"[bold green]Successfully registered validator node with URL '{cli.config.url}', address '{wallet.hotkey.address}' and public key '{wallet.get_hotkey_public_key()}'[/bold green]")
                 vana.__console__.print(f"Transaction hash: {tx_hash.hex()}")
             else:
                 vana.__console__.print(
