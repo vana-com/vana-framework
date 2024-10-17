@@ -20,8 +20,9 @@ def fetch_and_save_contract_abi(network, contract_name, contract_hash):
         implementation_slot = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc'
 
         # Get the implementation address
-        implementation_address = w3.eth.get_storage_at(contract_hash, int(implementation_slot))
-        implementation_address = '0x' + implementation_address.hex()[-40:]
+        implementation_address = w3.eth.get_storage_at(contract_hash, implementation_slot)
+        # If address is 0x0000...0000, it means the contract is not a proxy, use its address as implementation address
+        implementation_address = '0x' + implementation_address.hex()[-40:] if implementation_address != b'\x00' * 32 else contract_hash
 
         # Fetch ABI from the implementation
         implementation_response = requests.get(f"{base_url}/{implementation_address}")
