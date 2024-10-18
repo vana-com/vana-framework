@@ -61,6 +61,18 @@ class Client:
             return None
         return file
 
+    def get_file_permissions(self, file_id: int, account: str) -> str:
+        """
+        Get the permissions for a specific account on a file.
+
+        :param file_id: ID of the file
+        :param account: Address of the account to check permissions for
+        :return: The encryption key for the account, or an empty string if no permissions
+        """
+        get_permissions_fn = self.data_registry_contract.functions.filePermissions(file_id, account)
+        permissions = self.chain_manager.read_contract_fn(get_permissions_fn)
+        return permissions
+
     def add_file(self, url: str, integrity_hash: Optional[str] = None):
         """
         Add a file to the Data Registry contract.
@@ -83,7 +95,7 @@ class Client:
         tee = self.chain_manager.read_contract_fn(get_tee_fn)
         if tee is None:
             return None
-        (teeAddress, url, status, amount, withdrawnAmount) = tee
+        (teeAddress, url, status, amount, withdrawnAmount, jobsCount, publicKey) = tee
         if url == "":
             return None
         return tee
