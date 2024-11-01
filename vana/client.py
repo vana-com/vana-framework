@@ -56,6 +56,8 @@ class Client:
         """
         get_file_fn = self.data_registry_contract.functions.files(file_id)
         file = self.chain_manager.read_contract_fn(get_file_fn)
+        if file is None:
+            return None
         (id, ownerAddress, url, addedAtBlock) = file
         if ownerAddress == "0x0000000000000000000000000000000000000000":
             return None
