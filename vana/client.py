@@ -149,3 +149,20 @@ class Client:
         """
         claim_fn = self.tee_pool_contract.functions.claim()
         return self.chain_manager.send_transaction(claim_fn, self.wallet.hotkey)
+
+    def get_jobs_count(self) -> int:
+        """
+        Get the total number of jobs from the TEE Pool contract
+
+        Returns:
+            int: Total number of jobs in the queue
+        """
+        try:
+            # Call the TEE Pool contract's jobCount method
+            job_count_fn = self.tee_pool_contract.functions.jobsCount()
+            job_count = self.chain_manager.read_contract_fn(job_count_fn)
+            return job_count
+        except Exception as e:
+            vana.logging.error(f"Error getting job count: {str(e)}")
+            # Return 0 if unable to get count to avoid breaking progress calculation
+            return 0
