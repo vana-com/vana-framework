@@ -159,7 +159,8 @@ class Client:
         """
         try:
             # Call the TEE Pool contract's jobCount method
-            job_count = self.tee_pool_contract.functions.jobsCount().call()
+            job_count_fn = self.tee_pool_contract.functions.jobsCount()
+            job_count = self.chain_manager.read_contract_fn(job_count_fn)
             return job_count
         except Exception as e:
             vana.logging.error(f"Error getting job count: {str(e)}")
