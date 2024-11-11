@@ -27,14 +27,12 @@ web3 = "^6.18.0"
 shtab = "^1.7.1"
 pynacl = "^1.5.0"
 eth-abi = "^5.1.0"
+tomli = "^2.1.0"
 
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core", "setuptools>=42", "wheel"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-vanacli = "vana.cli:main"
-
-[tool.poetry.entry_points.console_scripts]
 vanacli = "vana.cli:main"
