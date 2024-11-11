@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vana"
-version = "0.23.0"
+version = "0.24.0"
 description = ""
 authors = ["Tim Nunamaker <tim@vana.com>", "Volodymyr Isai <volod@vana.com>", "Kahtaf Alam <kahtaf@vana.com>"]
 readme = "README.md"
@@ -34,4 +34,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
+vanacli = "vana.cli:main"
+
+[tool.poetry.entry_points.console_scripts]
 vanacli = "vana.cli:main"
