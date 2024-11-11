@@ -1,5 +1,10 @@
 from setuptools import setup, find_packages
+from setuptools.command.install import install
+from distutils.cmd import Command
+from typing import Dict, Type, cast
 import tomli
+import subprocess
+import sys
 
 with open("pyproject.toml", "rb") as f:
     pyproject = tomli.load(f)
@@ -13,6 +18,24 @@ dependencies = [
     if pkg != "python"
 ]
 
+
+class PostInstallCommand(install):
+    """Custom command that runs PATH setup after installation"""
+
+    def run(self) -> None:
+        """Run install and then update PATH"""
+        install.run(self)
+        try:
+            # Run vanacli with post-install flag
+            subprocess.run([sys.executable, "-m", "vana.cli", "--post-install"], check=True)
+        except subprocess.CalledProcessError:
+            print("Warning: Failed to update PATH configuration", file=sys.stderr)
+
+
+command_classes = cast(Dict[str, Type[Command]], {
+    'install': PostInstallCommand
+})
+
 setup(
     name="vana",
     version=version,
@@ -24,4 +47,5 @@ setup(
         ],
     },
     python_requires=pyproject["tool"]["poetry"]["dependencies"]["python"],
+    cmdclass=command_classes
 )

@@ -20,6 +20,8 @@
 import argparse
 import shtab
 import sys
+import os
+from pathlib import Path
 import vana
 from importlib.metadata import entry_points
 from typing import List, Optional
@@ -119,6 +121,39 @@ COMMANDS = {
 }
 
 
+def ensure_local_bin_in_path():
+    """Ensures ~/.local/bin is in PATH for the current session"""
+    local_bin = str(Path.home() / ".local" / "bin")
+    if local_bin not in os.environ.get("PATH", "").split(os.pathsep):
+        os.environ["PATH"] = local_bin + os.pathsep + os.environ.get("PATH", "")
+
+
+def update_shell_config():
+    """Updates shell config to include ~/.local/bin in PATH"""
+    local_bin = str(Path.home() / ".local" / "bin")
+
+    # Check if already in PATH
+    if local_bin in os.environ.get("PATH", "").split(os.pathsep):
+        return
+
+    # Determine shell config file
+    shell = os.environ.get("SHELL", "")
+    home = str(Path.home())
+
+    if "zsh" in shell:
+        rc_file = os.path.join(home, ".zshrc")
+    else:  # default to bash
+        rc_file = os.path.join(home, ".bashrc")
+
+    if os.path.exists(rc_file):
+        with open(rc_file, 'r') as f:
+            content = f.read()
+
+        if "PATH=\"$HOME/.local/bin:$PATH\"" not in content:
+            with open(rc_file, 'a') as f:
+                f.write('\n# Added by vana installation\nexport PATH="$HOME/.local/bin:$PATH"\n')
+
+
 def load_external_commands():
     """
     Load external commands from entry points.
@@ -132,6 +167,7 @@ def load_external_commands():
             COMMANDS["dlp"]["commands"][entry_point.name] = command
         except Exception as e:
             pass
+
 
 class CLIErrorParser(argparse.ArgumentParser):
     """
@@ -185,6 +221,9 @@ class cli:
         # Check if the config is valid.
         cli.check_config(self.config)
 
+        # Ensure ~/.local/bin is in PATH
+        ensure_local_bin_in_path()
+
         # If no_version_checking is not set or set as False in the config, version checking is done.
         if not self.config.get("no_version_checking", d=True):
             try:
@@ -214,6 +253,11 @@ class cli:
             "--print-completion",
             choices=shtab.SUPPORTED_SHELLS,
             help="Print shell tab completion script",
+        )
+        parser.add_argument(
+            "--post-install",
+            action="store_true",
+            help=argparse.SUPPRESS,  # Hide from help output
         )
         # Add arguments for each sub-command.
         cmd_parsers = parser.add_subparsers(dest="command")
@@ -318,6 +362,12 @@ def main():
     # Create the parser with shtab support
     parser = cli.__create_parser__()
     args, unknown = parser.parse_known_args()
+
+    # Handle post-install PATH setup
+    if getattr(args, 'post_install', False):
+        update_shell_config()
+        ensure_local_bin_in_path()
+        return
 
     if args.print_completion:  # Check for print-completion argument
         print(shtab.complete(parser, args.print_completion))
