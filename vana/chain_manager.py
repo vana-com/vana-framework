@@ -200,37 +200,70 @@ class ChainManager:
 
         return state_
 
-    def send_transaction(self, function: ContractFunction, account: LocalAccount, value=0):
-        try:
-            gas_limit = function.estimate_gas({
-                'from': account.address,
-                'value': self.web3.to_wei(value, 'ether')
-            }) * 2
+    def send_transaction(self, function: ContractFunction, account: LocalAccount, value=0, max_retries=3):
+        """
+        Send a transaction with retry logic for nonce issues.
 
-            tx = function.build_transaction({
-                'from': account.address,
-                'value': self.web3.to_wei(value, 'ether'),
-                'gas': gas_limit,
-                'gasPrice': self.web3.eth.gas_price,
-                'nonce': self.web3.eth.get_transaction_count(account.address)
-            })
+        Args:
+            function: Contract function to call
+            account: Account to send from
+            value: ETH value to send
+            max_retries: Maximum number of retries for nonce issues
+        """
+        retry_count = 0
+        while retry_count < max_retries:
+            try:
+                # Estimate gas
+                gas_limit = function.estimate_gas({
+                    'from': account.address,
+                    'value': self.web3.to_wei(value, 'ether')
+                }) * 2
 
-            signed_tx = self.web3.eth.account.sign_transaction(tx, private_key=account.key)
-            vana.logging.info(f"Transaction hash: {signed_tx.hash.hex()}")
+                # Get current gas price and increase it slightly for replacement transactions
+                gas_price = self.web3.eth.gas_price
+                if retry_count > 0:
+                    gas_price = int(gas_price * 1.1)  # Increase gas price by 10% on retries
 
-            tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
-            tx_receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
-            vana.logging.info(f"Transaction hash: {tx_hash.hex()}")
-            vana.logging.info(f"Transaction receipt: {tx_receipt}")
-            url = get_block_explorer_url(self.config.chain.network, tx_hash.hex())
-            vana.logging.info(f"View transaction on block explorer: {url}")
+                # Get the latest nonce right before sending
+                nonce = self.web3.eth.get_transaction_count(account.address, 'pending')
 
-            return tx_hash, tx_receipt
-        except ContractCustomError as e:
-            decoded_error = decode_custom_error(function.contract_abi, e.data)
-            vana.logging.error(f"Failed to write to contract function: {decoded_error}")
-        except Exception as e:
-            vana.logging.error(f"Failed to write to contract function: {e}")
+                tx = function.build_transaction({
+                    'from': account.address,
+                    'value': self.web3.to_wei(value, 'ether'),
+                    'gas': gas_limit,
+                    'gasPrice': gas_price,
+                    'nonce': nonce
+                })
+
+                signed_tx = self.web3.eth.account.sign_transaction(tx, private_key=account.key)
+                vana.logging.info(f"Sending transaction with nonce {nonce}, gas price {gas_price} (retry {retry_count})")
+
+                tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
+                vana.logging.info(f"Transaction hash: {tx_hash.hex()}")
+
+                tx_receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+                url = get_block_explorer_url(self.config.chain.network, tx_hash.hex())
+                vana.logging.info(f"Transaction successful. View on block explorer: {url}")
+
+                return tx_hash, tx_receipt
+
+            except Exception as e:
+                error_msg = str(e)
+                if "replacement transaction underpriced" in error_msg and retry_count < max_retries - 1:
+                    retry_count += 1
+                    vana.logging.warning(f"Transaction underpriced, retrying with higher gas price (attempt {retry_count}/{max_retries})")
+                    # Small delay before retry to allow pending transactions to clear
+                    time.sleep(1)
+                    continue
+                else:
+                    if isinstance(e, ContractCustomError):
+                        decoded_error = decode_custom_error(function.contract_abi, e.data)
+                        vana.logging.error(f"Contract error: {decoded_error}")
+                    else:
+                        vana.logging.error(f"Transaction failed: {error_msg}")
+                    raise
+
+        raise Exception(f"Failed to send transaction after {max_retries} attempts")
 
     def read_contract_fn(self, function: ContractFunction):
         try:
