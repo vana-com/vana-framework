@@ -200,7 +200,7 @@ class ChainManager:
 
         return state_
 
-    def send_transaction(self, function: ContractFunction, account: LocalAccount, value=0, max_retries=3):
+    def send_transaction(self, function: ContractFunction, account: LocalAccount, value=0, max_retries=3, base_gas_multiplier=1.5):
         """
         Send a transaction with retry logic for nonce issues.
 
@@ -221,7 +221,9 @@ class ChainManager:
 
                 # Start with a higher base gas price and increase aggressively on retries
                 base_gas_price = self.web3.eth.gas_price
-                gas_multiplier = 1.5 + (retry_count * 0.5)  # 1.5x, 2x, 2.5x for each retry
+
+                # Start at 1.5x (default) and increase by 0.5x per retry
+                gas_multiplier = base_gas_multiplier + (retry_count * 0.5)
                 gas_price = int(base_gas_price * gas_multiplier)
 
                 # Get the latest nonce right before sending
