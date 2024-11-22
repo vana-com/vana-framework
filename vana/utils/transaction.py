@@ -44,6 +44,7 @@ class TransactionManager:
             # Get all pending transactions for the account
             pending_nonce = self.web3.eth.get_transaction_count(self.account.address, 'pending')
             confirmed_nonce = self.web3.eth.get_transaction_count(self.account.address, 'latest')
+            eth_transfer_gas = 21000  # Standard gas cost for basic ETH transfer
 
             if pending_nonce > confirmed_nonce:
                 vana.logging.info(f"Clearing {pending_nonce - confirmed_nonce} pending transactions")
@@ -55,7 +56,7 @@ class TransactionManager:
                         'to': self.account.address,
                         'value': 0,
                         'nonce': nonce,
-                        'gas': 21000,
+                        'gas': eth_transfer_gas,
                         'gasPrice': self.web3.eth.gas_price * 2,  # Double the current gas price
                         'chainId': self.chain_id  # Add chain ID for EIP-155
                     }
