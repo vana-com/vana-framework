@@ -200,7 +200,7 @@ class ChainManager:
 
         return state_
 
-    def send_transaction(self, function: ContractFunction, account: LocalAccount, value=0, max_retries=3):
+    def send_transaction(self, function: ContractFunction, account: LocalAccount, value=0, max_retries=3, base_gas_multiplier=1.5):
         """
         Send a transaction with retry logic for nonce issues.
 
@@ -213,16 +213,18 @@ class ChainManager:
         retry_count = 0
         while retry_count < max_retries:
             try:
-                # Estimate gas
+                # Estimate gas with 2x buffer
                 gas_limit = function.estimate_gas({
                     'from': account.address,
                     'value': self.web3.to_wei(value, 'ether')
                 }) * 2
 
-                # Get current gas price and increase it slightly for replacement transactions
-                gas_price = self.web3.eth.gas_price
-                if retry_count > 0:
-                    gas_price = int(gas_price * 1.1)  # Increase gas price by 10% on retries
+                # Start with a higher base gas price and increase aggressively on retries
+                base_gas_price = self.web3.eth.gas_price
+
+                # Start at 1.5x (default) and increase by 0.5x per retry
+                gas_multiplier = base_gas_multiplier + (retry_count * 0.5)
+                gas_price = int(base_gas_price * gas_multiplier)
 
                 # Get the latest nonce right before sending
                 nonce = self.web3.eth.get_transaction_count(account.address, 'pending')
@@ -236,12 +238,12 @@ class ChainManager:
                 })
 
                 signed_tx = self.web3.eth.account.sign_transaction(tx, private_key=account.key)
-                vana.logging.info(f"Sending transaction with nonce {nonce}, gas price {gas_price} (retry {retry_count})")
+                vana.logging.info(f"Sending transaction with nonce {nonce}, gas price {gas_price} ({gas_multiplier}x base) (retry {retry_count})")
 
                 tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
                 vana.logging.info(f"Transaction hash: {tx_hash.hex()}")
 
-                tx_receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+                tx_receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
                 url = get_block_explorer_url(self.config.chain.network, tx_hash.hex())
                 vana.logging.info(f"Transaction successful. View on block explorer: {url}")
 
@@ -249,9 +251,9 @@ class ChainManager:
 
             except Exception as e:
                 error_msg = str(e)
-                if "replacement transaction underpriced" in error_msg and retry_count < max_retries - 1:
+                if any(msg in error_msg.lower() for msg in ["underpriced", "timeout"]) and retry_count < max_retries - 1:
                     retry_count += 1
-                    vana.logging.warning(f"Transaction underpriced, retrying with higher gas price (attempt {retry_count}/{max_retries})")
+                    vana.logging.warning(f"Transaction failed, retrying with higher gas price (attempt {retry_count}/{max_retries})")
                     # Small delay before retry to allow pending transactions to clear
                     time.sleep(1)
                     continue
