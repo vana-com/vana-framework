@@ -36,9 +36,12 @@ class TransactionManager:
         self._nonce_cache[cache_key] = nonce + 1
         return nonce
 
-    def _clear_pending_transactions(self):
+    def _clear_pending_transactions(self, max_wait_time: int = 180):
         """
-        Clear pending transactions by sending zero-value transactions with higher gas price
+        Clear pending transactions by sending zero-value transactions with higher gas price.
+
+        Args:
+            max_wait_time: Maximum time to wait for transactions to clear in seconds.
         """
         try:
             # Get all pending transactions for the account
@@ -47,7 +50,9 @@ class TransactionManager:
             eth_transfer_gas = 21000  # Standard gas cost for basic ETH transfer
 
             if pending_nonce > confirmed_nonce:
-                vana.logging.info(f"Clearing {pending_nonce - confirmed_nonce} pending transactions")
+                initial_pending = pending_nonce - confirmed_nonce
+                vana.logging.info(f"Clearing {initial_pending} pending transactions v8")
+                highest_nonce = pending_nonce - 1  # Keep track of highest nonce we're replacing
 
                 # Send replacement transactions with higher gas price
                 for nonce in range(confirmed_nonce, pending_nonce):
@@ -57,19 +62,47 @@ class TransactionManager:
                         'value': 0,
                         'nonce': nonce,
                         'gas': eth_transfer_gas,
-                        'gasPrice': self.web3.eth.gas_price * 2,  # Double the current gas price
-                        'chainId': self.chain_id  # Add chain ID for EIP-155
+                        'gasPrice': self.web3.eth.gas_price * 4,
+                        'chainId': self.chain_id
                     }
 
                     signed_tx = self.web3.eth.account.sign_transaction(replacement_tx, self.account.key)
                     try:
-                        self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
-                        vana.logging.info(f"Sent replacement transaction for nonce {nonce}")
+                        tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
+                        vana.logging.info(f"Sent replacement transaction for nonce {nonce}: {tx_hash.hex()}")
                     except Exception as e:
                         vana.logging.warning(f"Failed to replace transaction with nonce {nonce}: {str(e)}")
 
-                # Wait for transactions to be processed
-                time.sleep(30)
+                # Wait for transactions to be processed by monitoring the latest nonce
+                pending_remaining = initial_pending
+                start_time = time.time()
+                while time.time() - start_time < max_wait_time:
+                    current_nonce = self.web3.eth.get_transaction_count(self.account.address, 'latest')
+                    pending_remaining = (
+                            self.web3.eth.get_transaction_count(self.account.address, 'pending') -
+                            current_nonce
+                    )
+
+                    if current_nonce > highest_nonce:
+                        vana.logging.info("All replacement transactions processed successfully")
+                        return
+
+                    if pending_remaining == 0:
+                        vana.logging.info("No more pending transactions")
+                        return
+
+                    if pending_remaining != initial_pending:
+                        vana.logging.info(
+                            f"Progress: {initial_pending - pending_remaining}/{initial_pending} "
+                            f"transactions processed"
+                        )
+
+                    time.sleep(5)  # Check every 5 seconds
+
+                vana.logging.warning(
+                    f"Timed out waiting for transactions to clear after {max_wait_time} seconds. "
+                    f"Remaining pending: {pending_remaining}"
+                )
 
         except Exception as e:
             vana.logging.error(f"Error clearing pending transactions: {str(e)}")
