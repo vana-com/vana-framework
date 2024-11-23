@@ -51,7 +51,7 @@ class TransactionManager:
 
             if pending_nonce > confirmed_nonce:
                 initial_pending = pending_nonce - confirmed_nonce
-                vana.logging.info(f"Clearing {initial_pending} pending transactions v8")
+                vana.logging.info(f"Clearing {initial_pending} pending transactions")
                 highest_nonce = pending_nonce - 1  # Keep track of highest nonce we're replacing
 
                 # Send replacement transactions with higher gas price
