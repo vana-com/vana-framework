@@ -72,7 +72,7 @@ $ tree ~/.vana/
     .vana/                  # Root directory.
         wallets/                # The folder containing all opendata wallets.
             default/            # The name of your wallet, "default"
-                coldkey         # You encrypted coldkey.
+                coldkey         # Your encrypted coldkey.
                 coldkeypub.txt  # Your coldkey public address
                 hotkeys/        # The folder containing all of your hotkeys.
                     default     # You unencrypted hotkey information.
