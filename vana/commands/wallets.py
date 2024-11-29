@@ -200,7 +200,7 @@ class RegenColdkeypubCommand(BaseCommand):
                 config.public_key_hex = prompt_answer
             else:
                 config.h160_address = prompt_answer
-        if not vana.utils.is_valid_opendata_address_or_public_key(
+        if not vana.utils.is_valid_vana_address_or_public_key(
                 address=(
                         config.h160_address if config.h160_address else config.public_key_hex
                 )

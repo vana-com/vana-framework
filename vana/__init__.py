@@ -15,7 +15,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-__version__ = "0.29.0"
+__version__ = "0.30.0"
 
 import rich
 
@@ -119,9 +119,13 @@ def debug(on: bool = True):
     logging.set_debug(on)
 
 
-__networks__ = ["vana", "satori", "moksha", "local", "test", "archive"]
+__networks__ = ["vana", "islander", "maya", "satori", "moksha", "local", "test", "archive"]
 
 __vana_entrypoint__ = "https://rpc.vana.org"
+
+__islander_entrypoint__ = "https://rpc.islander.vana.org"
+
+__maya_entrypoint__ = "https://rpc.maya.vana.org"
 
 __satori_entrypoint__ = "https://rpc.satori.vana.org"
 
@@ -135,6 +139,8 @@ block_explorer_tx_templates = {
     "vana": "https://vanascan.io/tx/{}",
     "moksha": "https://moksha.vanascan.io/tx/{}",
     "satori": "https://satori.vanascan.io/tx/{}",
+    "islander": "https://islander.vanascan.io/tx/{}",
+    "maya": "https://maya.vanascan.io/tx/{}",
 }
 
 configs = [

@@ -84,7 +84,7 @@ class TransferCommand(BaseCommand):
         # Get destination.
         if not config.dest and not config.no_prompt:
             dest = Prompt.ask("Enter destination public key: (h160 or secp256k1)")
-            if not vana.utils.is_valid_opendata_address_or_public_key(dest):
+            if not vana.utils.is_valid_vana_address_or_public_key(dest):
                 sys.exit()
             else:
                 config.dest = str(dest)

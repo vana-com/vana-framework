@@ -29,7 +29,7 @@ from eth_keys.datatypes import PublicKey
 from rich.panel import Panel
 
 import vana
-from vana.utils.wallet_utils import is_valid_opendata_address_or_public_key
+from vana.utils.wallet_utils import is_valid_vana_address_or_public_key
 
 
 def display_private_key_msg(private_key: str, key_type: str):
@@ -618,7 +618,7 @@ class Wallet:
         if h160_address is None and public_key is None:
             raise ValueError("Either h160_address or public_key must be passed")
 
-        if not is_valid_opendata_address_or_public_key(
+        if not is_valid_vana_address_or_public_key(
                 h160_address if h160_address is not None else public_key
         ):
             raise ValueError(

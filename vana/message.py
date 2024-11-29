@@ -198,10 +198,10 @@ class TerminalInfo(pydantic.BaseModel):
     )
     _extract_port = pydantic.validator("port", pre=True, allow_reuse=True)(cast_int)
 
-    # The opendata version on the terminal as an int.
+    # The vana version on the terminal as an int.
     version: Optional[int] = pydantic.Field(
         title="version",
-        description="The opendata version on the NodeServer as str(int)",
+        description="The vana version on the NodeServer as str(int)",
         examples=111,
         default=None,
         allow_mutation=True,
@@ -229,7 +229,7 @@ class TerminalInfo(pydantic.BaseModel):
         allow_mutation=True,
     )
 
-    # The opendata version on the terminal as an int.
+    # The vana version on the terminal as an int.
     hotkey: Optional[str] = pydantic.Field(
         title="hotkey",
         description="The h160 encoded hotkey string of the terminal wallet.",
