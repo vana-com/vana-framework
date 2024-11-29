@@ -54,7 +54,7 @@ def is_valid_secp256k1_pubkey(public_key: Union[str, bytes]) -> bool:
         return False
 
 
-def is_valid_opendata_address_or_public_key(address: Union[str, bytes]) -> bool:
+def is_valid_vana_address_or_public_key(address: Union[str, bytes]) -> bool:
     """
     Checks if the given address is a valid Ethereum address or public key.
 

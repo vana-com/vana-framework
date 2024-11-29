@@ -20,7 +20,7 @@ TRACE_LOG_FORMAT = (
     f"%(asctime)s | %(levelname)s | %(name)s:%(filename)s:%(lineno)s | %(message)s"
 )
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-OPENDATA_LOGGER_NAME = "vana"
+VANA_LOGGER_NAME = "vana"
 DEFAULT_LOG_FILE_NAME = "vana.log"
 DEFAULT_MAX_ROTATING_LOG_FILE_SIZE = 25 * 1024 * 1024
 DEFAULT_LOG_BACKUP_COUNT = 10

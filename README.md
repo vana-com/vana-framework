@@ -70,7 +70,7 @@ You should be able to view your keys by navigating to `~/.vana/wallets`
 ```bash
 $ tree ~/.vana/
     .vana/                  # Root directory.
-        wallets/                # The folder containing all opendata wallets.
+        wallets/                # The folder containing all vana wallets.
             default/            # The name of your wallet, "default"
                 coldkey         # Your encrypted coldkey.
                 coldkeypub.txt  # Your coldkey public address

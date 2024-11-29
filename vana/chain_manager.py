@@ -36,7 +36,7 @@ import vana
 from vana.utils.transaction import TransactionManager
 from vana.utils.web3 import decode_custom_error
 
-logger = native_logging.getLogger("opendata")
+logger = native_logging.getLogger("vana")
 
 Balance = Union[int, Decimal]
 
@@ -48,36 +48,35 @@ class ChainManager:
 
     @staticmethod
     def setup_config(network: str, config: vana.Config):
+        chain_endpoint = config.chain.get("chain_endpoint")
+
         if network is not None:
             (
                 evaluated_network,
                 evaluated_endpoint,
-            ) = ChainManager.determine_chain_endpoint_and_network(network)
+            ) = ChainManager.determine_chain_endpoint_and_network(network, chain_endpoint)
         else:
             if config.get("__is_set", {}).get("chain.chain_endpoint"):
                 (
                     evaluated_network,
                     evaluated_endpoint,
                 ) = ChainManager.determine_chain_endpoint_and_network(
-                    config.chain.chain_endpoint
+                    config.chain.chain_endpoint, chain_endpoint
                 )
-
             elif config.get("__is_set", {}).get("chain.network"):
                 (
                     evaluated_network,
                     evaluated_endpoint,
                 ) = ChainManager.determine_chain_endpoint_and_network(
-                    config.chain.network
+                    config.chain.network, chain_endpoint
                 )
-
             elif config.chain.get("chain_endpoint"):
                 (
                     evaluated_network,
                     evaluated_endpoint,
                 ) = ChainManager.determine_chain_endpoint_and_network(
-                    config.chain.chain_endpoint
+                    config.chain.chain_endpoint, chain_endpoint
                 )
-
             elif config.chain.get("network"):
                 (
                     evaluated_network,
@@ -85,15 +84,13 @@ class ChainManager:
                 ) = ChainManager.determine_chain_endpoint_and_network(
                     config.chain.network
                 )
-
             else:
                 (
                     evaluated_network,
                     evaluated_endpoint,
                 ) = ChainManager.determine_chain_endpoint_and_network(
-                    vana.defaults.chain.network
+                    vana.defaults.chain.network, chain_endpoint
                 )
-
         return (
             evaluated_endpoint,
             evaluated_network,
@@ -200,7 +197,8 @@ class ChainManager:
 
         return state_
 
-    def send_transaction(self, function: ContractFunction, account: LocalAccount, value=0, max_retries=3, base_gas_multiplier=1.5):
+    def send_transaction(self, function: ContractFunction, account: LocalAccount, value=0, max_retries=3,
+                         base_gas_multiplier=1.5):
         """
         Send a transaction using the TransactionManager
         """
@@ -255,7 +253,7 @@ class ChainManager:
         # return Balance.from_rao(_result.value)
 
     @staticmethod
-    def determine_chain_endpoint_and_network(network: str):
+    def determine_chain_endpoint_and_network(network: str, chain_endpoint=None):
         """Determines the chain endpoint and network from the passed network or chain_endpoint.
 
         Args:
@@ -269,36 +267,50 @@ class ChainManager:
             return None, None
         if network in vana.__networks__:
             if network == "vana":
-                return network, vana.__vana_entrypoint__
+                return network, chain_endpoint if chain_endpoint is not None else vana.__vana_entrypoint__
+            if network == "islander":
+                return network, chain_endpoint if chain_endpoint is not None else vana.__islander_entrypoint__
+            if network == "maya":
+                return network, chain_endpoint if chain_endpoint is not None else vana.__maya_entrypoint__
             if network == "moksha":
-                return network, vana.__moksha_entrypoint__
+                return network, chain_endpoint if chain_endpoint is not None else vana.__moksha_entrypoint__
             if network == "satori":
-                return network, vana.__satori_entrypoint__
+                return network, chain_endpoint if chain_endpoint is not None else vana.__satori_entrypoint__
             elif network == "local":
-                return network, vana.__local_entrypoint__
+                return network, chain_endpoint if chain_endpoint is not None else vana.__local_entrypoint__
             elif network == "archive":
-                return network, vana.__archive_entrypoint__
+                return network, chain_endpoint if chain_endpoint is not None else vana.__archive_entrypoint__
         else:
             if (
                     network == vana.__vana_entrypoint__
                     or "rpc.vana" in network
             ):
-                return "vana", vana.__vana_entrypoint__
+                return "vana", chain_endpoint if chain_endpoint is not None else vana.__vana_entrypoint__
+            elif (
+                    network == vana.__islander_entrypoint__
+                    or "rpc.islander.vana" in network
+            ):
+                return "islander", chain_endpoint if chain_endpoint is not None else vana.__islander_entrypoint__
+            elif (
+                    network == vana.__maya_entrypoint__
+                    or "rpc.maya.vana" in network
+            ):
+                return "maya", chain_endpoint if chain_endpoint is not None else vana.__maya_entrypoint__
             elif (
                     network == vana.__moksha_entrypoint__
                     or "rpc.moksha.vana" in network
             ):
-                return "moksha", vana.__moksha_entrypoint__
+                return "moksha", chain_endpoint if chain_endpoint is not None else vana.__moksha_entrypoint__
             elif (
                     network == vana.__satori_entrypoint__
                     or "rpc.satori.vana" in network
             ):
-                return "satori", vana.__satori_entrypoint__
+                return "satori", chain_endpoint if chain_endpoint is not None else vana.__satori_entrypoint__
             elif (
                     network == vana.__archive_entrypoint__
                     or "archive.vana" in network
             ):
-                return "archive", vana.__archive_entrypoint__
+                return "archive", chain_endpoint if chain_endpoint is not None else vana.__archive_entrypoint__
             elif "127.0.0.1" in network or "localhost" in network:
                 return "local", network
             else:

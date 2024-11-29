@@ -31,7 +31,7 @@ import vana
 from vana.logging.defines import (
     TRACE_LOG_FORMAT,
     DATE_FORMAT,
-    OPENDATA_LOGGER_NAME,
+    VANA_LOGGER_NAME,
     DEFAULT_LOG_FILE_NAME,
     DEFAULT_MAX_ROTATING_LOG_FILE_SIZE,
     DEFAULT_LOG_BACKUP_COUNT,
@@ -49,7 +49,7 @@ class LoggingConfig(NamedTuple):
 
 class LoggingMachine(StateMachine):
     """
-    Handles logger states for opendata and 3rd party libraries
+    Handles logger states for vana and 3rd party libraries
     """
 
     Default = State(initial=True)
@@ -83,7 +83,7 @@ class LoggingMachine(StateMachine):
             | Disabled.to(Disabled)
     )
 
-    def __init__(self, config: "vana.Config", name: str = OPENDATA_LOGGER_NAME):
+    def __init__(self, config: "vana.Config", name: str = VANA_LOGGER_NAME):
         # basics
         super(LoggingMachine, self).__init__()
         self._queue = mp.Queue(-1)
@@ -362,13 +362,13 @@ class LoggingMachine(StateMachine):
             parser.add_argument(
                 "--" + prefix_str + "logging.debug",
                 action="store_true",
-                help="""Turn on opendata debugging information""",
+                help="""Turn on vana debugging information""",
                 default=default_logging_debug,
             )
             parser.add_argument(
                 "--" + prefix_str + "logging.trace",
                 action="store_true",
-                help="""Turn on opendata trace level information""",
+                help="""Turn on vana trace level information""",
                 default=default_logging_trace,
             )
             parser.add_argument(

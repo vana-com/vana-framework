@@ -27,11 +27,11 @@ from .. import Wallet, keyfile
 
 class MockWallet(Wallet):
     """
-    Mocked Version of the opendata wallet class, meant to be used for testing.
+    Mocked Version of the vana wallet class, meant to be used for testing.
     """
 
     def __init__(self, **kwargs):
-        r"""Init opendata wallet object containing a hot and coldkey.
+        r"""Init vana wallet object containing a hot and coldkey.
         Args:
             _mock (required=True, default=False):
                 If true creates a mock wallet with random keys.
