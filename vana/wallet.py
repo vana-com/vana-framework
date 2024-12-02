@@ -227,6 +227,65 @@ class Wallet:
         self._coldkeypub = None
         self._mnemonics = {}
 
+        # Create necessary directories
+        self._create_wallet_directories()
+
+        # Check for and handle environment variable based wallet initialization
+        self._init_from_environment()
+
+    def _create_wallet_directories(self):
+        """Create the necessary wallet directory structure if it doesn't exist."""
+        # Create main wallet directory
+        wallet_path = os.path.expanduser(os.path.join(self.path, self.name))
+        # Create hotkeys directory
+        hotkeys_path = os.path.join(wallet_path, "hotkeys")
+
+        # Create directories if they don't exist
+        os.makedirs(hotkeys_path, exist_ok=True)
+
+    def _init_from_environment(self):
+        """
+        Initialize wallet components from environment variables if they exist.
+        Currently supports hotkey initialization from HOTKEY_MNEMONIC.
+        Creates the wallet files on disk without password protection.
+        """
+        hotkey_mnemonic = os.getenv("HOTKEY_MNEMONIC")
+        if hotkey_mnemonic:
+            try:
+                vana.logging.info("Found HOTKEY_MNEMONIC environment variable. Initializing hotkey...")
+
+                # Enable mnemonic features
+                Account.enable_unaudited_hdwallet_features()
+
+                # Create account from mnemonic
+                account = Account.from_mnemonic(hotkey_mnemonic)
+
+                # Create the hotkey file
+                wallet_path = os.path.expanduser(os.path.join(self.path, self.name))
+                hotkey_path = os.path.join(wallet_path, "hotkeys", self.hotkey_str)
+
+                # Create the keyfile
+                keyfile = vana.keyfile(path=hotkey_path)
+
+                # Set the hotkey without password protection
+                keyfile.set_keypair(
+                    keypair=account,
+                    encrypt=False,  # No encryption for environment-based keys
+                    overwrite=True  # Always overwrite when using environment variables
+                )
+
+                # Update the wallet's hotkey reference
+                self._hotkey = account
+
+                vana.logging.success(
+                    f"Successfully initialized hotkey from environment variable and created file at {hotkey_path}"
+                )
+
+            except Exception as e:
+                vana.logging.error(f"Failed to initialize hotkey from environment variable: {str(e)}")
+                # Don't raise the exception - allow fallback to normal initialization
+                pass
+
     def __str__(self):
         """
         Returns the string representation of the Wallet object.
