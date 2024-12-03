@@ -2,9 +2,8 @@ import argparse
 import copy
 import json
 import os
-from typing import Optional
-
 import vana
+from typing import Optional
 from vana.chain_data import Proof, ProofData
 from vana.contracts import contracts
 from vana.utils.web3 import as_wad
@@ -14,8 +13,31 @@ class Client:
     @staticmethod
     def config() -> "config":
         parser = argparse.ArgumentParser()
-        vana.ChainManager.add_args(parser)
+        vana.Client.add_args(parser)
         return vana.Config(parser, args=[])
+
+    @classmethod
+    def add_args(cls, parser: argparse.ArgumentParser, prefix: Optional[str] = None):
+        prefix_str = "" if prefix is None else f"{prefix}."
+        try:
+            parser.add_argument(
+                "--" + prefix_str + "client.tee_pool_contract_address",
+                default=os.getenv("TEE_POOL_CONTRACT_ADDRESS") or None,
+                type=str,
+                help="""The address for the TEE Pool Contract.""")
+            parser.add_argument(
+                "--" + prefix_str + "client.data_registry_contract_address",
+                default=os.getenv("DATA_REGISTRY_CONTRACT_ADDRESS") or None,
+                type=str,
+                help="""The address for the Data Registry Contract.""")
+            parser.add_argument(
+                "--" + prefix_str + "client.dlp_root_contract_address",
+                default=os.getenv("DLP_ROOT_CONTRACT_ADDRESS") or None,
+                type=str,
+                help="""The address for the DLP Root Contract.""")
+        except argparse.ArgumentError:
+            # re-parsing arguments.
+            pass
 
     def __init__(self, config: vana.Config):
         if config is None:
@@ -33,7 +55,7 @@ class Client:
         )
         with open(data_registry_contract_path) as f:
             self.data_registry_contract = self.chain_manager.web3.eth.contract(
-                address=contracts[self.network]["DataRegistry"],
+                address=config.client.data_registry_contract_address or contracts[self.network]["DataRegistry"],
                 abi=json.load(f)
             )
         tee_pool_contract_path = os.path.join(
@@ -42,7 +64,7 @@ class Client:
         )
         with open(tee_pool_contract_path) as f:
             self.tee_pool_contract = self.chain_manager.web3.eth.contract(
-                address=contracts[self.network]["TeePool"],
+                address=config.client.tee_pool_contract_address or contracts[self.network]["TeePool"],
                 abi=json.load(f)
             )
 
