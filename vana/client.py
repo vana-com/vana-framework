@@ -54,17 +54,26 @@ class Client:
             "contracts/DataRegistry.json"
         )
         with open(data_registry_contract_path) as f:
+            data_registry_address = contracts[self.network]["DataRegistry"]
+            if hasattr(self.config, 'client') and self.config.client is not None:
+                data_registry_address = self.config.client.data_registry_contract_address or data_registry_address
+
             self.data_registry_contract = self.chain_manager.web3.eth.contract(
-                address=config.client.data_registry_contract_address or contracts[self.network]["DataRegistry"],
+                address=data_registry_address,
                 abi=json.load(f)
             )
+
         tee_pool_contract_path = os.path.join(
             os.path.dirname(__file__),
             "contracts/TeePool.json"
         )
         with open(tee_pool_contract_path) as f:
+            tee_pool_address = contracts[self.network]["TeePool"]
+            if hasattr(self.config, 'client') and self.config.client is not None:
+                tee_pool_address = self.config.client.tee_pool_contract_address or tee_pool_address
+
             self.tee_pool_contract = self.chain_manager.web3.eth.contract(
-                address=config.client.tee_pool_contract_address or contracts[self.network]["TeePool"],
+                address=tee_pool_address,
                 abi=json.load(f)
             )
 
@@ -124,14 +133,15 @@ class Client:
             return None
         return tee
 
-    def register_tee(self, url: str, public_key: str):
+    def register_tee(self, url: str, public_key: str, tee_address: str):
         """
         Register a TEE compute node with the TEE Pool contract.
-        :param url: URL where the TEE is reachable
-        :param public_key: Public key of the TEE node
-        :return: Transaction hex, Transaction receipt
+        @param url: URL where the TEE is reachable
+        @param public_key: Public key of the TEE node
+        @param tee_address: Address of the TEE to register. If not provided, uses the wallet's hotkey address.
+        @return: Transaction hex, Transaction receipt
         """
-        register_fn = self.tee_pool_contract.functions.addTee(self.wallet.hotkey.address, url, public_key)
+        register_fn = self.tee_pool_contract.functions.addTee(tee_address, url, public_key)
         return self.chain_manager.send_transaction(register_fn, self.wallet.hotkey)
 
     def add_proof(self, proof_data: ProofData, file_id: int | None = None, job_id: int | None = None):

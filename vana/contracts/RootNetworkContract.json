@@ -5,6 +5,27 @@
     "type": "constructor"
   },
   {
+    "inputs": [],
+    "name": "AccessControlBadConfirmation",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "neededRole",
+        "type": "bytes32"
+      }
+    ],
+    "name": "AccessControlUnauthorizedAccount",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -17,22 +38,7 @@
   },
   {
     "inputs": [],
-    "name": "AlreadyDistributed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ArityMismatch",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "CheckpointUnorderedInsertion",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "CurrentEpochNotCreated",
+    "name": "CancelDelayNotPassed",
     "type": "error"
   },
   {
@@ -58,26 +64,6 @@
   },
   {
     "inputs": [],
-    "name": "EpochEnded",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "EpochFinalised",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "EpochNotEnded",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "EpochNotStarted",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "ExpectedPause",
     "type": "error"
   },
@@ -88,12 +74,7 @@
   },
   {
     "inputs": [],
-    "name": "InvalidDlpList",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidDlpStatus",
+    "name": "InsufficientFee",
     "type": "error"
   },
   {
@@ -103,32 +84,22 @@
   },
   {
     "inputs": [],
-    "name": "InvalidPerformancePercentages",
+    "name": "InvalidJobStatus",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "InvalidStakeAmount",
+    "name": "InvalidJobTee",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "InvalidStakersPercentage",
+    "name": "JobCompleted",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "InvalidUnstakeAmount",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NotAllowed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NotDlpOwner",
+    "name": "NoActiveTee",
     "type": "error"
   },
   {
@@ -138,34 +109,12 @@
   },
   {
     "inputs": [],
-    "name": "NothingToClaim",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnableInvalidOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "OwnableUnauthorizedAccount",
+    "name": "NotJobOwner",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "PreviousEpochNotFinalised",
+    "name": "NothingToClaim",
     "type": "error"
   },
   {
@@ -174,24 +123,13 @@
     "type": "error"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint8",
-        "name": "bits",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "SafeCastOverflowedUintDowncast",
+    "inputs": [],
+    "name": "TeeAlreadyAdded",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "TooManyDlps",
+    "name": "TeeNotActive",
     "type": "error"
   },
   {
@@ -220,114 +158,18 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      }
-    ],
-    "name": "DlpDeregistered",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
         "internalType": "address",
-        "name": "dlpAddress",
+        "name": "teeAddress",
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "ownerAddress",
-        "type": "address"
-      }
-    ],
-    "name": "DlpRegistered",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": false,
         "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "stakersPercentage",
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "name": "DlpStakersPercentageUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "epochId",
-        "type": "uint256"
-      }
-    ],
-    "name": "EpochCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "epochId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isFinalised",
-        "type": "bool"
-      }
-    ],
-    "name": "EpochPerformancesSaved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newEpochRewardAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "EpochRewardAmountUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newEpochSize",
-        "type": "uint256"
-      }
-    ],
-    "name": "EpochSizeUpdated",
+    "name": "Claimed",
     "type": "event"
   },
   {
@@ -347,39 +189,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
-        "name": "newMaxNumberOfRegisteredDlps",
+        "name": "jobId",
         "type": "uint256"
       }
     ],
-    "name": "MaxNumberOfRegisteredDlpsUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newMinDlpStakeAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "MinDlpStakeAmountUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newNumberOfTopDlps",
-        "type": "uint256"
-      }
-    ],
-    "name": "NumberOfTopDlpsUpdated",
+    "name": "JobCanceled",
     "type": "event"
   },
   {
@@ -387,37 +203,30 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "jobId",
+        "type": "uint256"
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferStarted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
+        "internalType": "uint256",
+        "name": "fileId",
+        "type": "uint256"
+      },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
-        "name": "previousOwner",
+        "name": "teeAddress",
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "bidAmount",
+        "type": "uint256"
       }
     ],
-    "name": "OwnershipTransferred",
+    "name": "JobSubmitted",
     "type": "event"
   },
   {
@@ -437,31 +246,100 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
+        "internalType": "address",
+        "name": "attestator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
         "internalType": "uint256",
-        "name": "newTtfPercentage",
+        "name": "jobId",
         "type": "uint256"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
-        "name": "newTfcPercentage",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newVduPercentage",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newUwPercentage",
+        "name": "fileId",
         "type": "uint256"
       }
     ],
-    "name": "PerformancePercentagesUpdated",
+    "name": "ProofAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "previousAdminRole",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "newAdminRole",
+        "type": "bytes32"
+      }
+    ],
+    "name": "RoleAdminChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "RoleGranted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "RoleRevoked",
     "type": "event"
   },
   {
@@ -470,54 +348,24 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "staker",
+        "name": "teeAddress",
         "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
       }
     ],
-    "name": "Staked",
+    "name": "TeeAdded",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
-        "name": "staker",
+        "name": "teeAddress",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "epochId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "claimAmount",
-        "type": "uint256"
       }
     ],
-    "name": "StakerDlpEpochRewardClaimed",
+    "name": "TeeRemoved",
     "type": "event"
   },
   {
@@ -539,37 +387,38 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "staker",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "Unstaked",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "implementation",
         "type": "address"
       }
     ],
     "name": "Upgraded",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "DEFAULT_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAINTAINER_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -586,14 +435,139 @@
   },
   {
     "inputs": [],
-    "name": "acceptOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "activeTeeList",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "activeTeeListAt",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "teeAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "url",
+            "type": "string"
+          },
+          {
+            "internalType": "enum ITeePool.TeeStatus",
+            "name": "status",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "withdrawnAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "jobsCount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "publicKey",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct ITeePool.TeeInfo",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "addRewardForDlps",
+    "name": "activeTeesCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "jobId",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes",
+            "name": "signature",
+            "type": "bytes"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "score",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "dlpId",
+                "type": "uint256"
+              },
+              {
+                "internalType": "string",
+                "name": "metadata",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "proofUrl",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "instruction",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct IDataRegistry.ProofData",
+            "name": "data",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct IDataRegistry.Proof",
+        "name": "proof",
+        "type": "tuple"
+      }
+    ],
+    "name": "addProof",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -601,48 +575,29 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      }
-    ],
-    "name": "claimReward",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastEpochToClaim",
-        "type": "uint256"
-      }
-    ],
-    "name": "claimRewardUntilEpoch",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
-        "name": "stakerAddress",
+        "name": "teeAddress",
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "url",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "publicKey",
+        "type": "string"
       }
     ],
-    "name": "claimableAmount",
+    "name": "addTee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "cancelDelay",
     "outputs": [
       {
         "internalType": "uint256",
@@ -654,117 +609,113 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "jobId",
+        "type": "uint256"
+      }
+    ],
+    "name": "cancelJob",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
-    "name": "createEpochs",
+    "name": "claim",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "blockNumber",
-        "type": "uint256"
-      }
-    ],
-    "name": "createEpochsUntilBlockNumber",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      }
-    ],
-    "name": "deregisterDlp",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "dlpOwnerAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "distributeStakeAfterDeregistration",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "epochId",
-        "type": "uint256"
-      }
-    ],
-    "name": "dlpEpochs",
+    "inputs": [],
+    "name": "dataRegistry",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "ttf",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "tfc",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "vdu",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "uw",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stakeAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isTopDlp",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "rewardAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stakersPercentage",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IDataLiquidityPoolsRoot.DlpEpochInfo",
+        "internalType": "contract IDataRegistry",
         "name": "",
-        "type": "tuple"
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "fileId",
+        "type": "uint256"
+      }
+    ],
+    "name": "fileJobIds",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getRoleAdmin",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "grantRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "hasRole",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -774,328 +725,23 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "dlpAddress",
+        "name": "trustedForwarderAddress",
         "type": "address"
-      }
-    ],
-    "name": "dlpIds",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      }
-    ],
-    "name": "dlps",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "id",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "dlpAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "ownerAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "enum IDataLiquidityPoolsRoot.DlpStatus",
-            "name": "status",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint256",
-            "name": "registrationBlockNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "grantedAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stakersPercentage",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stakeAmount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IDataLiquidityPoolsRoot.DlpResponse",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
         "internalType": "address",
-        "name": "dlpAddress",
+        "name": "ownerAddress",
         "type": "address"
-      }
-    ],
-    "name": "dlpsByAddress",
-    "outputs": [
+      },
       {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "id",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "dlpAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "ownerAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "enum IDataLiquidityPoolsRoot.DlpStatus",
-            "name": "status",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint256",
-            "name": "registrationBlockNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "grantedAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stakersPercentage",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stakeAmount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IDataLiquidityPoolsRoot.DlpResponse",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "dlpsCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "epochRewardAmount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "epochSize",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "epochId",
-        "type": "uint256"
-      }
-    ],
-    "name": "epochs",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "startBlock",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "endBlock",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "reward",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isFinalised",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256[]",
-            "name": "dlpIds",
-            "type": "uint256[]"
-          }
-        ],
-        "internalType": "struct IDataLiquidityPoolsRoot.EpochInfo",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "epochsCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      }
-    ],
-    "name": "estimatedDlpReward",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "historyRewardEstimation",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "dataRegistryAddress",
+        "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "stakeRewardEstimation",
+        "name": "initialCancelDelay",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "address payable",
-            "name": "ownerAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxNumberOfRegisteredDlps",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "numberOfTopDlps",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "minDlpStakeAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "startBlock",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "epochSize",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "epochRewardAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "ttfPercentage",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "tfcPercentage",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "vduPercentage",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "uwPercentage",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct DataLiquidityPoolsRootImplementation.InitParams",
-        "name": "params",
-        "type": "tuple"
       }
     ],
     "name": "initialize",
@@ -1104,55 +750,124 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "maxNumberOfRegisteredDlps",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "minDlpStakeAmount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "numberOfTopDlps",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
+    "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "teeAddress",
         "type": "address"
       }
     ],
+    "name": "isTee",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "forwarder",
+        "type": "address"
+      }
+    ],
+    "name": "isTrustedForwarder",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "jobId",
+        "type": "uint256"
+      }
+    ],
+    "name": "jobs",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "fileId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "bidAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum ITeePool.JobStatus",
+            "name": "status",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "addedTimestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "ownerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "teeAddress",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct ITeePool.Job",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "jobsCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes[]",
+        "name": "data",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "multicall",
+    "outputs": [
+      {
+        "internalType": "bytes[]",
+        "name": "results",
+        "type": "bytes[]"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1177,19 +892,6 @@
   },
   {
     "inputs": [],
-    "name": "pendingOwner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "proxiableUUID",
     "outputs": [
       {
@@ -1205,64 +907,29 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "dlpAddress",
+        "name": "teeAddress",
         "type": "address"
-      },
-      {
-        "internalType": "address payable",
-        "name": "dlpOwnerAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "stakersPercentage",
-        "type": "uint256"
       }
     ],
-    "name": "registerDlp",
+    "name": "removeTee",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
         "internalType": "address",
-        "name": "dlpAddress",
+        "name": "callerConfirmation",
         "type": "address"
-      },
-      {
-        "internalType": "address payable",
-        "name": "dlpOwnerAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "stakersPercentage",
-        "type": "uint256"
       }
     ],
-    "name": "registerDlpWithGrant",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "registeredDlps",
-    "outputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "",
-        "type": "uint256[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "renounceOwnership",
+    "name": "renounceRole",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1271,220 +938,68 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "epochId",
+        "name": "fileId",
         "type": "uint256"
+      }
+    ],
+    "name": "requestContributionProof",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
       },
       {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "dlpId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "ttf",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "tfc",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "vdu",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "uw",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IDataLiquidityPoolsRoot.DlpPerformance[]",
-        "name": "dlpPerformances",
-        "type": "tuple[]"
-      },
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "revokeRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "fileId",
+        "type": "uint256"
+      }
+    ],
+    "name": "submitJob",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "interfaceId",
+        "type": "bytes4"
+      }
+    ],
+    "name": "supportsInterface",
+    "outputs": [
       {
         "internalType": "bool",
-        "name": "isFinalised",
+        "name": "",
         "type": "bool"
       }
     ],
-    "name": "saveEpochPerformances",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      }
-    ],
-    "name": "stake",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "staker",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "epochId",
-        "type": "uint256"
-      }
-    ],
-    "name": "stakerDlpEpochs",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "dlpId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "epochId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stakeAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "rewardAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "claimAmount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IDataLiquidityPoolsRoot.StakerDlpEpochInfo",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "stakerAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      }
-    ],
-    "name": "stakerDlps",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "dlpId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stakeAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "lastClaimedEpochId",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IDataLiquidityPoolsRoot.StakerDlpInfo",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "stakerAddress",
-        "type": "address"
-      }
-    ],
-    "name": "stakerDlpsList",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "dlpId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stakeAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "lastClaimedEpochId",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IDataLiquidityPoolsRoot.StakerDlpInfo[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "staker",
-        "type": "address"
-      }
-    ],
-    "name": "stakerDlpsListCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "tfcPercentage",
+    "name": "teeFee",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1498,12 +1013,22 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "teeAddress",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
-        "name": "numberOfDlps",
+        "name": "start",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "limit",
         "type": "uint256"
       }
     ],
-    "name": "topDlpIds",
+    "name": "teeJobIdsPaginated",
     "outputs": [
       {
         "internalType": "uint256[]",
@@ -1516,7 +1041,132 @@
   },
   {
     "inputs": [],
-    "name": "totalDlpsRewardAmount",
+    "name": "teeList",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "teeListAt",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "teeAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "url",
+            "type": "string"
+          },
+          {
+            "internalType": "enum ITeePool.TeeStatus",
+            "name": "status",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "withdrawnAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "jobsCount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "publicKey",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct ITeePool.TeeInfo",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "teeAddress",
+        "type": "address"
+      }
+    ],
+    "name": "tees",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "teeAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "url",
+            "type": "string"
+          },
+          {
+            "internalType": "enum ITeePool.TeeStatus",
+            "name": "status",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "withdrawnAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "jobsCount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "publicKey",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct ITeePool.TeeInfo",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "teesCount",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1528,26 +1178,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
-    "name": "ttfPercentage",
+    "name": "trustedForwarder",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address",
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -1564,16 +1201,37 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
+        "name": "newCancelDelay",
         "type": "uint256"
       }
     ],
-    "name": "unstake",
+    "name": "updateCancelDelay",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IDataRegistry",
+        "name": "newDataRegistry",
+        "type": "address"
+      }
+    ],
+    "name": "updateDataRegistry",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "newTeeFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateTeeFee",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1582,133 +1240,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "stakerAddress",
+        "name": "trustedForwarderAddress",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
       }
     ],
-    "name": "unstakebleAmount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "dlpId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "stakersPercentage",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateDlpStakersPercentage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "newEpochRewardAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateEpochRewardAmount",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "newEpochSize",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateEpochSize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "newMaxNumberOfRegisteredDlps",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateMaxNumberOfRegisteredDlps",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "newMinDlpStakeAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateMinDlpStakeAmount",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "newNumberOfTopDlps",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateNumberOfTopDlps",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "newTtfPercentage",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "newTfcPercentage",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "newVduPercentage",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "newUwPercentage",
-        "type": "uint256"
-      }
-    ],
-    "name": "updatePerformancePercentages",
+    "name": "updateTrustedForwarder",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1729,32 +1265,6 @@
     "name": "upgradeToAndCall",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "uwPercentage",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "vduPercentage",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
