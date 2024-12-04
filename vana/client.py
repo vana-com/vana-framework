@@ -54,17 +54,26 @@ class Client:
             "contracts/DataRegistry.json"
         )
         with open(data_registry_contract_path) as f:
+            data_registry_address = contracts[self.network]["DataRegistry"]
+            if hasattr(self.config, 'client') and self.config.client is not None:
+                data_registry_address = self.config.client.data_registry_contract_address or data_registry_address
+
             self.data_registry_contract = self.chain_manager.web3.eth.contract(
-                address=config.client.data_registry_contract_address or contracts[self.network]["DataRegistry"],
+                address=data_registry_address,
                 abi=json.load(f)
             )
+
         tee_pool_contract_path = os.path.join(
             os.path.dirname(__file__),
             "contracts/TeePool.json"
         )
         with open(tee_pool_contract_path) as f:
+            tee_pool_address = contracts[self.network]["TeePool"]
+            if hasattr(self.config, 'client') and self.config.client is not None:
+                tee_pool_address = self.config.client.tee_pool_contract_address or tee_pool_address
+
             self.tee_pool_contract = self.chain_manager.web3.eth.contract(
-                address=config.client.tee_pool_contract_address or contracts[self.network]["TeePool"],
+                address=tee_pool_address,
                 abi=json.load(f)
             )
 
