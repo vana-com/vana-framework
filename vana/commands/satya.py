@@ -53,10 +53,11 @@ class RegisterCommand(BaseCommand):
             wallet = vana.Wallet(config=cli.config if cli.config.wallet else None)
 
             tee_address = cli.config.get('tee_address', wallet.hotkey.address)
+            public_key = cli.config.get('public_key', wallet.get_hotkey_public_key())
 
             tx_hash, tx_receipt = vana_client.register_tee(
                 url=cli.config.url,
-                public_key=wallet.get_hotkey_public_key(),
+                public_key=public_key,
                 tee_address=tee_address
             )
 
@@ -65,7 +66,7 @@ class RegisterCommand(BaseCommand):
                     f"[bold green]Successfully registered validator node with:"
                     f"\n- URL: '{cli.config.url}'"
                     f"\n- TEE Address: '{tee_address}'"
-                    f"\n- Public Key: '{wallet.get_hotkey_public_key()}'[/bold green]"
+                    f"\n- Public Key: '{public_key}'[/bold green]"
                 )
                 vana.__console__.print(f"Transaction hash: {tx_hash.hex()}")
             else:
@@ -88,6 +89,8 @@ class RegisterCommand(BaseCommand):
                                   help="The network to use for registration.")
         satya_parser.add_argument("--tee_address", type=str, required=False,
                                   help="The hotkey address of the TEE node to register.")
+        satya_parser.add_argument("--public_key", type=str, required=False,
+                                    help="The public key of the TEE node to register.")
 
     @staticmethod
     def check_config(config: "vana.Config"):
