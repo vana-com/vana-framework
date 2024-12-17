@@ -197,15 +197,20 @@ class ChainManager:
 
         return state_
 
-    def send_transaction(self, function: ContractFunction, account: LocalAccount, value=0, max_retries=3,
-                         base_gas_multiplier=1.5):
+    def send_transaction(self,
+         function: ContractFunction,
+         account: LocalAccount,
+         value=0,
+         max_retries=3,
+         base_gas_multiplier=1.5,
+         tx_manager=None
+     ):
         """
         Send a transaction using the TransactionManager
         """
-        """
-        Send a transaction using the TransactionManager
-        """
-        tx_manager = TransactionManager(self.web3, account)
+        if tx_manager is None:
+            # Create new TransactionManager only if not provided
+            tx_manager = TransactionManager(self.web3, account)
         return tx_manager.send_transaction(
             function=function,
             value=self.web3.to_wei(value, 'ether'),
