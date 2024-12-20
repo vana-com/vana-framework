@@ -128,7 +128,7 @@ class ChainManager:
     def add_args(cls, parser: argparse.ArgumentParser, prefix: Optional[str] = None):
         prefix_str = "" if prefix is None else f"{prefix}."
         try:
-            default_network = os.getenv("CHAIN_NETWORK") or "vana"
+            default_network = os.getenv("CHAIN_NETWORK") or "moksha"
             default_chain_endpoint = (
                     os.getenv("CHAIN_NETWORK_ENDPOINT")
                     or vana.__vana_entrypoint__
@@ -152,15 +152,6 @@ class ChainManager:
         except argparse.ArgumentError:
             # re-parsing arguments.
             pass
-
-    def _get_tx_manager(self, account: LocalAccount) -> TransactionManager:
-        """
-        Get or create a TransactionManager for the given account
-        """
-        account_address = account.address
-        if account_address not in self._tx_managers:
-            self._tx_managers[account_address] = TransactionManager(self.web3, account)
-        return self._tx_managers[account_address]
 
     def serve_node_server(
             self,
