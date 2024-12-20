@@ -205,7 +205,6 @@ class ChainManager:
          value=0,
          max_retries=3,
          base_gas_multiplier=1.5,
-         tx_manager=None
      ):
         """
         Send a transaction using the TransactionManager
@@ -213,6 +212,7 @@ class ChainManager:
         return self.tx_manager.send_transaction(
             function=function,
             value=self.web3.to_wei(value, 'ether'),
+            account=account,
             max_retries=max_retries,
             base_gas_multiplier=base_gas_multiplier
         )

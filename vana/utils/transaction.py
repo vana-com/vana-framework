@@ -1,6 +1,7 @@
+from asyncio import Lock
 from typing import Optional, Tuple, Dict, Any
 from web3 import Web3
-from web3.types import TxReceipt, HexBytes
+from web3.types import TxReceipt, HexBytes, Nonce
 from eth_account.signers.local import LocalAccount
 import time
 import vana
@@ -13,28 +14,55 @@ class TransactionManager:
         self._last_nonce_refresh = 0
         self.nonce_refresh_interval = 60
         self.chain_id = self.web3.eth.chain_id
+        self._nonce_lock = Lock()
 
-    def _get_safe_nonce(self) -> int:
+    def _get_safe_nonce(self) -> Nonce:
         """
-        Get the next safe nonce, accounting for pending transactions
+        Get the next safe nonce, accounting for pending transactions.
+        Thread-safe implementation for concurrent transaction submissions.
+
+        Returns:
+            Nonce: Next safe nonce to use for transaction
         """
-        current_time = time.time()
-        cache_key = self.account.address
+        with self._nonce_lock:
+            current_time = time.time()
+            cache_key = self.account.address
 
-        # Refresh nonce cache if expired
-        if current_time - self._last_nonce_refresh > self.nonce_refresh_interval:
-            # Get the latest confirmed nonce
-            confirmed_nonce = self.web3.eth.get_transaction_count(self.account.address, 'latest')
-            # Get pending nonce
-            pending_nonce = self.web3.eth.get_transaction_count(self.account.address, 'pending')
-            # Use the higher of the two to avoid nonce conflicts
-            self._nonce_cache[cache_key] = max(confirmed_nonce, pending_nonce)
-            self._last_nonce_refresh = current_time
+            should_refresh = (
+                    current_time - self._last_nonce_refresh > self.nonce_refresh_interval or
+                    cache_key not in self._nonce_cache
+            )
 
-        # Get and increment the cached nonce
-        nonce = self._nonce_cache.get(cache_key, 0)
-        self._nonce_cache[cache_key] = nonce + 1
-        return nonce
+            if should_refresh:
+                try:
+                    # Get both confirmed and pending nonces
+                    confirmed_nonce: Nonce = self.web3.eth.get_transaction_count(self.account.address, 'latest')
+                    pending_nonce: Nonce = self.web3.eth.get_transaction_count(self.account.address, 'pending')
+
+                    # Use max to account for pending transactions
+                    new_nonce: Nonce = Nonce(max(int(confirmed_nonce), int(pending_nonce)))
+
+                    # Only update if new nonce is higher than cached
+                    cached_nonce: Nonce = Nonce(self._nonce_cache.get(cache_key, 0))
+                    self._nonce_cache[cache_key] = Nonce(max(int(new_nonce), int(cached_nonce)))
+
+                    self._last_nonce_refresh = current_time
+
+                    vana.logging.debug(
+                        f"Nonce cache refreshed - Latest: {confirmed_nonce}, "
+                        f"Pending: {pending_nonce}, "
+                        f"Using: {self._nonce_cache[cache_key]}"
+                    )
+                except Exception as e:
+                    vana.logging.error(f"Error refreshing nonce: {str(e)}")
+                    if cache_key not in self._nonce_cache:
+                        raise
+
+            # Get and increment the cached nonce atomically
+            nonce = self._nonce_cache[cache_key]
+            self._nonce_cache[cache_key] = Nonce(int(nonce) + 1)
+
+            return nonce
 
     def _clear_pending_transactions(self, max_wait_time: int = 180):
         """
@@ -110,44 +138,69 @@ class TransactionManager:
     def send_transaction(
             self,
             function: Any,
+            account: LocalAccount,
             value: int = 0,
             max_retries: int = 3,
             base_gas_multiplier: float = 1.5,
-            timeout: int = 30
+            max_gas_multiplier: float = 5.0,
+            timeout: int = 30,
+            clear_pending_transactions: bool = False
     ) -> Tuple[HexBytes, TxReceipt]:
         """
-        Send a transaction with improved retry logic and gas price management
+        Send a transaction with retry logic and gas price management.
+        First attempt uses network gas price, subsequent retries increase gas price with bounded multiplier.
+
+        Args:
+            function: Web3 contract function to call
+            account: LocalAccount to sign and send transaction from
+            value: Value in wei to send with transaction (default: 0)
+            max_retries: Maximum number of retry attempts (default: 3)
+            base_gas_multiplier: Base multiplier for gas price on retries (default: 1.5)
+            max_gas_multiplier: Maximum allowed gas price multiplier (default: 5.0)
+            timeout: Timeout in seconds to wait for transaction receipt (default: 30)
+            clear_pending_transactions: Attempt to clear pending transactions before sending (default: False)
+
+        Returns:
+            Tuple[HexBytes, TxReceipt]: Transaction hash and receipt
+
+        Raises:
+            TimeoutError: If transaction is not mined within timeout period
+            Exception: If transaction fails after all retry attempts
         """
         retry_count = 0
         last_error = None
 
-        # Check for too many pending transactions
-        pending_count = (self.web3.eth.get_transaction_count(self.account.address, 'pending') -
-                         self.web3.eth.get_transaction_count(self.account.address, 'latest'))
-
-        if pending_count > 5:
-            vana.logging.warning(f"Found {pending_count} pending transactions, attempting to clear...")
-            self._clear_pending_transactions()
+        if clear_pending_transactions:
+            pending_count = (self.web3.eth.get_transaction_count(self.account.address, 'pending') -
+                             self.web3.eth.get_transaction_count(self.account.address, 'latest'))
+            if pending_count > 0:
+                vana.logging.warning(f"Found {pending_count} pending transactions, attempting to clear...")
+                self._clear_pending_transactions()
 
         while retry_count < max_retries:
             try:
-                # Estimate gas with buffer
-                gas_limit = function.estimate_gas({
-                    'from': self.account.address,
+                # Estimate gas with conservative buffer
+                gas_limit = int(function.estimate_gas({
+                    'from': account.address,
                     'value': value,
-                    'chainId': self.chain_id  # Add chain ID for estimation
-                }) * 2
+                    'chainId': self.chain_id
+                }) * 1.5)
 
-                # Calculate gas price with exponential backoff
+                # Calculate gas price - use base price for first attempt
                 base_gas_price = self.web3.eth.gas_price
-                gas_multiplier = base_gas_multiplier * (1.5 ** retry_count)
-                gas_price = int(base_gas_price * gas_multiplier)
+                if retry_count == 0:
+                    gas_price = base_gas_price
+                else:
+                    gas_multiplier = min(
+                        base_gas_multiplier * (1.2 ** (retry_count - 1)),
+                        max_gas_multiplier
+                    )
+                    gas_price = int(base_gas_price * gas_multiplier)
 
-                # Get a safe nonce
+                # Get safe nonce and build transaction
                 nonce = self._get_safe_nonce()
-
                 tx = function.build_transaction({
-                    'from': self.account.address,
+                    'from': account.address,
                     'value': value,
                     'gas': gas_limit,
                     'gasPrice': gas_price,
@@ -155,10 +208,11 @@ class TransactionManager:
                     'chainId': self.chain_id  # Add chain ID for EIP-155
                 })
 
-                signed_tx = self.web3.eth.account.sign_transaction(tx, self.account.key)
+                signed_tx = self.web3.eth.account.sign_transaction(tx, account.key)
+
                 vana.logging.info(
                     f"Sending transaction with nonce {nonce}, "
-                    f"gas price {gas_price} ({gas_multiplier:.1f}x base) "
+                    f"gas price {self.web3.from_wei(gas_price, 'gwei')} Gwei "
                     f"(retry {retry_count})"
                 )
 
@@ -170,13 +224,19 @@ class TransactionManager:
                     try:
                         tx_receipt = self.web3.eth.get_transaction_receipt(tx_hash)
                         if tx_receipt is not None:
-                            if tx_receipt.status == 1:  # Check if transaction was successful
-                                vana.logging.info(f"Transaction successful in block {tx_receipt['blockNumber']}")
+                            if tx_receipt.status == 1:
+                                vana.logging.info(
+                                    f"Transaction successful in block {tx_receipt['blockNumber']} "
+                                    f"(used {tx_receipt['gasUsed']} gas)"
+                                )
                                 return tx_hash, tx_receipt
                             else:
-                                raise Exception("Transaction failed")
-                    except Exception:
-                        pass
+                                raise Exception(f"Transaction failed - consumed {tx_receipt['gasUsed']} gas")
+                    except Exception as e:
+                        if not str(e).startswith("Transaction failed"):
+                            pass  # Ignore receipt fetch errors
+                        else:
+                            raise  # Re-raise transaction failure
 
                     if time.time() - start_time > timeout:
                         raise TimeoutError(f"Transaction not mined within {timeout} seconds")
