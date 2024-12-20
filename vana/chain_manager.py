@@ -115,6 +115,8 @@ class ChainManager:
         )
         self.web3 = Web3(Web3.HTTPProvider(self.config.chain.chain_endpoint))
         self.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        self.wallet = vana.Wallet(self.config)
+        self.tx_manager = TransactionManager(self.web3, self.wallet.hotkey)
 
     @staticmethod
     def config() -> "config":
@@ -150,6 +152,15 @@ class ChainManager:
         except argparse.ArgumentError:
             # re-parsing arguments.
             pass
+
+    def _get_tx_manager(self, account: LocalAccount) -> TransactionManager:
+        """
+        Get or create a TransactionManager for the given account
+        """
+        account_address = account.address
+        if account_address not in self._tx_managers:
+            self._tx_managers[account_address] = TransactionManager(self.web3, account)
+        return self._tx_managers[account_address]
 
     def serve_node_server(
             self,
@@ -208,10 +219,7 @@ class ChainManager:
         """
         Send a transaction using the TransactionManager
         """
-        if tx_manager is None:
-            # Create new TransactionManager only if not provided
-            tx_manager = TransactionManager(self.web3, account)
-        return tx_manager.send_transaction(
+        return self.tx_manager.send_transaction(
             function=function,
             value=self.web3.to_wei(value, 'ether'),
             max_retries=max_retries,

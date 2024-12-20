@@ -48,7 +48,6 @@ class Client:
         self.wallet = vana.Wallet(config=self.config)
         self.chain_manager = vana.ChainManager(config=self.config)
         self.network = self.config.chain.network
-        self.tx_manager = TransactionManager(self.chain_manager.web3, self.wallet.hotkey)
 
         # Load contracts
         data_registry_contract_path = os.path.join(
