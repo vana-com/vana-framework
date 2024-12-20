@@ -69,6 +69,11 @@
   },
   {
     "inputs": [],
+    "name": "FileUrlAlreadyUsed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InvalidInitialization",
     "type": "error"
   },
@@ -465,6 +470,25 @@
     "name": "addProof",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "url",
+        "type": "string"
+      }
+    ],
+    "name": "fileIdByUrl",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

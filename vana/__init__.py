@@ -15,7 +15,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-__version__ = "0.37.0"
+__version__ = "0.38.0"
 
 import rich
 
@@ -145,8 +145,8 @@ block_explorer_tx_templates = {
 
 configs = [
     NodeServer.config(),
-    ChainManager.config(),
     Wallet.config(),
+    ChainManager.config(),
     logging.get_config(),
 ]
 defaults = Config.merge_all(configs)

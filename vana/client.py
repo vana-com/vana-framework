@@ -6,7 +6,6 @@ import vana
 from typing import Optional
 from vana.chain_data import Proof, ProofData
 from vana.contracts import contracts
-from vana.utils.transaction import TransactionManager
 from vana.utils.web3 import as_wad
 
 
@@ -48,7 +47,6 @@ class Client:
         self.wallet = vana.Wallet(config=self.config)
         self.chain_manager = vana.ChainManager(config=self.config)
         self.network = self.config.chain.network
-        self.tx_manager = TransactionManager(self.chain_manager.web3, self.wallet.hotkey)
 
         # Load contracts
         data_registry_contract_path = os.path.join(
@@ -174,8 +172,9 @@ class Client:
             add_proof_fn = self.data_registry_contract.functions.addProof(file_id, proof_tuple)
         else:
             add_proof_fn = self.tee_pool_contract.functions.addProof(job_id, proof_tuple)
-        return self.tx_manager.send_transaction(
+        return self.chain_manager.send_transaction(
             function=add_proof_fn,
+            account=self.wallet.hotkey,
             value=0,
             max_retries=3,
             base_gas_multiplier=1.5

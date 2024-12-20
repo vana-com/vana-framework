@@ -115,6 +115,8 @@ class ChainManager:
         )
         self.web3 = Web3(Web3.HTTPProvider(self.config.chain.chain_endpoint))
         self.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        self.wallet = vana.Wallet(config=self.config)
+        self.tx_manager = TransactionManager(self.web3, self.wallet.hotkey)
 
     @staticmethod
     def config() -> "config":
@@ -203,17 +205,14 @@ class ChainManager:
          value=0,
          max_retries=3,
          base_gas_multiplier=1.5,
-         tx_manager=None
      ):
         """
         Send a transaction using the TransactionManager
         """
-        if tx_manager is None:
-            # Create new TransactionManager only if not provided
-            tx_manager = TransactionManager(self.web3, account)
-        return tx_manager.send_transaction(
+        return self.tx_manager.send_transaction(
             function=function,
             value=self.web3.to_wei(value, 'ether'),
+            account=account,
             max_retries=max_retries,
             base_gas_multiplier=base_gas_multiplier
         )
@@ -352,6 +351,7 @@ class ChainManager:
             vana.logging.error(f"Error fetching balance for address {address}: {e}")
             return 0
 
+        vana.logging.info(f"Balance for address {address}: {result}")
         return Web3.from_wei(result, "ether")
 
     def transfer(

@@ -569,7 +569,7 @@
     ],
     "name": "addProof",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
