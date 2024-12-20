@@ -1,4 +1,4 @@
-from asyncio import Lock
+from threading import Lock
 from typing import Optional, Tuple, Dict, Any
 from web3 import Web3
 from web3.exceptions import ContractLogicError, ContractCustomError
