@@ -145,8 +145,8 @@ block_explorer_tx_templates = {
 
 configs = [
     NodeServer.config(),
-    ChainManager.config(),
     Wallet.config(),
+    ChainManager.config(),
     logging.get_config(),
 ]
 defaults = Config.merge_all(configs)

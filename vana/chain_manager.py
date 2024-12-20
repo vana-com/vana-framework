@@ -115,7 +115,7 @@ class ChainManager:
         )
         self.web3 = Web3(Web3.HTTPProvider(self.config.chain.chain_endpoint))
         self.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
-        self.wallet = vana.Wallet(self.config)
+        self.wallet = vana.Wallet(config=self.config)
         self.tx_manager = TransactionManager(self.web3, self.wallet.hotkey)
 
     @staticmethod
