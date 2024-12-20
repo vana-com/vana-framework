@@ -6,7 +6,6 @@ import vana
 from typing import Optional
 from vana.chain_data import Proof, ProofData
 from vana.contracts import contracts
-from vana.utils.transaction import TransactionManager
 from vana.utils.web3 import as_wad
 
 
