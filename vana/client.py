@@ -174,6 +174,7 @@ class Client:
             add_proof_fn = self.tee_pool_contract.functions.addProof(job_id, proof_tuple)
         return self.chain_manager.send_transaction(
             function=add_proof_fn,
+            account=self.wallet.hotkey,
             value=0,
             max_retries=3,
             base_gas_multiplier=1.5
