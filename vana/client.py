@@ -172,7 +172,7 @@ class Client:
             add_proof_fn = self.data_registry_contract.functions.addProof(file_id, proof_tuple)
         else:
             add_proof_fn = self.tee_pool_contract.functions.addProof(job_id, proof_tuple)
-        return self.tx_manager.send_transaction(
+        return self.chain_manager.send_transaction(
             function=add_proof_fn,
             value=0,
             max_retries=3,
