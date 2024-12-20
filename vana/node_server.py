@@ -112,7 +112,8 @@ class NodeServer:
         self.app = FastAPI()
         log_level = "info"
         self.fast_config = uvicorn.Config(
-            self.app, host="0.0.0.0", port=self.config.node_server.port, log_level=log_level, loop='asyncio'
+            self.app, host="0.0.0.0", port=self.config.node_server.port, log_level=log_level, loop='asyncio',
+            workers=config.node_server.max_workers
         )
         self.fast_server = FastAPIThreadedServer(config=self.fast_config)  # uvicorn.Server(self.fast_config)
         self.router = APIRouter()
