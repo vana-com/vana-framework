@@ -113,7 +113,7 @@ class TransactionManager:
             value: int = 0,
             max_retries: int = 3,
             base_gas_multiplier: float = 1.5,
-            timeout: int = 180
+            timeout: int = 30
     ) -> Tuple[HexBytes, TxReceipt]:
         """
         Send a transaction with improved retry logic and gas price management
