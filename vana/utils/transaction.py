@@ -1,10 +1,13 @@
 from asyncio import Lock
 from typing import Optional, Tuple, Dict, Any
 from web3 import Web3
+from web3.exceptions import ContractLogicError, ContractCustomError
 from web3.types import TxReceipt, HexBytes, Nonce
 from eth_account.signers.local import LocalAccount
 import time
 import vana
+from vana.utils.web3 import decode_custom_error
+
 
 class TransactionManager:
     def __init__(self, web3: Web3, account: LocalAccount):
@@ -149,6 +152,7 @@ class TransactionManager:
         """
         Send a transaction with retry logic and gas price management.
         First attempt uses network gas price, subsequent retries increase gas price with bounded multiplier.
+        Will not retry on contract revert errors as these are deterministic failures.
 
         Args:
             function: Web3 contract function to call
@@ -164,12 +168,10 @@ class TransactionManager:
             Tuple[HexBytes, TxReceipt]: Transaction hash and receipt
 
         Raises:
+            ContractLogicError: If transaction would revert (no retries)
             TimeoutError: If transaction is not mined within timeout period
             Exception: If transaction fails after all retry attempts
         """
-        retry_count = 0
-        last_error = None
-
         if clear_pending_transactions:
             pending_count = (self.web3.eth.get_transaction_count(self.account.address, 'pending') -
                              self.web3.eth.get_transaction_count(self.account.address, 'latest'))
@@ -177,14 +179,18 @@ class TransactionManager:
                 vana.logging.warning(f"Found {pending_count} pending transactions, attempting to clear...")
                 self._clear_pending_transactions()
 
+        retry_count = 0
+        last_error = None
+
         while retry_count < max_retries:
             try:
                 # Estimate gas with conservative buffer
-                gas_limit = int(function.estimate_gas({
+                gas_estimate = function.estimate_gas({
                     'from': account.address,
                     'value': value,
                     'chainId': self.chain_id
-                }) * 1.5)
+                })
+                gas_limit = int(gas_estimate * 1.5)
 
                 # Calculate gas price - use base price for first attempt
                 base_gas_price = self.web3.eth.gas_price
@@ -197,6 +203,13 @@ class TransactionManager:
                     )
                     gas_price = int(base_gas_price * gas_multiplier)
 
+                # Log gas details
+                vana.logging.debug(
+                    f"Gas details - Base price: {self.web3.from_wei(base_gas_price, 'gwei')} Gwei, " +
+                    (f"Multiplier: {gas_multiplier:.2f}x, " if retry_count > 0 else "") +
+                    f"Final price: {self.web3.from_wei(gas_price, 'gwei')} Gwei"
+                )
+
                 # Get safe nonce and build transaction
                 nonce = self._get_safe_nonce()
                 tx = function.build_transaction({
@@ -205,20 +218,34 @@ class TransactionManager:
                     'gas': gas_limit,
                     'gasPrice': gas_price,
                     'nonce': nonce,
-                    'chainId': self.chain_id  # Add chain ID for EIP-155
+                    'chainId': self.chain_id
                 })
+
+                try:
+                    # Simulate transaction first to catch reverts
+                    self.web3.eth.call({
+                        'from': tx['from'],
+                        'to': tx['to'],
+                        'data': tx['data'],
+                        'value': tx['value'],
+                        'gas': tx['gas'],
+                        'gasPrice': tx['gasPrice'],
+                    })
+                except ContractLogicError as e:
+                    vana.logging.error(f"Transaction would revert: {str(e)}")
+                    raise Exception(f"Transaction would revert: {str(e)}")
 
                 signed_tx = self.web3.eth.account.sign_transaction(tx, account.key)
 
                 vana.logging.info(
                     f"Sending transaction with nonce {nonce}, "
                     f"gas price {self.web3.from_wei(gas_price, 'gwei')} Gwei "
-                    f"(retry {retry_count})"
+                    f"(retry {retry_count if retry_count > 0 else 'initial attempt'})"
                 )
 
                 tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
 
-                # Wait for transaction with timeout
+                # Wait for receipt with timeout
                 start_time = time.time()
                 while True:
                     try:
@@ -231,9 +258,9 @@ class TransactionManager:
                                 )
                                 return tx_hash, tx_receipt
                             else:
-                                raise Exception(f"Transaction failed - consumed {tx_receipt['gasUsed']} gas")
+                                raise Exception(f"Transaction reverted - consumed {tx_receipt['gasUsed']} gas")
                     except Exception as e:
-                        if not str(e).startswith("Transaction failed"):
+                        if not str(e).startswith("Transaction reverted"):
                             pass  # Ignore receipt fetch errors
                         else:
                             raise  # Re-raise transaction failure
@@ -243,15 +270,31 @@ class TransactionManager:
 
                     time.sleep(2)
 
+            except ContractCustomError as e:
+                # Decode custom error if possible
+                try:
+                    decoded_error = decode_custom_error(function.contract_abi, e.data)
+                    error_msg = f"Contract custom error: {decoded_error}"
+                except Exception:
+                    error_msg = f"Contract custom error: {str(e)}"
+
+                vana.logging.error(error_msg)
+                raise Exception(error_msg)  # No retry for contract errors
+
+            except ContractLogicError as e:
+                error_msg = f"Transaction would revert: {str(e)}"
+                vana.logging.error(error_msg)
+                raise Exception(error_msg)  # No retry for reverts
+
             except Exception as e:
+                # Handle other errors (network, timeout etc)
                 last_error = e
                 retry_count += 1
 
                 if retry_count < max_retries:
-                    wait_time = 2 ** retry_count  # Exponential backoff
+                    wait_time = 2 ** retry_count
                     vana.logging.warning(
-                        f"Transaction failed, waiting {wait_time} seconds before retry "
-                        f"(attempt {retry_count}/{max_retries}): {str(e)}"
+                        f"Transaction failed (will retry), waiting {wait_time} seconds: {str(e)}"
                     )
                     time.sleep(wait_time)
                 else:

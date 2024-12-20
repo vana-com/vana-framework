@@ -351,6 +351,7 @@ class ChainManager:
             vana.logging.error(f"Error fetching balance for address {address}: {e}")
             return 0
 
+        vana.logging.info(f"Balance for address {address}: {result}")
         return Web3.from_wei(result, "ether")
 
     def transfer(
