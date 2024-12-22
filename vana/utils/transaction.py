@@ -13,9 +13,7 @@ class TransactionManager:
     def __init__(self, web3: Web3, account: LocalAccount):
         self.web3 = web3
         self.account = account
-        self._nonce_cache: Dict[str, int] = {}
-        self._last_nonce_refresh = 0
-        self.nonce_refresh_interval = 60
+        self._nonce_lock = Lock()
         self.chain_id = self.web3.eth.chain_id
 
     def _clear_pending_transactions(self, max_wait_time: int = 180):
@@ -110,7 +108,6 @@ class TransactionManager:
             value: Value in wei to send with transaction (default: 0)
             max_retries: Maximum number of retry attempts (default: 3)
             base_gas_multiplier: Base multiplier for gas price on retries (default: 1.5)
-            max_gas_multiplier: Maximum allowed gas price multiplier (default: 5.0)
             timeout: Timeout in seconds to wait for transaction receipt (default: 30)
             clear_pending_transactions: Attempt to clear pending transactions before sending (default: False)
 
@@ -134,57 +131,59 @@ class TransactionManager:
 
         while retry_count < max_retries:
             try:
-                # Estimate gas with conservative buffer
-                gas_estimate = function.estimate_gas({
-                    'from': account.address,
-                    'value': value,
-                    'chainId': self.chain_id
-                })
-                gas_limit = int(gas_estimate * 2)
+                with self._nonce_lock:
+                    # Get nonce directly from chain within lock
+                    nonce = self.web3.eth.get_transaction_count(self.account.address, 'pending')
 
-                # Calculate gas price - use base price for first attempt
-                base_gas_price = self.web3.eth.gas_price
-                gas_multiplier = base_gas_multiplier * (1.5 ** retry_count)
-                gas_price = int(base_gas_price * gas_multiplier)
-
-                # Get safe nonce and build transaction
-                # Get nonce directly from chain - no locking needed since chain is source of truth
-                nonce = self.web3.eth.get_transaction_count(account.address, 'pending')
-
-                tx = function.build_transaction({
-                    'from': account.address,
-                    'value': value,
-                    'gas': gas_limit,
-                    'gasPrice': gas_price,
-                    'nonce': nonce,
-                    'chainId': self.chain_id
-                })
-
-                try:
-                    # Simulate transaction first to catch reverts
-                    self.web3.eth.call({
-                        'from': tx['from'],
-                        'to': tx['to'],
-                        'data': tx['data'],
-                        'value': tx['value'],
-                        'gas': tx['gas'],
-                        'gasPrice': tx['gasPrice'],
+                    # Estimate gas with conservative buffer
+                    gas_estimate = function.estimate_gas({
+                        'from': account.address,
+                        'value': value,
+                        'chainId': self.chain_id,
+                        'nonce': nonce
                     })
-                except ContractLogicError as e:
-                    vana.logging.error(f"Transaction would revert: {str(e)}")
-                    raise Exception(f"Transaction would revert: {str(e)}")
+                    gas_limit = int(gas_estimate * 2)
 
-                signed_tx = self.web3.eth.account.sign_transaction(tx, account.key)
+                    # Calculate gas price - use base price for first attempt
+                    base_gas_price = self.web3.eth.gas_price
+                    gas_multiplier = base_gas_multiplier * (1.5 ** retry_count)
+                    gas_price = int(base_gas_price * gas_multiplier)
 
-                vana.logging.info(
-                    f"Sending transaction with nonce {nonce}, "
-                    f"gas price {gas_price} ({gas_multiplier:.1f}x base) "
-                    f"(retry {retry_count})"
-                )
+                    # Build transaction
+                    tx = function.build_transaction({
+                        'from': account.address,
+                        'value': value,
+                        'gas': gas_limit,
+                        'gasPrice': gas_price,
+                        'nonce': nonce,
+                        'chainId': self.chain_id
+                    })
 
-                tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
+                    try:
+                        # Simulate transaction first to catch reverts
+                        self.web3.eth.call({
+                            'from': tx['from'],
+                            'to': tx['to'],
+                            'data': tx['data'],
+                            'value': tx['value'],
+                            'gas': tx['gas'],
+                            'gasPrice': tx['gasPrice'],
+                        })
+                    except ContractLogicError as e:
+                        vana.logging.error(f"Transaction would revert: {str(e)}")
+                        raise Exception(f"Transaction would revert: {str(e)}")
 
-                # Wait for receipt with timeout
+                    signed_tx = self.web3.eth.account.sign_transaction(tx, account.key)
+
+                    vana.logging.info(
+                        f"Sending transaction with nonce {nonce}, "
+                        f"gas price {gas_price} ({gas_multiplier:.1f}x base) "
+                        f"(retry {retry_count})"
+                    )
+
+                    tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
+
+                # Wait for receipt outside the lock since transaction is already submitted
                 start_time = time.time()
                 while True:
                     try:
