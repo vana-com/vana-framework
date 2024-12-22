@@ -17,55 +17,6 @@ class TransactionManager:
         self._last_nonce_refresh = 0
         self.nonce_refresh_interval = 60
         self.chain_id = self.web3.eth.chain_id
-        self._nonce_lock = Lock()
-
-    def _get_safe_nonce(self) -> Nonce:
-        """
-        Get the next safe nonce, accounting for pending transactions.
-        Thread-safe implementation for concurrent transaction submissions.
-
-        Returns:
-            Nonce: Next safe nonce to use for transaction
-        """
-        with self._nonce_lock:
-            current_time = time.time()
-            cache_key = self.account.address
-
-            should_refresh = (
-                    current_time - self._last_nonce_refresh > self.nonce_refresh_interval or
-                    cache_key not in self._nonce_cache
-            )
-
-            if should_refresh:
-                try:
-                    # Get both confirmed and pending nonces
-                    confirmed_nonce: Nonce = self.web3.eth.get_transaction_count(self.account.address, 'latest')
-                    pending_nonce: Nonce = self.web3.eth.get_transaction_count(self.account.address, 'pending')
-
-                    # Use max to account for pending transactions
-                    new_nonce: Nonce = Nonce(max(int(confirmed_nonce), int(pending_nonce)))
-
-                    # Only update if new nonce is higher than cached
-                    cached_nonce: Nonce = Nonce(self._nonce_cache.get(cache_key, 0))
-                    self._nonce_cache[cache_key] = Nonce(max(int(new_nonce), int(cached_nonce)))
-
-                    self._last_nonce_refresh = current_time
-
-                    vana.logging.debug(
-                        f"Nonce cache refreshed - Latest: {confirmed_nonce}, "
-                        f"Pending: {pending_nonce}, "
-                        f"Using: {self._nonce_cache[cache_key]}"
-                    )
-                except Exception as e:
-                    vana.logging.error(f"Error refreshing nonce: {str(e)}")
-                    if cache_key not in self._nonce_cache:
-                        raise
-
-            # Get and increment the cached nonce atomically
-            nonce = self._nonce_cache[cache_key]
-            self._nonce_cache[cache_key] = Nonce(int(nonce) + 1)
-
-            return nonce
 
     def _clear_pending_transactions(self, max_wait_time: int = 180):
         """
@@ -146,7 +97,7 @@ class TransactionManager:
             max_retries: int = 3,
             base_gas_multiplier: float = 1.5,
             timeout: int = 30,
-            clear_pending_transactions: bool = True
+            clear_pending_transactions: bool = False
     ) -> Tuple[HexBytes, TxReceipt]:
         """
         Send a transaction with retry logic and gas price management.
@@ -197,7 +148,9 @@ class TransactionManager:
                 gas_price = int(base_gas_price * gas_multiplier)
 
                 # Get safe nonce and build transaction
-                nonce = self._get_safe_nonce()
+                # Get nonce directly from chain - no locking needed since chain is source of truth
+                nonce = self.web3.eth.get_transaction_count(account.address, 'pending')
+
                 tx = function.build_transaction({
                     'from': account.address,
                     'value': value,
