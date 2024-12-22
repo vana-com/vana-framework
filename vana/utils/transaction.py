@@ -145,9 +145,8 @@ class TransactionManager:
             value: int = 0,
             max_retries: int = 3,
             base_gas_multiplier: float = 1.5,
-            max_gas_multiplier: float = 5.0,
             timeout: int = 30,
-            clear_pending_transactions: bool = False
+            clear_pending_transactions: bool = True
     ) -> Tuple[HexBytes, TxReceipt]:
         """
         Send a transaction with retry logic and gas price management.
@@ -190,25 +189,12 @@ class TransactionManager:
                     'value': value,
                     'chainId': self.chain_id
                 })
-                gas_limit = int(gas_estimate * 1.5)
+                gas_limit = int(gas_estimate * 2)
 
                 # Calculate gas price - use base price for first attempt
                 base_gas_price = self.web3.eth.gas_price
-                if retry_count == 0:
-                    gas_price = base_gas_price
-                else:
-                    gas_multiplier = min(
-                        base_gas_multiplier * (1.2 ** (retry_count - 1)),
-                        max_gas_multiplier
-                    )
-                    gas_price = int(base_gas_price * gas_multiplier)
-
-                # Log gas details
-                vana.logging.debug(
-                    f"Gas details - Base price: {self.web3.from_wei(base_gas_price, 'gwei')} Gwei, " +
-                    (f"Multiplier: {gas_multiplier:.2f}x, " if retry_count > 0 else "") +
-                    f"Final price: {self.web3.from_wei(gas_price, 'gwei')} Gwei"
-                )
+                gas_multiplier = base_gas_multiplier * (1.5 ** retry_count)
+                gas_price = int(base_gas_price * gas_multiplier)
 
                 # Get safe nonce and build transaction
                 nonce = self._get_safe_nonce()
@@ -239,8 +225,8 @@ class TransactionManager:
 
                 vana.logging.info(
                     f"Sending transaction with nonce {nonce}, "
-                    f"gas price {self.web3.from_wei(gas_price, 'gwei')} Gwei "
-                    f"(retry {retry_count if retry_count > 0 else 'initial attempt'})"
+                    f"gas price {gas_price} ({gas_multiplier:.1f}x base) "
+                    f"(retry {retry_count})"
                 )
 
                 tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
