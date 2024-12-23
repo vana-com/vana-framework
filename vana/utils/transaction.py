@@ -144,19 +144,23 @@ class TransactionManager:
                     })
                     gas_limit = int(gas_estimate * 2)
 
-                    # Calculate gas price - use base price for first attempt
-                    base_gas_price = self.web3.eth.gas_price
+                    # Calculate gas prices for EIP-1559
+                    base_fee = self.web3.eth.get_block('latest')['baseFeePerGas']
                     gas_multiplier = base_gas_multiplier * (1.5 ** retry_count)
-                    gas_price = int(base_gas_price * gas_multiplier)
+                    priority_fee = self.web3.eth.max_priority_fee
+                    max_fee_per_gas = int(base_fee * gas_multiplier) + priority_fee
+                    max_priority_fee_per_gas = priority_fee
 
                     # Build transaction
                     tx = function.build_transaction({
                         'from': account.address,
                         'value': value,
                         'gas': gas_limit,
-                        'gasPrice': gas_price,
+                        'maxFeePerGas': max_fee_per_gas,
+                        'maxPriorityFeePerGas': max_priority_fee_per_gas,
                         'nonce': nonce,
-                        'chainId': self.chain_id
+                        'chainId': self.chain_id,
+                        'type': 2
                     })
 
                     try:
@@ -167,7 +171,9 @@ class TransactionManager:
                             'data': tx['data'],
                             'value': tx['value'],
                             'gas': tx['gas'],
-                            'gasPrice': tx['gasPrice'],
+                            'maxFeePerGas': tx['maxFeePerGas'],
+                            'maxPriorityFeePerGas': tx['maxPriorityFeePerGas'],
+                            'type': 2
                         })
                     except ContractLogicError as e:
                         vana.logging.error(f"Transaction would revert: {str(e)}")
@@ -177,7 +183,7 @@ class TransactionManager:
 
                     vana.logging.info(
                         f"Sending transaction with nonce {nonce}, "
-                        f"gas price {gas_price} ({gas_multiplier:.1f}x base) "
+                        f"gas limit {gas_limit}, gas price {max_fee_per_gas} ({max_priority_fee_per_gas})"
                         f"(retry {retry_count})"
                     )
 
