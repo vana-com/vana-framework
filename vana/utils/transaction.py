@@ -119,10 +119,17 @@ class TransactionManager:
             TimeoutError: If transaction is not mined within timeout period
             Exception: If transaction fails after all retry attempts
         """
-        if clear_pending_transactions:
-            pending_count = (self.web3.eth.get_transaction_count(self.account.address, 'pending') -
-                             self.web3.eth.get_transaction_count(self.account.address, 'latest'))
-            if pending_count > 0:
+        # Check for a large gap between pending and latest nonce
+        pending_count = (
+            self.web3.eth.get_transaction_count(self.account.address, 'pending') -
+            self.web3.eth.get_transaction_count(self.account.address, 'latest')
+        )
+
+        # Automatically clear pending transactions if there's a significant nonce gap (>10)
+        if pending_count > 10:
+            vana.logging.warning(f"Found {pending_count} pending transactions, attempting to clear...")
+            self._clear_pending_transactions()
+        elif clear_pending_transactions and pending_count > 0:
                 vana.logging.warning(f"Found {pending_count} pending transactions, attempting to clear...")
                 self._clear_pending_transactions()
 
