@@ -49,7 +49,7 @@ def fetch_and_save_contract_abi(network, contract_name, contract_hash):
 def update_contract_abis():
     network = os.environ.get("CHAIN_NETWORK", "moksha")
     if network not in contracts:
-        network = "satori"
+        network = "vana"
 
     for contract_name, contract_hash in contracts[network].items():
         fetch_and_save_contract_abi(network, contract_name, contract_hash)
