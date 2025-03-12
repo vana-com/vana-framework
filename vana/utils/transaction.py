@@ -95,7 +95,7 @@ class TransactionManager:
             max_retries: int = 3,
             base_gas_multiplier: float = 1.5,
             timeout: int = 30,
-            clear_pending_transactions: bool = False
+            max_pending_transactions: int = 10
     ) -> Tuple[HexBytes, TxReceipt]:
         """
         Send a transaction with retry logic and gas price management.
@@ -109,7 +109,7 @@ class TransactionManager:
             max_retries: Maximum number of retry attempts (default: 3)
             base_gas_multiplier: Base multiplier for gas price on retries (default: 1.5)
             timeout: Timeout in seconds to wait for transaction receipt (default: 30)
-            clear_pending_transactions: Attempt to clear pending transactions before sending (default: False)
+            max_pending_transactions: Clear transactions when pending count exceeds this threshold; set to 0 to disable (default: 10)
 
         Returns:
             Tuple[HexBytes, TxReceipt]: Transaction hash and receipt
@@ -119,19 +119,14 @@ class TransactionManager:
             TimeoutError: If transaction is not mined within timeout period
             Exception: If transaction fails after all retry attempts
         """
-        # Check for a large gap between pending and latest nonce
-        pending_count = (
-            self.web3.eth.get_transaction_count(self.account.address, 'pending') -
-            self.web3.eth.get_transaction_count(self.account.address, 'latest')
-        )
+        # Check for a gap between pending and latest nonce
+        pending_count = (self.web3.eth.get_transaction_count(self.account.address, 'pending') -
+                         self.web3.eth.get_transaction_count(self.account.address, 'latest'))
 
-        # Automatically clear pending transactions if there's a significant nonce gap (>10)
-        if pending_count > 10:
-            vana.logging.warning(f"Found {pending_count} pending transactions, attempting to clear...")
+        # Clear pending transactions if count exceeds threshold (disable by setting threshold to 0)
+        if max_pending_transactions > 0 and pending_count > max_pending_transactions:
+            vana.logging.warning(f"Found {pending_count} pending transactions (threshold: {max_pending_transactions}), attempting to clear...")
             self._clear_pending_transactions()
-        elif clear_pending_transactions and pending_count > 0:
-                vana.logging.warning(f"Found {pending_count} pending transactions, attempting to clear...")
-                self._clear_pending_transactions()
 
         retry_count = 0
         last_error = None
