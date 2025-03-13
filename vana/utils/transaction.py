@@ -19,6 +19,8 @@ class TransactionManager:
     def _clear_pending_transactions(self, max_wait_time: int = 180):
         """
         Clear pending transactions by sending zero-value transactions with higher gas price.
+        Note: This method should be called within the context of _nonce_lock to prevent
+        concurrent clearing attempts from multiple threads.
 
         Args:
             max_wait_time: Maximum time to wait for transactions to clear in seconds.
@@ -137,8 +139,16 @@ class TransactionManager:
 
         # Clear pending transactions if count exceeds threshold (disable by setting threshold to 0)
         if max_pending_transactions > 0 and pending_count > max_pending_transactions:
-            vana.logging.warning(f"Found {pending_count} pending transactions (threshold: {max_pending_transactions}), attempting to clear...")
-            self._clear_pending_transactions()
+            # Use the existing nonce_lock to prevent multiple threads from clearing transactions simultaneously
+            with self._nonce_lock:
+                # Check again inside the lock in case another thread already cleared transactions
+                current_pending_count = (self.web3.eth.get_transaction_count(self.account.address, 'pending') -
+                                        self.web3.eth.get_transaction_count(self.account.address, 'latest'))
+                if current_pending_count > max_pending_transactions:
+                    vana.logging.warning(
+                        f"Found {current_pending_count} pending transactions (threshold: {max_pending_transactions}), attempting to clear..."
+                    )
+                    self._clear_pending_transactions()
 
         retry_count = 0
         last_error = None
