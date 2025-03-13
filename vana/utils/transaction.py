@@ -34,24 +34,36 @@ class TransactionManager:
                 vana.logging.info(f"Clearing {initial_pending} pending transactions")
                 highest_nonce = pending_nonce - 1  # Keep track of highest nonce we're replacing
 
+                # Start with current gas price and use increasing multiplier for each retry
+                base_gas_price = self.web3.eth.gas_price
+                gas_multiplier = 5  # Higher initial multiplier to ensure replacement
+
                 # Send replacement transactions with higher gas price
                 for nonce in range(confirmed_nonce, pending_nonce):
-                    replacement_tx = {
-                        'from': self.account.address,
-                        'to': self.account.address,
-                        'value': 0,
-                        'nonce': nonce,
-                        'gas': eth_transfer_gas,
-                        'gasPrice': self.web3.eth.gas_price * 4,
-                        'chainId': self.chain_id
-                    }
+                    # For each failed attempt, increase the multiplier
+                    for attempt in range(3):  # Try up to 3 times with increasing gas price
+                        replacement_tx = {
+                            'from': self.account.address,
+                            'to': self.account.address,
+                            'value': 0,
+                            'nonce': nonce,
+                            'gas': eth_transfer_gas,
+                            'gasPrice': int(base_gas_price * (gas_multiplier + attempt * 2)),  # Increase gas price on each attempt
+                            'chainId': self.chain_id
+                        }
 
-                    signed_tx = self.web3.eth.account.sign_transaction(replacement_tx, self.account.key)
-                    try:
-                        tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
-                        vana.logging.info(f"Sent replacement transaction for nonce {nonce}: {tx_hash.hex()}")
-                    except Exception as e:
-                        vana.logging.warning(f"Failed to replace transaction with nonce {nonce}: {str(e)}")
+                        try:
+                            signed_tx = self.web3.eth.account.sign_transaction(replacement_tx, self.account.key)
+                            tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
+                            vana.logging.info(f"Sent replacement transaction for nonce {nonce}: {tx_hash.hex()}")
+                            break  # Success, break the retry loop
+                        except Exception as e:
+                            if 'replacement transaction underpriced' in str(e) and attempt < 2:
+                                vana.logging.warning(f"Attempt {attempt+1}: Transaction with nonce {nonce} needs higher gas price: {str(e)}")
+                                continue  # Try again with higher gas price
+                            else:
+                                vana.logging.warning(f"Failed to replace transaction with nonce {nonce}: {str(e)}")
+                                break  # Give up on this nonce after max attempts or different error
 
                 # Wait for transactions to be processed by monitoring the latest nonce
                 pending_remaining = initial_pending
