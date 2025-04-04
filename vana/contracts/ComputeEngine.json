@@ -37,8 +37,14 @@
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "CancelDelayNotPassed",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "AddressInsufficientBalance",
     "type": "error"
   },
   {
@@ -74,7 +80,28 @@
   },
   {
     "inputs": [],
-    "name": "InsufficientFee",
+    "name": "FailedToAssignTee",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "computeInstructionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "InstructionNotFound",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InsufficientBalance",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidAmount",
     "type": "error"
   },
   {
@@ -83,23 +110,51 @@
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "InvalidJobStatus",
+    "inputs": [
+      {
+        "internalType": "enum IComputeEngine.JobStatus",
+        "name": "currentStatus",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum IComputeEngine.JobStatus",
+        "name": "newStatus",
+        "type": "uint8"
+      }
+    ],
+    "name": "InvalidStatusTransition",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "InvalidJobTee",
+    "name": "InvalidVanaAmount",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "JobCompleted",
+    "name": "JobAlreadyDoneOrCanceled",
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "NoActiveTee",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "jobId",
+        "type": "uint256"
+      }
+    ],
+    "name": "JobNotFound",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "jobId",
+        "type": "uint256"
+      }
+    ],
+    "name": "JobNotSubmitted",
     "type": "error"
   },
   {
@@ -114,7 +169,17 @@
   },
   {
     "inputs": [],
-    "name": "NothingToClaim",
+    "name": "NotLongRunningJob",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotQueryEngine",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotTee",
     "type": "error"
   },
   {
@@ -123,18 +188,30 @@
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "TeeAlreadyAdded",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "SafeERC20FailedOperation",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "jobId",
+        "type": "uint256"
+      }
+    ],
+    "name": "TeeAlreadyAssigned",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "TeeNotActive",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TransferFailed",
+    "name": "TeePoolNotFound",
     "type": "error"
   },
   {
@@ -154,12 +231,28 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "UnauthorizedPaymentRequestor",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZeroTeeAddress",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
         "indexed": true,
         "internalType": "address",
-        "name": "teeAddress",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
         "type": "address"
       },
       {
@@ -169,7 +262,7 @@
         "type": "uint256"
       }
     ],
-    "name": "Claimed",
+    "name": "Deposit",
     "type": "event"
   },
   {
@@ -209,24 +302,37 @@
       },
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "fileId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
         "internalType": "address",
-        "name": "teeAddress",
+        "name": "ownerAddress",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "bidAmount",
-        "type": "uint256"
       }
     ],
-    "name": "JobSubmitted",
+    "name": "JobRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "jobId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IComputeEngine.JobStatus",
+        "name": "status",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "statusMessage",
+        "type": "string"
+      }
+    ],
+    "name": "JobStatusUpdated",
     "type": "event"
   },
   {
@@ -247,24 +353,24 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "attestator",
-        "type": "address"
-      },
-      {
-        "indexed": true,
         "internalType": "uint256",
         "name": "jobId",
         "type": "uint256"
       },
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
-        "name": "fileId",
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "name": "ProofAdded",
+    "name": "PaymentExecuted",
     "type": "event"
   },
   {
@@ -347,12 +453,18 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "teeAddress",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "jobId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "reason",
+        "type": "bytes"
       }
     ],
-    "name": "TeeAdded",
+    "name": "TeeAssignmentFailed",
     "type": "event"
   },
   {
@@ -360,12 +472,24 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "uint256",
+        "name": "jobId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "teePoolAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "teeAddress",
         "type": "address"
       }
     ],
-    "name": "TeeRemoved",
+    "name": "TeeAssignmentSucceeded",
     "type": "event"
   },
   {
@@ -393,6 +517,44 @@
     ],
     "name": "Upgraded",
     "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Withdraw",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "DEDICATED_TIMEOUT",
+    "outputs": [
+      {
+        "internalType": "uint80",
+        "name": "",
+        "type": "uint80"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -435,169 +597,31 @@
   },
   {
     "inputs": [],
-    "name": "activeTeeList",
+    "name": "VANA",
     "outputs": [
       {
-        "internalType": "address[]",
+        "internalType": "address",
         "name": "",
-        "type": "address[]"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
-      }
-    ],
-    "name": "activeTeeListAt",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "teeAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "url",
-            "type": "string"
-          },
-          {
-            "internalType": "enum ITeePool.TeeStatus",
-            "name": "status",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "withdrawnAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "jobsCount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "publicKey",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct ITeePool.TeeInfo",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "activeTeesCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "jobId",
-        "type": "uint256"
-      },
-      {
-        "components": [
-          {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          },
-          {
-            "components": [
-              {
-                "internalType": "uint256",
-                "name": "score",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "dlpId",
-                "type": "uint256"
-              },
-              {
-                "internalType": "string",
-                "name": "metadata",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "proofUrl",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "instruction",
-                "type": "string"
-              }
-            ],
-            "internalType": "struct IDataRegistry.ProofData",
-            "name": "data",
-            "type": "tuple"
-          }
-        ],
-        "internalType": "struct IDataRegistry.Proof",
-        "name": "proof",
-        "type": "tuple"
-      }
-    ],
-    "name": "addProof",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "teeAddress",
+        "name": "account",
         "type": "address"
       },
       {
-        "internalType": "string",
-        "name": "url",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "publicKey",
-        "type": "string"
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
       }
     ],
-    "name": "addTee",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "cancelDelay",
+    "name": "balanceOf",
     "outputs": [
       {
         "internalType": "uint256",
@@ -623,17 +647,10 @@
   },
   {
     "inputs": [],
-    "name": "claim",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "dataRegistry",
+    "name": "computeEngineTreasury",
     "outputs": [
       {
-        "internalType": "contract IDataRegistry",
+        "internalType": "contract IDataAccessTreasury",
         "name": "",
         "type": "address"
       }
@@ -644,20 +661,42 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
-        "name": "fileId",
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "name": "fileJobIds",
-    "outputs": [
+    "name": "deposit",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
-        "internalType": "uint256[]",
-        "name": "",
-        "type": "uint256[]"
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "metadata",
+        "type": "bytes"
       }
     ],
-    "stateMutability": "view",
+    "name": "executePaymentRequest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -725,23 +764,23 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "trustedForwarderAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "ownerAddress",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "dataRegistryAddress",
+        "name": "initQueryEngine",
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "initialCancelDelay",
-        "type": "uint256"
+        "internalType": "contract IComputeEngineTeePoolFactory",
+        "name": "initTeePoolFactory",
+        "type": "address"
+      },
+      {
+        "internalType": "contract DataAccessTreasuryFactoryBeacon",
+        "name": "initDataAccessTreasuryFactory",
+        "type": "address"
       }
     ],
     "name": "initialize",
@@ -750,38 +789,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "teeAddress",
-        "type": "address"
-      }
-    ],
-    "name": "isTee",
+    "inputs": [],
+    "name": "instructionRegistry",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "contract IComputeInstructionRegistry",
         "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "forwarder",
         "type": "address"
-      }
-    ],
-    "name": "isTrustedForwarder",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -800,37 +814,52 @@
       {
         "components": [
           {
-            "internalType": "uint256",
-            "name": "fileId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "bidAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "enum ITeePool.JobStatus",
-            "name": "status",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint256",
-            "name": "addedTimestamp",
-            "type": "uint256"
-          },
-          {
             "internalType": "address",
             "name": "ownerAddress",
             "type": "address"
           },
           {
+            "internalType": "uint80",
+            "name": "maxTimeout",
+            "type": "uint80"
+          },
+          {
+            "internalType": "bool",
+            "name": "gpuRequired",
+            "type": "bool"
+          },
+          {
+            "internalType": "enum IComputeEngine.JobStatus",
+            "name": "status",
+            "type": "uint8"
+          },
+          {
             "internalType": "address",
             "name": "teeAddress",
             "type": "address"
+          },
+          {
+            "internalType": "uint32",
+            "name": "computeInstructionId",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint48",
+            "name": "addedTimestamp",
+            "type": "uint48"
+          },
+          {
+            "internalType": "string",
+            "name": "statusMessage",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "teePoolAddress",
+            "type": "address"
           }
         ],
-        "internalType": "struct ITeePool.Job",
+        "internalType": "struct IComputeEngine.Job",
         "name": "",
         "type": "tuple"
       }
@@ -849,25 +878,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes[]",
-        "name": "data",
-        "type": "bytes[]"
-      }
-    ],
-    "name": "multicall",
-    "outputs": [
-      {
-        "internalType": "bytes[]",
-        "name": "results",
-        "type": "bytes[]"
-      }
-    ],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -904,16 +914,16 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "queryEngine",
+    "outputs": [
       {
         "internalType": "address",
-        "name": "teeAddress",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "removeTee",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -938,13 +948,31 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "fileId",
+        "name": "jobId",
         "type": "uint256"
       }
     ],
-    "name": "requestContributionProof",
+    "name": "resubmitJob",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "jobId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "teeAddress",
+        "type": "address"
+      }
+    ],
+    "name": "resubmitJobWithTee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -968,12 +996,50 @@
   {
     "inputs": [
       {
+        "internalType": "uint80",
+        "name": "maxTimeout",
+        "type": "uint80"
+      },
+      {
+        "internalType": "bool",
+        "name": "gpuRequired",
+        "type": "bool"
+      },
+      {
         "internalType": "uint256",
-        "name": "fileId",
+        "name": "computeInstructionId",
         "type": "uint256"
       }
     ],
     "name": "submitJob",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "maxTimeout",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "gpuRequired",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "computeInstructionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "teeAddress",
+        "type": "address"
+      }
+    ],
+    "name": "submitJobWithTee",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -999,190 +1065,10 @@
   },
   {
     "inputs": [],
-    "name": "teeFee",
+    "name": "teePoolFactory",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "teeAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "start",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "limit",
-        "type": "uint256"
-      }
-    ],
-    "name": "teeJobIdsPaginated",
-    "outputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "",
-        "type": "uint256[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "teeList",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "",
-        "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
-      }
-    ],
-    "name": "teeListAt",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "teeAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "url",
-            "type": "string"
-          },
-          {
-            "internalType": "enum ITeePool.TeeStatus",
-            "name": "status",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "withdrawnAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "jobsCount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "publicKey",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct ITeePool.TeeInfo",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "teeAddress",
-        "type": "address"
-      }
-    ],
-    "name": "tees",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "teeAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "url",
-            "type": "string"
-          },
-          {
-            "internalType": "enum ITeePool.TeeStatus",
-            "name": "status",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "withdrawnAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "jobsCount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "publicKey",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct ITeePool.TeeInfo",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "teesCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "trustedForwarder",
-    "outputs": [
-      {
-        "internalType": "address",
+        "internalType": "contract IComputeEngineTeePoolFactory",
         "name": "",
         "type": "address"
       }
@@ -1200,25 +1086,25 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "newCancelDelay",
-        "type": "uint256"
-      }
-    ],
-    "name": "updateCancelDelay",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "contract IDataRegistry",
-        "name": "newDataRegistry",
+        "internalType": "contract IDataAccessTreasury",
+        "name": "newComputeEngineTreasuryAddress",
         "type": "address"
       }
     ],
-    "name": "updateDataRegistry",
+    "name": "updateComputeEngineTreasury",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IComputeInstructionRegistry",
+        "name": "newInstructionRegistry",
+        "type": "address"
+      }
+    ],
+    "name": "updateInstructionRegistry",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1227,11 +1113,21 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "newTeeFee",
+        "name": "jobId",
         "type": "uint256"
+      },
+      {
+        "internalType": "enum IComputeEngine.JobStatus",
+        "name": "status",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "statusMessage",
+        "type": "string"
       }
     ],
-    "name": "updateTeeFee",
+    "name": "updateJobStatus",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1240,11 +1136,24 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "trustedForwarderAddress",
+        "name": "newQueryEngineAddress",
         "type": "address"
       }
     ],
-    "name": "updateTrustedForwarder",
+    "name": "updateQueryEngine",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IComputeEngineTeePoolFactory",
+        "name": "newTeePoolFactory",
+        "type": "address"
+      }
+    ],
+    "name": "updateTeePoolFactory",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1278,6 +1187,24 @@
       }
     ],
     "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]
