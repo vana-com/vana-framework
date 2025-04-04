@@ -35,6 +35,26 @@ class Client:
                 default=os.getenv("DLP_ROOT_CONTRACT_ADDRESS") or None,
                 type=str,
                 help="""The address for the DLP Root Contract.""")
+            parser.add_argument(
+                "--" + prefix_str + "client.compute_engine_contract_address",
+                default=os.getenv("COMPUTE_ENGINE_CONTRACT_ADDRESS") or None,
+                type=str,
+                help="""The address for the Compute Engine Contract.""")
+            parser.add_argument(
+                "--" + prefix_str + "client.query_engine_contract_address",
+                default=os.getenv("QUERY_ENGINE_CONTRACT_ADDRESS") or None,
+                type=str,
+                help="""The address for the Query Engine Contract.""")
+            parser.add_argument(
+                "--" + prefix_str + "client.compute_instruction_registry_contract_address",
+                default=os.getenv("COMPUTE_INSTRUCTION_REGISTRY_CONTRACT_ADDRESS") or None,
+                type=str,
+                help="""The address for the Compute Instruction Registry Contract.""")
+            parser.add_argument(
+                "--" + prefix_str + "client.data_refiner_registry_contract_address",
+                default=os.getenv("DATA_REFINER_REGISTRY_CONTRACT_ADDRESS") or None,
+                type=str,
+                help="""The address for the Data Refiner Registry Contract.""")
         except argparse.ArgumentError:
             # re-parsing arguments.
             pass
@@ -77,6 +97,20 @@ class Client:
                 abi=json.load(f)
             )
 
+        data_refiner_registry_contract_path = os.path.join(
+            os.path.dirname(__file__),
+            "contracts/DataRefinerRegistry.json"
+        )
+        with open(data_refiner_registry_contract_path) as f:
+            data_refiner_address = contracts[self.network]["DataRefinerRegistry"]
+            if hasattr(self.config, 'client') and self.config.client is not None:
+                data_refiner_address = self.config.client.data_refiner_registry_contract_address or data_refiner_address
+
+            self.data_refiner_contract = self.chain_manager.web3.eth.contract(
+                address=data_refiner_address,
+                abi=json.load(f)
+            )
+
     # Data Registry
 
     def get_file(self, file_id: int):
@@ -115,6 +149,32 @@ class Client:
         """
         add_file_fn = self.data_registry_contract.functions.addFile(url)
         return self.chain_manager.send_transaction(add_file_fn, self.wallet.hotkey)
+
+    def add_refinement_with_permission(self, file_id: int, refiner_id: int, url: str, account: str, key: str):
+        """
+        Add a refinement to the Data Registry contract.
+        :param file_id: File ID in the Data Registry contract to add a refinement to
+        :param refiner_id: Refiner ID from the Data Refiner Registry, where refinement instructions are stored
+        :param url: URL where encrypted refinement is uploaded
+        :param account: Address of the account to grant permission to the refinement
+        :param key: The encrypted encryption key that only the account can decrypt
+        :return: Transaction hex, Transaction receipt
+        """
+        add_refinement_with_permission_fn = self.data_registry_contract.functions.addRefinementWithPermission(file_id, refiner_id, url, account, key)
+        return self.chain_manager.send_transaction(add_refinement_with_permission_fn, self.wallet.hotkey)
+
+    # Data Refiner Registry
+
+    def get_refiner(self, refiner_id: int):
+        """
+        Get the refiner information for a given refiner ID
+        :param refiner_id: Refiner ID from the Data Refiner Registry
+        :return: Refiner information
+        """
+        get_refiner_fn = self.data_refiner_contract.functions.refiners(refiner_id)
+        refiner = self.chain_manager.read_contract_fn(get_refiner_fn)
+        keys = ["dlp_id", "owner", "name", "schema_definition_url", "refinement_instruction_url", "public_key"]
+        return dict(zip(keys, refiner))
 
     # TEE Pool Contract
 
