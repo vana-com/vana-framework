@@ -237,6 +237,11 @@
   },
   {
     "inputs": [],
+    "name": "ZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ZeroTeeAddress",
     "type": "error"
   },
@@ -778,7 +783,7 @@
         "type": "address"
       },
       {
-        "internalType": "contract DataAccessTreasuryFactoryBeacon",
+        "internalType": "contract DataAccessTreasuryProxyFactory",
         "name": "initDataAccessTreasuryFactory",
         "type": "address"
       }

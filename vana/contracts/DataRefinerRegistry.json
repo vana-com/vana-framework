@@ -345,7 +345,7 @@
     "name": "dlpRootCore",
     "outputs": [
       {
-        "internalType": "contract IDLPRegistry",
+        "internalType": "contract IDLPRootCoreReadOnly",
         "name": "",
         "type": "address"
       }
@@ -423,7 +423,7 @@
       },
       {
         "internalType": "address",
-        "name": "dlpRootCoreAddress",
+        "name": "initDlpRootCoreAddress",
         "type": "address"
       }
     ],
@@ -595,7 +595,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "dlpRootCoreAddress",
+        "name": "newDlpRootCoreAddress",
         "type": "address"
       }
     ],
