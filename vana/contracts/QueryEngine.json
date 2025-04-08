@@ -161,6 +161,11 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "ZeroAddress",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -234,9 +239,15 @@
       },
       {
         "indexed": false,
-        "internalType": "bytes",
-        "name": "metadata",
-        "type": "bytes"
+        "internalType": "uint256",
+        "name": "jobId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "refinerId",
+        "type": "uint256"
       }
     ],
     "name": "PaymentReceived",
@@ -755,12 +766,12 @@
       },
       {
         "internalType": "address",
-        "name": "refinerRegistryAddress",
+        "name": "initRefinerRegistryAddress",
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "dataAccessTreasuryFactory",
+        "internalType": "contract DataAccessTreasuryProxyFactory",
+        "name": "initDataAccessTreasuryFactory",
         "type": "address"
       }
     ],
@@ -1004,7 +1015,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "computeEngineAddress",
+        "name": "newComputeEngineAddress",
         "type": "address"
       }
     ],
@@ -1017,7 +1028,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_dlpPaymentPercentage",
+        "name": "newDlpPaymentPercentage",
         "type": "uint256"
       }
     ],
@@ -1048,7 +1059,7 @@
     "inputs": [
       {
         "internalType": "contract IDataAccessTreasury",
-        "name": "_queryEngineTreasury",
+        "name": "newQueryEngineTreasury",
         "type": "address"
       }
     ],
@@ -1061,7 +1072,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "refinerRegistryAddress",
+        "name": "newRefinerRegistryAddress",
         "type": "address"
       }
     ],
@@ -1074,7 +1085,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_vanaTreasury",
+        "name": "newVanaTreasury",
         "type": "address"
       }
     ],

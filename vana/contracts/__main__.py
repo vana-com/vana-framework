@@ -2,7 +2,6 @@ import json
 import os
 
 import requests
-from web3 import Web3
 
 import vana
 from vana.contracts import contracts
@@ -10,28 +9,38 @@ from vana.contracts import contracts
 
 def fetch_and_save_contract_abi(network, contract_name, contract_hash):
     try:
-        base_url = f"https://api.{network}.vanascan.io/api/v2/smart-contracts"
-        rpc_url = f"https://rpc.{network}.vana.org"
+        # Determine VanaScan API base URLs based on network
+        if network == "vana":
+            api_base_url = "https://vanascan.io/api/v2"
+        else:
+            api_base_url = f"https://api.{network}.vanascan.io/api/v2"
 
-        # Connect to the network
-        w3 = Web3(Web3.HTTPProvider(rpc_url))
+        # Fetch contract details to find implementation address if it's a proxy
+        address_response = requests.get(f"{api_base_url}/addresses/{contract_hash}")
+        address_response.raise_for_status()
+        address_data = address_response.json()
 
-        # ERC1967 implementation slot
-        implementation_slot = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc'
+        address_to_fetch_abi_from = contract_hash # Default to original hash
+        implementations = address_data.get('implementations')
+        if address_data.get('is_contract') and implementations and isinstance(implementations, list) and len(implementations) > 0:
+            # It's a proxy, use the first implementation address
+            implementation_address = implementations[0].get('address')
+            if implementation_address:
+                address_to_fetch_abi_from = implementation_address
+                vana.logging.info(f"Proxy detected. Using implementation address: {implementation_address}")
+            else:
+                 vana.logging.warning(f"Proxy detected but no implementation address found in response for {contract_hash}. Using original address.")
+        else:
+             vana.logging.info(f"Contract {contract_hash} is not a proxy or implementation not found. Using original address.")
 
-        # Get the implementation address
-        implementation_address = w3.eth.get_storage_at(contract_hash, implementation_slot)
-        # If address is 0x0000...0000, it means the contract is not a proxy, use its address as implementation address
-        implementation_address = '0x' + implementation_address.hex()[-40:] if implementation_address != b'\x00' * 32 else contract_hash
-
-        # Fetch ABI from the implementation
-        implementation_response = requests.get(f"{base_url}/{implementation_address}")
-        implementation_response.raise_for_status()
+        # Fetch ABI from the implementation or original address
+        abi_response = requests.get(f"{api_base_url}/smart-contracts/{address_to_fetch_abi_from}")
+        abi_response.raise_for_status()
 
         # Extract the ABI from the response
-        abi = implementation_response.json().get('abi')
+        abi = abi_response.json().get('abi')
         if not abi:
-            vana.logging.error(f"No ABI found for contract {contract_name} with hash {contract_hash}")
+            vana.logging.error(f"No ABI found for contract {contract_name} (hash: {contract_hash}, fetched from: {address_to_fetch_abi_from})")
             return
 
         output_file = os.path.join(os.path.dirname(__file__), f"{contract_name}.json")
