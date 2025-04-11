@@ -55,6 +55,11 @@ class Client:
                 default=os.getenv("DATA_REFINER_REGISTRY_CONTRACT_ADDRESS") or None,
                 type=str,
                 help="""The address for the Data Refiner Registry Contract.""")
+            parser.add_argument(
+                "--" + prefix_str + "client.compute_engine_tee_pool_contract_address",
+                default=os.getenv("COMPUTE_ENGINE_TEE_POOL_CONTRACT_ADDRESS") or None,
+                type=str,
+                help="""The address for the Compute Engine TEE Pool (ie. ephemeral-standard, ...) Contract.""")
         except argparse.ArgumentError:
             # re-parsing arguments.
             pass
@@ -108,6 +113,48 @@ class Client:
 
             self.data_refiner_contract = self.chain_manager.web3.eth.contract(
                 address=data_refiner_address,
+                abi=json.load(f)
+            )
+        
+        compute_engine_contract_path = os.path.join(
+            os.path.dirname(__file__),
+            "contracts/ComputeEngine.json"
+        )
+        with open(compute_engine_contract_path) as f:
+            compute_engine_address = contracts[self.network]["ComputeEngine"]
+            if hasattr(self.config, 'client') and self.config.client is not None:
+                compute_engine_address = self.config.client.compute_engine_contract_address or compute_engine_address
+
+            self.compute_engine_contract = self.chain_manager.web3.eth.contract(
+                address=compute_engine_address,
+                abi=json.load(f)
+            )
+        
+        compute_instruction_registry_contract_path = os.path.join(
+            os.path.dirname(__file__),
+            "contracts/ComputeInstructionRegistry.json"
+        )
+        with open(compute_instruction_registry_contract_path) as f:
+            compute_instruction_registry_address = contracts[self.network]["ComputeInstructionRegistry"]
+            if hasattr(self.config, 'client') and self.config.client is not None:
+                compute_instruction_registry_address = self.config.client.compute_instruction_registry_contract_address or compute_instruction_registry_address
+
+            self.compute_instruction_registry_contract = self.chain_manager.web3.eth.contract(
+                address=compute_instruction_registry_address,
+                abi=json.load(f)
+            )
+        
+        compute_engine_tee_pool_contract_path = os.path.join(
+            os.path.dirname(__file__),
+            "contracts/ComputeEngineTeePool.json"
+        )
+        with open(compute_engine_tee_pool_contract_path) as f:
+            compute_engine_tee_pool_address = contracts[self.network]["ComputeEngineTeePool"]
+            if hasattr(self.config, 'client') and self.config.client is not None:
+                compute_engine_tee_pool_address = self.config.client.compute_engine_tee_pool_contract_address or compute_engine_tee_pool_address
+
+            self.compute_engine_tee_pool_contract = self.chain_manager.web3.eth.contract(
+                address=compute_engine_tee_pool_address,
                 abi=json.load(f)
             )
 
@@ -175,6 +222,78 @@ class Client:
         refiner = self.chain_manager.read_contract_fn(get_refiner_fn)
         keys = ["dlp_id", "owner", "name", "schema_definition_url", "refinement_instruction_url", "public_key"]
         return dict(zip(keys, refiner))
+
+    # Compute Engine
+
+    def get_job(self, job_id: int):
+        """
+        Get the compute job information for a given job ID
+        :param job_id: Compute job ID from the Compute Engine
+        :return: Job information
+        """
+        get_job_fn = self.compute_engine_contract.functions.jobs(job_id)
+        job = self.chain_manager.read_contract_fn(get_job_fn)
+        keys = ["owner_address", "max_timeout", "gpu_required", "status", "tee_address", "compute_instruction_id", "added_timestamp", "status_message", "tee_pool_address"]
+        return dict(zip(keys, job))
+    
+    def update_job_status(self, job_id: int, status: int, status_message: Optional[str] = ""):
+        """
+        Update the compute job status in the Compute Engine contract.
+        :param job_id: Job ID for status update
+        :param job_status: New job status
+        :param status_message: Optional message for relevant status (ie. error details, ...)
+        :return: Transaction hex, Transaction receipt
+        """
+        update_status_fn = self.compute_engine_contract.functions.updateJobStatus(job_id, status, status_message)
+        return self.chain_manager.send_transaction(update_status_fn, self.wallet.hotkey)
+
+    # Compute Instructions Registry
+
+    def get_compute_instruction(self, instruction_id: int):
+        """
+        Get the compute instruction information for a given instruction ID
+        :param instruction_id: Compute instruction ID from the Compute Instructions Registry contract
+        :return: Compute instruction information
+        """
+        get_instruction_fn = self.compute_instruction_registry_contract.functions.instructions(instruction_id)
+        instruction = self.chain_manager.read_contract_fn(get_instruction_fn)
+        keys = ["hash", "owner", "url"]
+        return dict(zip(keys, instruction))
+
+    def is_instruction_approved(self, instruction_id: int, dlp_id: int):
+        """
+        Get the compute instruction approval information for a given dlp ID from the Compute Instructions Registry contract
+        :param instruction_id: Compute instruction ID from the Compute Instructions Registry contract
+        :param dlp_id: DLP ID that the instruction might be approved for
+        :return: DLP approval (True / False)
+        """
+        get_approval_fn = self.compute_instruction_registry_contract.functions.isApproved(instruction_id, dlp_id)
+        is_approved = self.chain_manager.read_contract_fn(get_approval_fn)
+        if is_approved is None:
+            return False
+        return is_approved
+    
+    def add_compute_instruction(self, instruction_hash: bytes, url: str):
+        """
+        Writes a new compute instruction to the Compute Instructions Registry contract
+        :param instruction_hash: The SHA256 checksum hash of the instruction image archive (as bytes)
+        :param url: Publicly accessible download URL of the instruction image archive (.tar.gz)
+        :return: Transaction hex, Transaction receipt
+        """
+        add_instruction_fn = self.compute_engine_contract.functions.addComputeInstruction(instruction_hash, url)
+        return self.chain_manager.send_transaction(add_instruction_fn, self.wallet.hotkey)
+    
+
+    def update_compute_instruction(self, instruction_id: int, dlp_id: int, approved: bool):
+        """
+        Update DLP approval of a compute instruction in the Compute Instructions Registry contract
+        :param instruction_id: The SHA256 checksum hash of the instruction image archive (as bytes)
+        :param dlp_id: The DLP ID to update compute instruction execution approval for.
+        :param approved: Approval (True / False) of whether the instruction is allowed to be executed on the provided DLP's data.
+        :return: Transaction hex, Transaction receipt
+        """
+        update_instruction_fn = self.compute_engine_contract.functions.updateComputeInstruction(instruction_id, dlp_id, approved)
+        return self.chain_manager.send_transaction(update_instruction_fn, self.wallet.hotkey)
 
     # TEE Pool Contract
 
@@ -264,3 +383,18 @@ class Client:
             vana.logging.error(f"Error getting job count: {str(e)}")
             # Return 0 if unable to get count to avoid breaking progress calculation
             return 0
+    
+    # Compute Engine TEE Pool
+
+    def get_compute_engine_tee(self, address: str):
+        """
+        Get the TEE information for a registered compute engine TEE in the configured Compute Engine TEE Pool contract
+        :param address: Address (hotkey) of TEE
+        :return: Transaction hex, Transaction receipt
+        """
+        get_tee_fn = self.compute_engine_tee_pool_contract.functions.tees(address)
+        tee = self.chain_manager.read_contract_fn(get_tee_fn)
+        if tee is None:
+            return None
+        keys = ["tee_address", "url", "status", "jobs_count", "public_key"]
+        return dict(zip(keys, tee))
