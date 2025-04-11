@@ -6,6 +6,7 @@ contracts = {
         "DataRefinerRegistry": "0x93c3EF89369fDcf08Be159D9DeF0F18AB6Be008c",
         "ComputeInstructionRegistry": "0x5786B12b4c6Ba2bFAF0e77Ed30Bf6d32805563A5",
         "ComputeEngine": "0xb2BFe33FA420c45F1Cf1287542ad81ae935447bd",
+        "ComputeEngineTeePool": "0xe124bae846D5ec157f75Bd9e68ca87C4d2AB835A",
         "QueryEngine": "0xd25Eb66EA2452cf3238A2eC6C1FD1B7F5B320490",
     },
     "islander": {
@@ -15,6 +16,7 @@ contracts = {
         "DataRefinerRegistry": "0x93c3EF89369fDcf08Be159D9DeF0F18AB6Be008c",
         "ComputeInstructionRegistry": "0x5786B12b4c6Ba2bFAF0e77Ed30Bf6d32805563A5",
         "ComputeEngine": "0xb2BFe33FA420c45F1Cf1287542ad81ae935447bd",
+        "ComputeEngineTeePool": "0xe124bae846D5ec157f75Bd9e68ca87C4d2AB835A",
         "QueryEngine": "0xd25Eb66EA2452cf3238A2eC6C1FD1B7F5B320490",
     },
     "maya": {
@@ -24,6 +26,7 @@ contracts = {
         "DataRefinerRegistry": "0x93c3EF89369fDcf08Be159D9DeF0F18AB6Be008c",
         "ComputeInstructionRegistry": "0x5786B12b4c6Ba2bFAF0e77Ed30Bf6d32805563A5",
         "ComputeEngine": "0xb2BFe33FA420c45F1Cf1287542ad81ae935447bd",
+        "ComputeEngineTeePool": "0xe124bae846D5ec157f75Bd9e68ca87C4d2AB835A",
         "QueryEngine": "0xd25Eb66EA2452cf3238A2eC6C1FD1B7F5B320490",
     },
     "satori": {
@@ -33,6 +36,7 @@ contracts = {
         "DataRefinerRegistry": "0x93c3EF89369fDcf08Be159D9DeF0F18AB6Be008c",
         "ComputeInstructionRegistry": "0x5786B12b4c6Ba2bFAF0e77Ed30Bf6d32805563A5",
         "ComputeEngine": "0xb2BFe33FA420c45F1Cf1287542ad81ae935447bd",
+        "ComputeEngineTeePool": "0xe124bae846D5ec157f75Bd9e68ca87C4d2AB835A",
         "QueryEngine": "0xd25Eb66EA2452cf3238A2eC6C1FD1B7F5B320490",
     },
     "moksha": {
@@ -42,6 +46,7 @@ contracts = {
         "DataRefinerRegistry": "0x93c3EF89369fDcf08Be159D9DeF0F18AB6Be008c",
         "ComputeInstructionRegistry": "0x5786B12b4c6Ba2bFAF0e77Ed30Bf6d32805563A5",
         "ComputeEngine": "0xb2BFe33FA420c45F1Cf1287542ad81ae935447bd",
+        "ComputeEngineTeePool": "0xe124bae846D5ec157f75Bd9e68ca87C4d2AB835A",
         "QueryEngine": "0xd25Eb66EA2452cf3238A2eC6C1FD1B7F5B320490",
     },
 }
