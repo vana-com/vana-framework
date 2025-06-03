@@ -115,7 +115,20 @@ class Client:
                 address=data_refiner_address,
                 abi=json.load(f)
             )
-        
+        query_engine_contract_path = os.path.join(
+            os.path.dirname(__file__),
+            "contracts/QueryEngine.json"
+        )
+        with open(query_engine_contract_path) as f:
+            query_engine_address = contracts[self.network]["QueryEngine"]
+            if hasattr(self.config, 'client') and self.config.client is not None:
+                query_engine_address = self.config.client.query_engine_contract_address or query_engine_address
+
+            self.query_engine_contract = self.chain_manager.web3.eth.contract(
+                address=query_engine_address,
+                abi=json.load(f)
+            )
+
         compute_engine_contract_path = os.path.join(
             os.path.dirname(__file__),
             "contracts/ComputeEngine.json"
@@ -222,6 +235,22 @@ class Client:
         refiner = self.chain_manager.read_contract_fn(get_refiner_fn)
         keys = ["dlp_id", "owner", "name", "schema_definition_url", "refinement_instruction_url", "public_key"]
         return dict(zip(keys, refiner))
+
+    # Query Engine
+
+    def get_dlp_pub_key(self, dlp_id: int) -> Optional[str]:
+        """
+        Get the public key for a given DLP ID
+        :param dlp_id: DLP ID from the Query Engine
+        :return: Public key, or None if the DLP is not found
+        """
+        try:
+            get_dlp_pub_key_fn = self.query_engine_contract.functions.dlpPubKeys(dlp_id)
+            pub_key = self.chain_manager.read_contract_fn(get_dlp_pub_key_fn)
+            return pub_key
+        except Exception as e:
+            vana.logging.error(f"Error getting DLP public key: {str(e)}")
+            return None
 
     # Compute Engine
 
