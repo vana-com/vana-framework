@@ -309,6 +309,24 @@
         "type": "uint256"
       },
       {
+        "internalType": "address",
+        "name": "refinementService",
+        "type": "address"
+      }
+    ],
+    "name": "addRefinementService",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "dlpId",
+        "type": "uint256"
+      },
+      {
         "internalType": "string",
         "name": "name",
         "type": "string"
@@ -321,11 +339,6 @@
       {
         "internalType": "string",
         "name": "refinementInstructionUrl",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "publicKey",
         "type": "string"
       }
     ],
@@ -341,11 +354,49 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "dlpRootCore",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "dlpId",
+        "type": "uint256"
+      }
+    ],
+    "name": "dlpRefinementServices",
     "outputs": [
       {
-        "internalType": "contract IDLPRootCoreReadOnly",
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "dlpId",
+        "type": "uint256"
+      }
+    ],
+    "name": "dlpRefiners",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "dlpRegistry",
+    "outputs": [
+      {
+        "internalType": "contract IDLPRegistry",
         "name": "",
         "type": "address"
       }
@@ -423,13 +474,37 @@
       },
       {
         "internalType": "address",
-        "name": "initDlpRootCoreAddress",
+        "name": "initDlpRegistryAddress",
         "type": "address"
       }
     ],
     "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "refinerId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "refinementService",
+        "type": "address"
+      }
+    ],
+    "name": "isRefinementService",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -501,14 +576,9 @@
             "internalType": "string",
             "name": "refinementInstructionUrl",
             "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "publicKey",
-            "type": "string"
           }
         ],
-        "internalType": "struct IDataRefinerRegistry.Refiner",
+        "internalType": "struct IDataRefinerRegistry.RefinerInfo",
         "name": "",
         "type": "tuple"
       }
@@ -527,6 +597,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "dlpId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "refinementService",
+        "type": "address"
+      }
+    ],
+    "name": "removeRefinementService",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -594,12 +682,38 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "dlpId",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateDlpRefinersOwner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
-        "name": "newDlpRootCoreAddress",
+        "name": "newDlpRegistryAddress",
         "type": "address"
       }
     ],
-    "name": "updateDlpRootCore",
+    "name": "updateDlpRegistry",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "refinerId",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateRefinerOwner",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

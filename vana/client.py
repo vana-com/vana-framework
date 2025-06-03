@@ -233,7 +233,7 @@ class Client:
         """
         get_refiner_fn = self.data_refiner_contract.functions.refiners(refiner_id)
         refiner = self.chain_manager.read_contract_fn(get_refiner_fn)
-        keys = ["dlp_id", "owner", "name", "schema_definition_url", "refinement_instruction_url", "public_key"]
+        keys = ["dlp_id", "owner", "name", "schema_definition_url", "refinement_instruction_url"]
         return dict(zip(keys, refiner))
 
     # Query Engine
