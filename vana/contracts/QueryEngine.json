@@ -53,6 +53,11 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "DlpNotFound",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -639,6 +644,25 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "dlpId",
+        "type": "uint256"
+      }
+    ],
+    "name": "dlpPubKeys",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "pubKey",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "refinerId",
         "type": "uint256"
       },
@@ -1033,6 +1057,24 @@
       }
     ],
     "name": "updateDlpPaymentPercentage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "dlpId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "pubKey",
+        "type": "string"
+      }
+    ],
+    "name": "updateDlpPubKey",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
