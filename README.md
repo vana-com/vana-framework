@@ -1,14 +1,14 @@
 <div align="center">
 
 # **Vana Network** <!-- omit in toc -->
-[![Discord Chat](https://img.shields.io/discord/308323056592486420.svg)](https://discord.gg/xx98TSE8)
+[![Discord Chat](https://img.shields.io/discord/308323056592486420.svg)](https://discord.gg/vanaofficial)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
 ### The first decentralized network for user-owned data <!-- omit in toc -->
 
-[Documentation](https://docs.vana.org/vana/quick-start-guide/satori-testnet) • [Discord](https://discord.gg/xx98TSE8) • [Network](https://satori.vanascan.io)
+[Documentation](https://docs.vana.org/vana/quick-start-guide/satori-testnet) • [Discord](https://discord.gg/vanaofficial) • [Network](https://satori.vanascan.io)
 
 </div>
 
